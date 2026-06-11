@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Pencil, Trash2, FolderTree } from "lucide-react";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { Plus, Pencil, Trash2, FolderTree, Upload } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
+import { uploadCategoryImage } from "@/lib/api/upload";
 import {
   AdminButton,
   EmptyState,
@@ -34,6 +36,24 @@ function CategoryEditor({
     },
   );
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function onImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const url = await uploadCategoryImage(file);
+      setDraft((d) => ({ ...d, image: url }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   function save() {
     const name = draft.name.trim();
@@ -97,28 +117,56 @@ function CategoryEditor({
             }
           />
         </Field>
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Image URL">
-            <input
-              className={inputClass}
-              value={draft.image ?? ""}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, image: e.target.value }))
-              }
-              placeholder="/images/categories/sweets.svg"
-            />
-          </Field>
-          <Field label="Sort order">
-            <input
-              className={inputClass}
-              type="number"
-              value={draft.order ?? 0}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, order: Number(e.target.value) }))
-              }
-            />
-          </Field>
-        </div>
+        <Field label="Category image" hint="Shown in the circle nav below the header. JPG, PNG, or WebP up to 5 MB.">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative h-20 w-20 overflow-hidden rounded-full border border-cream-300 bg-cream-50">
+              {draft.image ? (
+                <Image src={draft.image} alt="" fill className="object-cover" sizes="80px" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-xs text-ink-400">
+                  No image
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={onImageSelected}
+              />
+              <AdminButton
+                type="button"
+                variant="ghost"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+              >
+                <Upload size={16} />
+                {uploading ? "Uploading…" : draft.image ? "Replace image" : "Upload image"}
+              </AdminButton>
+              {draft.image && (
+                <button
+                  type="button"
+                  onClick={() => setDraft((d) => ({ ...d, image: "" }))}
+                  className="text-left text-xs text-ink-500 hover:text-maroon-700"
+                >
+                  Remove image
+                </button>
+              )}
+            </div>
+          </div>
+        </Field>
+        <Field label="Sort order">
+          <input
+            className={inputClass}
+            type="number"
+            value={draft.order ?? 0}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, order: Number(e.target.value) }))
+            }
+          />
+        </Field>
         {error && <p className="text-sm text-maroon-700">{error}</p>}
       </div>
     </Modal>
@@ -172,6 +220,17 @@ export default function AdminCategoriesPage() {
                 key={c.id}
                 className="rounded-2xl border border-cream-200 bg-white p-5"
               >
+                <div className="mb-4 flex justify-center">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-full border border-cream-300 bg-cream-50">
+                    {c.image ? (
+                      <Image src={c.image} alt={c.name} fill className="object-cover" sizes="64px" />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center font-serif text-lg text-maroon-800">
+                        {c.name.charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h3 className="font-serif text-lg font-semibold text-maroon-900">

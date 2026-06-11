@@ -5,6 +5,7 @@ import { Providers } from "@/components/Providers";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CategoryNav } from "@/components/layout/CategoryNav";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { config } from "@/lib/config";
@@ -59,6 +60,7 @@ export default function RootLayout({
           <SiteChrome
             announcement={<AnnouncementBar />}
             header={<Header />}
+            categoryNav={<CategoryNav />}
             footer={<Footer />}
             drawer={<CartDrawer />}
           >

@@ -10,9 +10,17 @@ import {
 } from "react";
 import type { Customer } from "@/lib/types";
 import { requestOtp, verifyOtp } from "@/lib/api/auth";
-import { recordCustomer } from "@/lib/admin/store";
 
 const STORAGE_KEY = "bas_session";
+
+function isRealSession(value: unknown): value is { token?: string; customer: Customer } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { token?: string }).token === "string" &&
+    ((value as { token?: string }).token ?? "").includes(".")
+  );
+}
 
 interface AuthContextValue {
   customer: Customer | null;
@@ -32,16 +40,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setCustomer((JSON.parse(raw).customer as Customer) ?? null);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as unknown;
+      if (!isRealSession(parsed)) {
+        window.localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCustomer((parsed as { customer?: Customer }).customer ?? null);
     } catch {
-      /* ignore */
+      window.localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
-  const persist = useCallback((c: Customer | null) => {
-    setCustomer(c);
-    if (c)
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ customer: c }));
+  const persist = useCallback((session: { token?: string; customer: Customer } | null) => {
+    const nextCustomer = session?.customer ?? null;
+    setCustomer(nextCustomer);
+    if (session) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
     else window.localStorage.removeItem(STORAGE_KEY);
   }, []);
 
@@ -65,8 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             phone,
             createdAt: new Date().toISOString(),
           };
-        recordCustomer(c.phone, c.name); // capture phone number for the admin panel
-        persist(c);
+        persist({ token: session.token, customer: c });
       } finally {
         setLoading(false);
       }
@@ -78,11 +92,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCustomer((prev) => {
       if (!prev) return prev;
       const next = { ...prev, name };
-      window.localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ customer: next }),
-      );
-      recordCustomer(next.phone, name);
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      const parsed = raw ? (JSON.parse(raw) as { token?: string }) : {};
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...parsed, customer: next }));
       return next;
     });
   }, []);

@@ -1,6 +1,5 @@
 import { Hero } from "@/components/home/Hero";
 import { TrustStrip } from "@/components/home/TrustStrip";
-import { CategoryCards } from "@/components/home/CategoryCards";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
 import { OfferBanner } from "@/components/home/OfferBanner";
 import { ValueProps } from "@/components/home/ValueProps";
@@ -8,18 +7,9 @@ import { Testimonials } from "@/components/home/Testimonials";
 import { BlogTeasers } from "@/components/home/BlogTeasers";
 import { NewsletterCTA } from "@/components/home/NewsletterCTA";
 import { getProducts } from "@/lib/api/products";
-import { getCategories } from "@/lib/api/categories";
 
 export default async function HomePage() {
-  const [products, categories] = await Promise.all([
-    getProducts(),
-    getCategories(),
-  ]);
-
-  const counts = categories.reduce<Record<string, number>>((acc, c) => {
-    acc[c.slug] = products.filter((p) => p.category === c.slug).length;
-    return acc;
-  }, {});
+  const products = await getProducts();
 
   const topPicks = products.filter((p) => p.tags.includes("top-pick"));
   const bestSellers = products.filter((p) => p.tags.includes("best-seller"));
@@ -28,7 +18,6 @@ export default async function HomePage() {
     <>
       <Hero />
       <TrustStrip />
-      <CategoryCards categories={categories} counts={counts} />
       <ProductCarousel
         eyebrow="Handpicked for you"
         title="Top Picks"

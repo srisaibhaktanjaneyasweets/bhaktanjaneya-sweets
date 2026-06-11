@@ -16,10 +16,19 @@ import type {
   OrderStatus,
   Product,
 } from "@/lib/types";
-import { adminStore } from "@/lib/admin/store";
 import { adminLogin, type AdminSession } from "@/lib/api/adminAuth";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/api/client";
 
 const SESSION_KEY = "bas_admin_session";
+
+function isRealSession(value: unknown): value is AdminSession {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as AdminSession).token === "string" &&
+    (value as AdminSession).token.includes(".")
+  );
+}
 
 interface AdminContextValue {
   hydrated: boolean;
@@ -41,7 +50,7 @@ interface AdminContextValue {
   saveOffer: (offer: Offer) => void;
   deleteOffer: (id: string) => void;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
-  resetDemoData: () => void;
+  refreshData: () => void;
 }
 
 const AdminContext = createContext<AdminContextValue | null>(null);
@@ -57,24 +66,46 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  const loadAll = useCallback(() => {
-    setProducts(adminStore.getProducts());
-    setCategories(adminStore.getCategories());
-    setOffers(adminStore.getOffers());
-    setOrders(adminStore.getOrders());
-    setCustomers(adminStore.getCustomers());
+  const loadAll = useCallback(async () => {
+    try {
+      const [nextProducts, nextCategories, nextOffers, nextOrders, nextCustomers] = await Promise.all([
+        apiGet<Product[]>("/admin/products"),
+        apiGet<Category[]>("/admin/categories"),
+        apiGet<Offer[]>("/admin/offers"),
+        apiGet<Order[]>("/admin/orders"),
+        apiGet<Customer[]>("/admin/customers"),
+      ]);
+      setProducts(nextProducts);
+      setCategories(nextCategories);
+      setOffers(nextOffers);
+      setOrders(nextOrders);
+      setCustomers(nextCustomers);
+    } catch {
+      setProducts([]);
+      setCategories([]);
+      setOffers([]);
+      setOrders([]);
+      setCustomers([]);
+    }
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(SESSION_KEY);
-      if (raw) setSession(JSON.parse(raw) as AdminSession);
+      if (raw) {
+        const parsed = JSON.parse(raw) as unknown;
+        if (isRealSession(parsed)) setSession(parsed);
+        else window.localStorage.removeItem(SESSION_KEY);
+      }
     } catch {
-      /* ignore */
+      setSession(null);
+      window.localStorage.removeItem(SESSION_KEY);
     }
-    loadAll();
     setHydrated(true);
+    void loadAll();
   }, [loadAll]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
@@ -82,91 +113,73 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       const next = await adminLogin(email, password);
       setSession(next);
       window.localStorage.setItem(SESSION_KEY, JSON.stringify(next));
+      await loadAll();
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadAll]);
 
   const logout = useCallback(() => {
     setSession(null);
     window.localStorage.removeItem(SESSION_KEY);
   }, []);
 
-  // ---- Products ----
   const saveProduct = useCallback((product: Product) => {
-    setProducts((prev) => {
-      const idx = prev.findIndex((p) => p.id === product.id);
-      const next =
-        idx === -1
-          ? [product, ...prev]
-          : prev.map((p) => (p.id === product.id ? product : p));
-      adminStore.setProducts(next);
-      return next;
-    });
-  }, []);
+    void (async () => {
+      const exists = products.some((p) => p.id === product.id);
+      const next = exists
+        ? await apiPut<Product>(`/admin/products/${product.id}`, product)
+        : await apiPost<Product>("/admin/products", product);
+      setProducts((prev) => (exists ? prev.map((p) => (p.id === next.id ? next : p)) : [next, ...prev]));
+    })();
+  }, [products]);
 
   const deleteProduct = useCallback((id: string) => {
-    setProducts((prev) => {
-      const next = prev.filter((p) => p.id !== id);
-      adminStore.setProducts(next);
-      return next;
+    void apiDelete<void>(`/admin/products/${id}`).then(() => {
+      setProducts((prev) => prev.filter((p) => p.id !== id));
     });
   }, []);
 
-  // ---- Categories ----
   const saveCategory = useCallback((category: Category) => {
-    setCategories((prev) => {
-      const idx = prev.findIndex((c) => c.id === category.id);
-      const next =
-        idx === -1
-          ? [...prev, category]
-          : prev.map((c) => (c.id === category.id ? category : c));
-      adminStore.setCategories(next);
-      return next;
-    });
-  }, []);
+    void (async () => {
+      const exists = categories.some((c) => c.id === category.id);
+      const next = exists
+        ? await apiPut<Category>(`/admin/categories/${category.id}`, category)
+        : await apiPost<Category>("/admin/categories", category);
+      setCategories((prev) => (exists ? prev.map((c) => (c.id === next.id ? next : c)) : [...prev, next]));
+    })();
+  }, [categories]);
 
   const deleteCategory = useCallback((id: string) => {
-    setCategories((prev) => {
-      const next = prev.filter((c) => c.id !== id);
-      adminStore.setCategories(next);
-      return next;
+    void apiDelete<void>(`/admin/categories/${id}`).then(() => {
+      setCategories((prev) => prev.filter((c) => c.id !== id));
     });
   }, []);
 
-  // ---- Offers ----
   const saveOffer = useCallback((offer: Offer) => {
-    setOffers((prev) => {
-      const idx = prev.findIndex((o) => o.id === offer.id);
-      const next =
-        idx === -1
-          ? [...prev, offer]
-          : prev.map((o) => (o.id === offer.id ? offer : o));
-      adminStore.setOffers(next);
-      return next;
-    });
-  }, []);
+    void (async () => {
+      const exists = offers.some((o) => o.id === offer.id);
+      const next = exists
+        ? await apiPut<Offer>(`/admin/offers/${offer.id}`, offer)
+        : await apiPost<Offer>("/admin/offers", offer);
+      setOffers((prev) => (exists ? prev.map((o) => (o.id === next.id ? next : o)) : [...prev, next]));
+    })();
+  }, [offers]);
 
   const deleteOffer = useCallback((id: string) => {
-    setOffers((prev) => {
-      const next = prev.filter((o) => o.id !== id);
-      adminStore.setOffers(next);
-      return next;
+    void apiDelete<void>(`/admin/offers/${id}`).then(() => {
+      setOffers((prev) => prev.filter((o) => o.id !== id));
     });
   }, []);
 
-  // ---- Orders ----
   const updateOrderStatus = useCallback((id: string, status: OrderStatus) => {
-    setOrders((prev) => {
-      const next = prev.map((o) => (o.id === id ? { ...o, status } : o));
-      adminStore.setOrders(next);
-      return next;
+    void apiPatch<Order>(`/admin/orders/${id}`, { status }).then((next) => {
+      setOrders((prev) => prev.map((o) => (o.id === id ? next : o)));
     });
   }, []);
 
-  const resetDemoData = useCallback(() => {
-    adminStore.reset();
-    loadAll();
+  const refreshData = useCallback(() => {
+    void loadAll();
   }, [loadAll]);
 
   const value = useMemo<AdminContextValue>(
@@ -188,7 +201,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       saveOffer,
       deleteOffer,
       updateOrderStatus,
-      resetDemoData,
+      refreshData,
     }),
     [
       hydrated,
@@ -208,7 +221,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       saveOffer,
       deleteOffer,
       updateOrderStatus,
-      resetDemoData,
+      refreshData,
     ],
   );
 

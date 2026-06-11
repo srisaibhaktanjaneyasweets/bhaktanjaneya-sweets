@@ -12,12 +12,14 @@ import { usePathname } from "next/navigation";
 export function SiteChrome({
   announcement,
   header,
+  categoryNav,
   footer,
   drawer,
   children,
 }: {
   announcement: React.ReactNode;
   header: React.ReactNode;
+  categoryNav?: React.ReactNode;
   footer: React.ReactNode;
   drawer: React.ReactNode;
   children: React.ReactNode;
@@ -31,6 +33,7 @@ export function SiteChrome({
     <>
       {announcement}
       {header}
+      {categoryNav}
       <main className="flex-1">{children}</main>
       {footer}
       {drawer}

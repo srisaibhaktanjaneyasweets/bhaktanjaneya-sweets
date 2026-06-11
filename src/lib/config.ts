@@ -11,11 +11,8 @@ export const config = {
   /** Public site URL, used for SEO/Open Graph absolute URLs. */
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
 
-  /** Base URL of your friend's backend API (empty while using mock data). */
+  /** Optional base URL for the Next API. Empty means same-origin /api routes. */
   apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "",
-
-  /** When true, the app reads bundled mock JSON instead of the real API. */
-  useMock: (process.env.NEXT_PUBLIC_USE_MOCK ?? "true") !== "false",
 
   /** Razorpay publishable key id (phase 2). Secret stays on the backend. */
   razorpayKeyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "",

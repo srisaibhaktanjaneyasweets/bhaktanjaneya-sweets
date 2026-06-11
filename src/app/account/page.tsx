@@ -7,7 +7,7 @@ import { LogOut, Package, Pencil, Check, User } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/context/AuthContext";
-import { adminStore } from "@/lib/admin/store";
+import { apiGet } from "@/lib/api/client";
 import { formatINR, formatDate } from "@/lib/utils";
 import type { Order } from "@/lib/types";
 
@@ -28,16 +28,18 @@ export default function AccountPage() {
   const [editing, setEditing] = useState(false);
   const [nameInput, setNameInput] = useState("");
 
+  // Hydration: intentionally setting state on mount
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (customer) {
       setNameInput(customer.name ?? "");
-      setOrders(
-        adminStore.getOrders().filter((o) => o.customerPhone === customer.phone),
-      );
+      apiGet<Order[]>("/orders").then(setOrders).catch(() => setOrders([]));
     }
   }, [customer]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!mounted) {
     return (
