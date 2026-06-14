@@ -35,8 +35,10 @@ const navLinks = [
 export function Header() {
   const router = useRouter();
   const { count, setOpen } = useCart();
-  const { customer } = useAuth();
+  const { customer, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [q, setQ] = useState("");
 
   function lockBodyScroll(locked: boolean) {
@@ -99,13 +101,51 @@ export function Header() {
               priority
               className="h-11 w-11 shrink-0 rounded-full sm:h-12 sm:w-12"
             />
-            <span className="truncate font-serif text-base font-bold leading-none text-maroon-900 max-[380px]:hidden sm:text-xl">
+            <span className="truncate font-serif text-base font-bold leading-none text-maroon-900 sm:text-xl">
               Bhaktanjaneya
               <span className="block text-[11px] font-medium uppercase tracking-[0.2em] text-saffron-600">
                 Sweets
               </span>
             </span>
           </Link>
+
+          {/* Mobile search icon */}
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen(true)}
+            aria-label="Search"
+            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5 lg:hidden"
+          >
+            <Search size={20} />
+          </button>
+
+
+          {mobileSearchOpen && (
+            <div className="absolute left-3 right-3 top-[3.25rem] z-50 rounded-2xl border border-cream-300 bg-cream-50/95 p-3 shadow-card lg:hidden">
+              <form onSubmit={submitSearch} className="relative">
+                <Search
+                  size={18}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400"
+                />
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search…"
+                  className="h-11 w-full rounded-full border border-cream-300 bg-cream-100/60 pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40"
+                />
+              </form>
+              <div className="mt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setMobileSearchOpen(false)}
+                  className="rounded-full px-3 py-1.5 text-sm font-medium text-maroon-800 hover:bg-maroon-800/5"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
 
           {/* Desktop search */}
           <form
@@ -125,7 +165,7 @@ export function Header() {
           </form>
 
           {/* Actions */}
-          <div className="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             <a
               href={waLink(`Hello ${config.businessName}! I have a question.`)}
               target="_blank"
@@ -136,15 +176,72 @@ export function Header() {
               WhatsApp
             </a>
 
-            <Link
-              href={customer ? "/account" : "/login"}
-              className="flex h-10 items-center gap-2 rounded-full px-2.5 text-maroon-800 hover:bg-maroon-800/5 sm:px-3"
-            >
-              <User size={20} />
-              <span className="hidden text-sm font-medium sm:inline">
-                {customer ? customer.name?.split(" ")[0] ?? "Account" : "Login / Sign up"}
-              </span>
-            </Link>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountMenuOpen((v) => !v)}
+                aria-label="Account menu"
+                className="flex h-10 items-center gap-2 rounded-full px-2.5 text-maroon-800 hover:bg-maroon-800/5 sm:px-3"
+              >
+                <User size={20} />
+                <span className="hidden text-sm font-medium sm:inline">
+                  {customer ? customer.name?.split(" ")[0] ?? "Account" : "Login / Sign up"}
+                </span>
+              </button>
+
+              {accountMenuOpen && customer && (
+                <div
+                  className="absolute right-0 mt-2 w-44 rounded-xl border border-cream-300 bg-cream-50 p-1 shadow-card"
+                  role="menu"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      router.push("/account");
+                    }}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 hover:bg-maroon-800/5",
+                      !customer && "hidden",
+                    )}
+                    role="menuitem"
+                  >
+                    My Account
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      router.push("/login");
+                    }}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 hover:bg-maroon-800/5",
+                      customer && "hidden",
+                    )}
+                    role="menuitem"
+                  >
+                    Login / Sign up
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      logout();
+                      router.push("/");
+                    }}
+                    className={cn(
+                      "mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 hover:bg-maroon-800/5",
+                      !customer && "hidden",
+                    )}
+                    role="menuitem"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
 
             <button
               type="button"
@@ -201,20 +298,7 @@ export function Header() {
               </button>
             </div>
 
-            <div className="border-b border-cream-300 p-4">
-              <form onSubmit={submitSearch} className="relative">
-                <Search
-                  size={18}
-                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400"
-                />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search…"
-                  className="h-11 w-full rounded-full border border-cream-300 bg-cream-100/60 pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40"
-                />
-              </form>
-            </div>
+
 
             <nav className="flex-1 overflow-y-auto p-2">
               {navLinks.map((l) => (
