@@ -14,7 +14,11 @@ import { useAuth } from "@/context/AuthContext";
 import { apiGet } from "@/lib/api/client";
 import { lookupPincode } from "@/lib/api/pincode";
 import type { PincodeLookup } from "@/lib/api/pincode";
-import { INDIAN_STATES } from "@/lib/constants/india-states";
+import {
+  SERVICEABLE_STATES,
+  citiesForState,
+  isServiceableCity,
+} from "@/lib/constants/serviceable-areas";
 import { STATE_DISTRICTS } from "@/lib/constants/india-locations";
 import { formatINR, formatDate } from "@/lib/utils";
 import { formatAddressLines, isCompleteAddress } from "@/lib/address";
@@ -76,14 +80,13 @@ export default function AccountPage() {
       const details = await lookupPincode(address.pincode.trim());
       lastLookupPincode.current = address.pincode.trim();
       setPincodeDetails(details);
+      // State & city come from the serviceable-area dropdowns; only fill district.
       setAddress((prev) => ({
         ...prev,
         district: prev.district || details.district,
-        city: prev.city || details.city,
-        state: details.state,
       }));
       setAddressMessageTone("success");
-      setAddressMessage("City and state updated from your PIN code.");
+      setAddressMessage("Area updated from your PIN code.");
     } catch (error) {
       setAddressMessageTone("error");
       setAddressMessage(getErrorMessage(error, "Could not find this PIN code."));
@@ -180,6 +183,11 @@ export default function AccountPage() {
     if (!address.line1.trim() || !address.city.trim() || !address.state || !/^\d{6}$/.test(address.pincode.trim())) {
       setAddressMessageTone("error");
       setAddressMessage("Please fill house/street, city, state, and a valid 6-digit PIN.");
+      return;
+    }
+    if (!isServiceableCity(address.state, address.city)) {
+      setAddressMessageTone("error");
+      setAddressMessage("We currently deliver only to selected cities in Andhra Pradesh & Telangana.");
       return;
     }
     setSavingAddress(true);
@@ -367,27 +375,37 @@ export default function AccountPage() {
                     className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
                   />
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                    <input
-                      value={address.city}
-                      onChange={(e) => setAddress((prev) => ({ ...prev, city: e.target.value }))}
-                      placeholder="City *"
-                      className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
-                    />
                     <select
                       value={address.state}
                       onChange={(e) =>
                         setAddress((prev) => ({
                           ...prev,
                           state: e.target.value,
+                          city: "",
                           district: "",
                         }))
                       }
                       className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
                     >
                       <option value="">Select state *</option>
-                      {INDIAN_STATES.map((state) => (
+                      {SERVICEABLE_STATES.map((state) => (
                         <option key={state} value={state}>
                           {state}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={address.city}
+                      disabled={!address.state}
+                      onChange={(e) => setAddress((prev) => ({ ...prev, city: e.target.value }))}
+                      className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70"
+                    >
+                      <option value="">
+                        {address.state ? "Select city *" : "Select a state first"}
+                      </option>
+                      {citiesForState(address.state).map((city) => (
+                        <option key={city} value={city}>
+                          {city}
                         </option>
                       ))}
                     </select>

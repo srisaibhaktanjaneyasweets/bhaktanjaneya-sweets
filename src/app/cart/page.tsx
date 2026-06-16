@@ -28,7 +28,12 @@ import { getErrorDetails, getErrorMessage } from "@/lib/api/errors";
 import type { ErrorDetails } from "@/lib/api/errors";
 import { formatAddressLines, isCompleteAddress } from "@/lib/address";
 import { config } from "@/lib/config";
-import { INDIAN_STATES } from "@/lib/constants/india-states";
+import {
+  SERVICEABLE_STATES,
+  citiesForState,
+  isServiceableCity,
+} from "@/lib/constants/serviceable-areas";
+import { DeliveryLocationGate } from "@/components/cart/DeliveryLocationGate";
 import { loadRazorpayScript, openRazorpayCheckout } from "@/lib/razorpay";
 import { formatINR, uid } from "@/lib/utils";
 import type { Offer, Order, PaymentMethod, ShippingAddress } from "@/lib/types";
@@ -66,6 +71,7 @@ export default function CartPage() {
   const [notes, setNotes] = useState("");
   const [saveAddress, setSaveAddress] = useState(true);
   const [addressMode, setAddressMode] = useState<"saved" | "new">("new");
+  const [deliveryConfirmed, setDeliveryConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     config.razorpayEnabled ? "razorpay" : "cod",
   );
@@ -79,6 +85,18 @@ export default function CartPage() {
   const lastLookupPincode = useRef("");
 
   const hasSavedAddress = isCompleteAddress(customer?.savedAddress);
+  const savedAddressServiceable = isServiceableCity(
+    customer?.savedAddress?.state,
+    customer?.savedAddress?.city,
+  );
+  const cityOptions = citiesForState(state);
+
+  function confirmDeliveryLocation(nextState: string, nextCity: string) {
+    setState(nextState);
+    setCity(nextCity);
+    setDeliveryConfirmed(true);
+    setCheckoutError(null);
+  }
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -120,8 +138,8 @@ export default function CartPage() {
       const details = await lookupPincode(pincode.trim());
       lastLookupPincode.current = pincode.trim();
       setPincodeDetails(details);
-      setCity((prev) => prev || details.city);
-      setState(details.state);
+      // State & city are chosen from the serviceable-area dropdowns, so the PIN
+      // lookup only fills in the district/area hint — it must not override them.
       setDistrict((prev) => prev || details.district);
 
       const dists = Array.from(new Set(details.postOffices.map((po) => po.district).filter(Boolean)));
@@ -221,11 +239,17 @@ export default function CartPage() {
       if (!isCompleteAddress(customer?.savedAddress)) {
         return "Your saved address is incomplete. Please choose a different address or update it in your account.";
       }
+      if (!isServiceableCity(customer?.savedAddress?.state, customer?.savedAddress?.city)) {
+        return "Your saved address is in a city we don't deliver to yet. Choose \"Deliver to a different address\" and pick a serviceable city.";
+      }
       return null;
     }
     if (!line1.trim()) return "Please enter your street address.";
-    if (!city.trim()) return "Please enter your city.";
     if (!state) return "Please select your state.";
+    if (!city.trim()) return "Please select your city.";
+    if (!isServiceableCity(state, city)) {
+      return "We currently deliver only to selected cities in Andhra Pradesh & Telangana.";
+    }
     if (!/^\d{6}$/.test(pincode.trim())) return "Please enter a valid 6-digit PIN code.";
     return null;
   }
@@ -379,6 +403,13 @@ export default function CartPage() {
   }
 
   function handlePlaceOrder() {
+    if (!deliveryConfirmed) {
+      setCheckoutError({
+        title: "Confirm delivery location",
+        message: "Please check delivery availability for your city before placing the order.",
+      });
+      return;
+    }
     if (!customer) {
       goLoginForPurchase();
       return;
@@ -463,7 +494,7 @@ export default function CartPage() {
         </Link>
 
         <div className="mt-8 grid gap-8 xl:grid-cols-[1fr_420px]">
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Cart items */}
             <section className="rounded-2xl border border-cream-200 bg-white">
               <h2 className="border-b border-cream-200 px-5 py-4 font-serif text-lg font-bold text-maroon-900">
@@ -541,6 +572,23 @@ export default function CartPage() {
               </ul>
             </section>
 
+            {/* Delivery serviceability gate */}
+            <DeliveryLocationGate
+              confirmed={deliveryConfirmed}
+              confirmedState={state}
+              confirmedCity={city}
+              defaultState={
+                savedAddressServiceable ? customer?.savedAddress?.state ?? "" : ""
+              }
+              defaultCity={
+                savedAddressServiceable ? customer?.savedAddress?.city ?? "" : ""
+              }
+              onConfirm={confirmDeliveryLocation}
+              onReset={() => setDeliveryConfirmed(false)}
+            />
+
+            {deliveryConfirmed && (
+              <>
             {/* Contact */}
             <section className="rounded-2xl border border-cream-200 bg-white p-5">
               <h2 className="font-serif text-lg font-bold text-maroon-900">
@@ -647,27 +695,37 @@ export default function CartPage() {
                 </label>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <label className="text-sm font-medium text-maroon-900">
-                    City *
-                    <input
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      placeholder="City"
-                      className={`${fieldClass} mt-1.5`}
-                    />
-                  </label>
-                  <label className="text-sm font-medium text-maroon-900">
                     State *
                     <select
                       value={state}
                       onChange={(e) => {
                         setState(e.target.value);
+                        setCity("");
                       }}
                       className={`${fieldClass} mt-1.5`}
                     >
                       <option value="">Select state</option>
-                      {INDIAN_STATES.map((s) => (
+                      {SERVICEABLE_STATES.map((s) => (
                         <option key={s} value={s}>
                           {s}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm font-medium text-maroon-900">
+                    City *
+                    <select
+                      value={city}
+                      disabled={!state}
+                      onChange={(e) => setCity(e.target.value)}
+                      className={`${fieldClass} mt-1.5 disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70`}
+                    >
+                      <option value="">
+                        {state ? "Select city" : "Select a state first"}
+                      </option>
+                      {cityOptions.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
                         </option>
                       ))}
                     </select>
@@ -688,7 +746,7 @@ export default function CartPage() {
                       className={`${fieldClass} mt-1.5`}
                     />
                     {lookingUpPincode ? (
-                      <p className="mt-1 text-xs text-ink-500">Looking up city and state…</p>
+                      <p className="mt-1 text-xs text-ink-500">Looking up area…</p>
                     ) : pincodeHint ? (
                       <p className="mt-1 text-xs text-maroon-700">{pincodeHint}</p>
                     ) : null}
@@ -744,10 +802,12 @@ export default function CartPage() {
               </div>
               ) : null}
             </section>
+              </>
+            )}
           </div>
 
           {/* Summary + payment */}
-          <div className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+          <div className="min-w-0 space-y-4 xl:sticky xl:top-24 xl:self-start">
             <div className="rounded-2xl border border-cream-200 bg-white p-5">
               <h2 className="font-serif text-lg font-bold text-maroon-900">
                 Order summary
@@ -892,10 +952,16 @@ export default function CartPage() {
                 </Alert>
               )}
 
+              {!deliveryConfirmed ? (
+                <p className="mt-4 rounded-xl bg-cream-100 px-3 py-2 text-center text-xs font-medium text-maroon-800">
+                  Confirm your delivery location above to continue.
+                </p>
+              ) : null}
+
               <button
                 type="button"
                 onClick={handlePlaceOrder}
-                disabled={placing}
+                disabled={placing || !deliveryConfirmed}
                 className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-maroon-800 text-sm font-semibold text-cream-50 hover:bg-maroon-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {placing ? (

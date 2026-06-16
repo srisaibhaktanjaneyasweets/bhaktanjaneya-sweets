@@ -62,7 +62,7 @@ export function ShopControls({ categories }: { categories: Category[] }) {
           type="button"
           onClick={() => update({ category: null })}
           className={cn(
-            "h-9 rounded-full border px-4 text-sm font-medium transition-colors",
+            "h-11 rounded-full border px-4 text-sm font-medium transition-colors sm:h-9",
             !activeCategory
               ? "border-maroon-800 bg-maroon-800 text-cream-50"
               : "border-cream-300 bg-white text-maroon-800 hover:border-maroon-800/40",
@@ -76,7 +76,7 @@ export function ShopControls({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => update({ category: c.slug })}
             className={cn(
-              "h-9 rounded-full border px-4 text-sm font-medium transition-colors",
+              "h-11 rounded-full border px-4 text-sm font-medium transition-colors sm:h-9",
               activeCategory === c.slug
                 ? "border-maroon-800 bg-maroon-800 text-cream-50"
                 : "border-cream-300 bg-white text-maroon-800 hover:border-maroon-800/40",
@@ -94,7 +94,7 @@ export function ShopControls({ categories }: { categories: Category[] }) {
             id="sort"
             value={activeSort}
             onChange={(e) => update({ sort: e.target.value })}
-            className="h-9 rounded-full border border-cream-300 bg-white px-3 text-sm font-medium text-maroon-800 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40"
+            className="h-11 rounded-full border border-cream-300 bg-white px-3 text-sm font-medium text-maroon-800 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40 sm:h-9"
           >
             {sorts.map((s) => (
               <option key={s.value} value={s.value}>

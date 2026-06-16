@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +41,16 @@ const slides = [
 export function Hero() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selected, setSelected] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const scrollTo = useCallback(
     (i: number) => emblaApi?.scrollTo(i),
@@ -55,10 +65,10 @@ export function Hero() {
   }, [emblaApi]);
 
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!emblaApi || paused || reducedMotion) return;
     const id = setInterval(() => emblaApi.scrollNext(), 5500);
     return () => clearInterval(id);
-  }, [emblaApi]);
+  }, [emblaApi, paused, reducedMotion]);
 
   return (
     <section className="bg-cream-100 pb-2 pt-4 sm:pt-6">
@@ -124,7 +134,7 @@ export function Hero() {
         </div>
 
         {/* dots */}
-        <div className="mt-4 flex justify-center gap-2">
+        <div className="mt-4 flex items-center justify-center gap-2">
           {slides.map((s, i) => (
             <button
               key={s.title}
@@ -139,6 +149,17 @@ export function Hero() {
               )}
             />
           ))}
+          {!reducedMotion && (
+            <button
+              type="button"
+              onClick={() => setPaused((p) => !p)}
+              aria-label={paused ? "Play slideshow" : "Pause slideshow"}
+              aria-pressed={paused}
+              className="ml-2 flex h-6 w-6 items-center justify-center rounded-full text-maroon-800/70 transition-colors hover:bg-maroon-800/5 hover:text-maroon-800"
+            >
+              {paused ? <Play size={13} /> : <Pause size={13} />}
+            </button>
+          )}
         </div>
       </Container>
     </section>

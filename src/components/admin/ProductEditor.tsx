@@ -195,13 +195,13 @@ export function ProductEditor({
             {draft.variants.map((v, i) => (
               <div key={v.id} className="flex items-center gap-2">
                 <input
-                  className={`${inputClass} flex-1`}
+                  className={`${inputClass} min-w-0 flex-1`}
                   value={v.label}
                   onChange={(e) => setVariant(i, { label: e.target.value })}
                   placeholder="250 g"
                 />
                 <input
-                  className={`${inputClass} w-24`}
+                  className={`${inputClass} shrink-0 basis-24`}
                   type="number"
                   min={0}
                   value={v.price || ""}
@@ -211,7 +211,7 @@ export function ProductEditor({
                   placeholder="₹ price"
                 />
                 <input
-                  className={`${inputClass} w-24`}
+                  className={`${inputClass} shrink-0 basis-24`}
                   type="number"
                   min={0}
                   value={v.mrp ?? ""}
@@ -223,7 +223,7 @@ export function ProductEditor({
                   placeholder="MRP"
                 />
                 <input
-                  className={`${inputClass} w-20`}
+                  className={`${inputClass} shrink-0 basis-20`}
                   type="number"
                   min={0}
                   value={v.stock}

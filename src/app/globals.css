@@ -69,15 +69,32 @@ h5,
   scrollbar-width: none;
 }
 
-/* Prevent “right scrolling” / accidental horizontal overflow on mobile */
+/* Keep the document within the viewport width. Individual sections that
+   intentionally bleed (hero glows, carousels) clip their own overflow, so a
+   global `overflow-x: hidden` is not needed — and avoiding it keeps the
+   sticky header working on iOS Safari. */
 html,
 body {
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
 }
 
 body {
   min-width: 0;
+}
+
+/* Respect users who prefer reduced motion (vestibular safety, WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 

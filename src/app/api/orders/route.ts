@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
 import { orderFromRow, orderToRow } from "@/lib/supabase/mappers";
+import { isServiceableCity } from "@/lib/constants/serviceable-areas";
 import type { Order, ShippingAddress } from "@/lib/types";
 
 function toDbOrder(body: Record<string, unknown>) {
@@ -57,6 +58,15 @@ export async function POST(req: Request) {
   }
   if (!isValidAddress(order.shippingAddress)) {
     return NextResponse.json({ error: "Valid delivery address is required" }, { status: 400 });
+  }
+  if (!isServiceableCity(order.shippingAddress.state, order.shippingAddress.city)) {
+    return NextResponse.json(
+      {
+        error:
+          "We currently deliver only to selected cities in Andhra Pradesh & Telangana. Please contact us for cargo delivery options.",
+      },
+      { status: 400 },
+    );
   }
   if (!order.paymentMethod || !["razorpay", "cod"].includes(order.paymentMethod)) {
     return NextResponse.json({ error: "Payment method is required" }, { status: 400 });

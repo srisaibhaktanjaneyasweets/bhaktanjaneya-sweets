@@ -21,7 +21,7 @@ export function AnnouncementBar() {
             key={text}
             className={cn(
               "inline-flex items-center gap-1.5 whitespace-nowrap",
-              i > 0 && "hidden md:inline-flex",
+              i > 0 && "hidden lg:inline-flex",
             )}
           >
             <Icon size={14} className="shrink-0 text-saffron-400" />

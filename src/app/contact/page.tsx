@@ -52,7 +52,7 @@ export default function ContactPage() {
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.1fr]">
           {/* Details */}
-          <div>
+          <div className="min-w-0">
             <div className="rounded-2xl border border-cream-200 bg-white p-6 shadow-soft">
               <h2 className="font-serif text-xl font-semibold text-maroon-900">
                 Contact details
@@ -96,7 +96,7 @@ export default function ContactPage() {
           </div>
 
           {/* Form */}
-          <div>
+          <div className="min-w-0">
             <h2 className="mb-4 font-serif text-xl font-semibold text-maroon-900">
               Send an enquiry
             </h2>
