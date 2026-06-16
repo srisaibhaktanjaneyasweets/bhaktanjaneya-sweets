@@ -45,22 +45,19 @@ export function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className="inline-flex items-center gap-2"
+      className="inline-flex items-center gap-2.5"
     >
       <span
         className={cn(
-          "relative h-6 w-11 rounded-full transition-colors",
-          checked ? "bg-leaf-500" : "bg-cream-300",
+          "inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
+          checked ? "justify-end bg-leaf-500" : "justify-start bg-cream-300",
         )}
       >
-        <span
-          className={cn(
-            "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform",
-            checked ? "translate-x-[22px]" : "translate-x-0.5",
-          )}
-        />
+        <span className="h-5 w-5 shrink-0 rounded-full bg-white shadow" />
       </span>
-      {label && <span className="text-sm text-ink-700">{label}</span>}
+      {label && (
+        <span className="whitespace-nowrap text-sm text-ink-700">{label}</span>
+      )}
     </button>
   );
 }
