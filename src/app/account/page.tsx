@@ -19,6 +19,7 @@ import {
   citiesForState,
   isServiceableCity,
 } from "@/lib/constants/serviceable-areas";
+import { Combobox } from "@/components/ui/Combobox";
 import { STATE_DISTRICTS } from "@/lib/constants/india-locations";
 import { formatINR, formatDate } from "@/lib/utils";
 import { formatAddressLines, isCompleteAddress } from "@/lib/address";
@@ -394,21 +395,15 @@ export default function AccountPage() {
                         </option>
                       ))}
                     </select>
-                    <select
+                    <Combobox
                       value={address.city}
+                      onChange={(city) => setAddress((prev) => ({ ...prev, city }))}
+                      options={citiesForState(address.state)}
                       disabled={!address.state}
-                      onChange={(e) => setAddress((prev) => ({ ...prev, city: e.target.value }))}
+                      placeholder={address.state ? "Type or select your city" : "Select a state first"}
+                      ariaLabel="City"
                       className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70"
-                    >
-                      <option value="">
-                        {address.state ? "Select city *" : "Select a state first"}
-                      </option>
-                      {citiesForState(address.state).map((city) => (
-                        <option key={city} value={city}>
-                          {city}
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                     {districtOptions.length > 0 ? (

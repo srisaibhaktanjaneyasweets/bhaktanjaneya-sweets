@@ -28,6 +28,10 @@ const body = Poppins({
 
 export const metadata: Metadata = {
   metadataBase: new URL(config.siteUrl),
+  // iOS Safari otherwise auto-detects phone numbers / emails / addresses and
+  // restyles them (different colour, underline), which makes the footer and
+  // contact details look different on a real iPhone than in dev tools.
+  formatDetection: { telephone: false, email: false, address: false },
   title: {
     default: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
     template: `%s | ${config.businessName}`,

@@ -13,6 +13,7 @@ import {
   SERVICEABLE_STATES,
   citiesForState,
 } from "@/lib/constants/serviceable-areas";
+import { Combobox } from "@/components/ui/Combobox";
 import { config } from "@/lib/config";
 import { waLink } from "@/lib/whatsapp";
 
@@ -136,29 +137,23 @@ export function DeliveryLocationGate({
             ))}
           </select>
         </label>
-        <label className="block text-sm font-medium text-maroon-900">
-          City *
-          <select
+        <div className="text-sm font-medium text-maroon-900">
+          <span className="mb-1.5 block">City *</span>
+          <Combobox
             value={cityValue}
-            disabled={!stateValue}
-            onChange={(e) => {
+            onChange={(c) => {
               setTouched(true);
-              setCityValue(e.target.value);
+              setCityValue(c);
               setUnavailable(false);
               setError("");
             }}
-            className={`${selectClass} mt-1.5`}
-          >
-            <option value="">
-              {stateValue ? "Select city" : "Select a state first"}
-            </option>
-            {cities.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </label>
+            options={cities}
+            disabled={!stateValue}
+            placeholder={stateValue ? "Type or select your city" : "Select a state first"}
+            ariaLabel="Delivery city"
+            className={selectClass}
+          />
+        </div>
       </div>
 
       {error ? (

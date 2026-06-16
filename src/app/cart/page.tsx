@@ -34,6 +34,7 @@ import {
   isServiceableCity,
 } from "@/lib/constants/serviceable-areas";
 import { DeliveryLocationGate } from "@/components/cart/DeliveryLocationGate";
+import { Combobox } from "@/components/ui/Combobox";
 import { loadRazorpayScript, openRazorpayCheckout } from "@/lib/razorpay";
 import { formatINR, uid } from "@/lib/utils";
 import type { Offer, Order, PaymentMethod, ShippingAddress } from "@/lib/types";
@@ -712,24 +713,18 @@ export default function CartPage() {
                       ))}
                     </select>
                   </label>
-                  <label className="text-sm font-medium text-maroon-900">
-                    City *
-                    <select
+                  <div className="text-sm font-medium text-maroon-900">
+                    <span className="mb-1.5 block">City *</span>
+                    <Combobox
                       value={city}
+                      onChange={setCity}
+                      options={cityOptions}
                       disabled={!state}
-                      onChange={(e) => setCity(e.target.value)}
-                      className={`${fieldClass} mt-1.5 disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70`}
-                    >
-                      <option value="">
-                        {state ? "Select city" : "Select a state first"}
-                      </option>
-                      {cityOptions.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                      placeholder={state ? "Type or select your city" : "Select a state first"}
+                      ariaLabel="Delivery city"
+                      className={`${fieldClass} disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70`}
+                    />
+                  </div>
                   <label className="text-sm font-medium text-maroon-900">
                     PIN code *
                     <input
