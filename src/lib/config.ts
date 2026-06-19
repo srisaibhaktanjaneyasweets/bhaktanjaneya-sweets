@@ -16,7 +16,7 @@ export const config = {
    *  Falls back to a Google search until configured. */
   googleReviewsUrl:
     process.env.NEXT_PUBLIC_GOOGLE_REVIEWS_URL ??
-    "https://www.google.com/search?q=Bhaktanjaneya+Sweets+reviews",
+    "https://share.google/VtpbijkHqNKIoOb48",
 
   /** Base URL for the Next.js API routes. Empty env resolves to /api. */
   apiBaseUrl: (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/$/, ""),

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import {
   Menu,
@@ -46,6 +46,40 @@ export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const categoriesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  function handleCategoriesEnter() {
+    if (categoriesTimeoutRef.current) {
+      clearTimeout(categoriesTimeoutRef.current);
+      categoriesTimeoutRef.current = null;
+    }
+    setCategoriesOpen(true);
+  }
+
+  function handleCategoriesLeave() {
+    if (categoriesTimeoutRef.current) {
+      clearTimeout(categoriesTimeoutRef.current);
+    }
+    categoriesTimeoutRef.current = setTimeout(() => {
+      setCategoriesOpen(false);
+    }, 200); // 200ms delay to prevent accidental closing
+  }
+
+  function handleCategoryClick() {
+    if (categoriesTimeoutRef.current) {
+      clearTimeout(categoriesTimeoutRef.current);
+      categoriesTimeoutRef.current = null;
+    }
+    setCategoriesOpen(false);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (categoriesTimeoutRef.current) {
+        clearTimeout(categoriesTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -68,14 +102,14 @@ export function Header() {
   }
 
   useEffect(() => {
-    if (menuOpen) lockBodyScroll(true);
+    if (menuOpen || mobileSearchOpen) lockBodyScroll(true);
     else lockBodyScroll(false);
 
     return () => {
       // Safety net on unmount
       lockBodyScroll(false);
     };
-  }, [menuOpen]);
+  }, [menuOpen, mobileSearchOpen]);
 
 
 
@@ -133,21 +167,22 @@ export function Header() {
 
 
           {mobileSearchOpen && (
-            <div className="absolute left-3 right-3 top-[3.25rem] z-50 rounded-2xl border border-cream-300 bg-cream-50/95 p-3 shadow-card lg:hidden">
-              <HeaderSearch
-                variant="mobile"
-                autoFocus
-                onNavigate={() => setMobileSearchOpen(false)}
-              />
-              <div className="mt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setMobileSearchOpen(false)}
-                  className="rounded-full px-3 py-1.5 text-sm font-medium text-maroon-800 hover:bg-maroon-800/5"
-                >
-                  Close
-                </button>
+            <div className="absolute inset-x-0 top-0 z-50 flex h-16 items-center gap-3 border-b border-cream-300 bg-cream-50 px-4 lg:hidden">
+              <div className="flex-1">
+                <HeaderSearch
+                  variant="mobile"
+                  autoFocus
+                  onNavigate={() => setMobileSearchOpen(false)}
+                />
               </div>
+              <button
+                type="button"
+                onClick={() => setMobileSearchOpen(false)}
+                aria-label="Close search"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5"
+              >
+                <X size={22} />
+              </button>
             </div>
           )}
 
@@ -265,14 +300,20 @@ export function Header() {
           {categories.length > 0 && (
             <div
               className="relative"
-              onMouseEnter={() => setCategoriesOpen(true)}
-              onMouseLeave={() => setCategoriesOpen(false)}
+              onMouseEnter={handleCategoriesEnter}
+              onMouseLeave={handleCategoriesLeave}
             >
               <button
                 type="button"
                 aria-haspopup="menu"
                 aria-expanded={categoriesOpen}
-                onClick={() => setCategoriesOpen((v) => !v)}
+                onClick={() => {
+                  if (categoriesTimeoutRef.current) {
+                    clearTimeout(categoriesTimeoutRef.current);
+                    categoriesTimeoutRef.current = null;
+                  }
+                  setCategoriesOpen((v) => !v);
+                }}
                 className="inline-flex items-center gap-1 whitespace-nowrap transition-colors hover:text-saffron-600"
               >
                 Categories
@@ -292,7 +333,7 @@ export function Header() {
                       key={c.id}
                       href={`/collections/${c.slug}`}
                       role="menuitem"
-                      onClick={() => setCategoriesOpen(false)}
+                      onClick={handleCategoryClick}
                       className="block rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 transition-colors hover:bg-maroon-800/5 hover:text-saffron-600"
                     >
                       {c.name}

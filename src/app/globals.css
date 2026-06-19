@@ -120,6 +120,7 @@ body {
     gap: 1rem;
     padding: 0.5rem 0.55rem;
     text-align: right;
+    min-width: 0;
   }
   .admin-table td::before {
     content: attr(data-label);
@@ -138,6 +139,7 @@ body {
     padding-bottom: 0.6rem;
     margin-bottom: 0.15rem;
     text-align: left;
+    min-width: 0;
   }
   .admin-table td:first-child::before {
     content: none;

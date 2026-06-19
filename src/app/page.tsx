@@ -3,7 +3,7 @@ import { TrustStrip } from "@/components/home/TrustStrip";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
 import { OfferBanner } from "@/components/home/OfferBanner";
 import { ValueProps } from "@/components/home/ValueProps";
-import { Testimonials } from "@/components/home/Testimonials";
+import { InstagramReels } from "@/components/home/InstagramReels";
 import { BlogTeasers } from "@/components/home/BlogTeasers";
 import { NewsletterCTA } from "@/components/home/NewsletterCTA";
 import { getProducts } from "@/lib/api/products";
@@ -35,7 +35,7 @@ export default async function HomePage() {
         products={bestSellers.length ? bestSellers : products.slice(0, 6)}
       />
       <ValueProps />
-      <Testimonials />
+      <InstagramReels />
       <BlogTeasers />
       <NewsletterCTA />
     </>

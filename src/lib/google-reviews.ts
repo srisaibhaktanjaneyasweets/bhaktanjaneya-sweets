@@ -34,31 +34,31 @@ export const googleReviews: GoogleReview[] = [
   {
     author: "Lakshmi Prasad",
     rating: 5,
-    text: "The Kaju Patisa tastes exactly like my grandmother used to make. Fresh, pure ghee, and beautifully packed. Will order again for every festival.",
+    text: "Sri Sai Bhaktanjaneya Sweets is the undisputed pioneer of Tapeswaram Kaja! The taste of their ghee kaja is absolutely divine and authentic. It is a must-buy whenever you visit Rajahmundry.",
     relativeTime: "2 weeks ago",
   },
   {
     author: "Ravi Teja",
     rating: 5,
-    text: "Ordered the Agra Mixture for Diwali — crunchy, perfectly spiced, and delivered on time. Highly recommend to anyone in Hyderabad.",
+    text: "Outstanding quality and taste! Their special jalebi and traditional Madatha Kaja are heavenly. The packing is neat and perfect for sending gifts to family.",
     relativeTime: "a month ago",
   },
   {
     author: "Sneha Reddy",
     rating: 5,
-    text: "Finally a sweets brand that doesn't use artificial flavours. The Junnu was a delightful surprise and the quality is consistent.",
+    text: "Wonderful customer service and a great variety of traditional Andhra sweets. The Kobbari Kajikai and milk sweets are exceptionally fresh and delicious.",
     relativeTime: "a month ago",
   },
   {
     author: "Anil Kumar",
     rating: 5,
-    text: "We ordered bulk gift boxes for our office. Professional service, neat packing, and everyone loved the quality. Great for corporate gifting.",
+    text: "Authentic, high-quality sweets made with pure ghee. We ordered corporate gift boxes and the feedback from everyone was fantastic. Professional service throughout.",
     relativeTime: "2 months ago",
   },
 ];
 
 /** Aggregate rating shown next to the section heading. Update to match Google. */
 export const googleRatingSummary = {
-  average: 4.9,
-  count: googleReviews.length,
+  average: 4.4,
+  count: 142,
 };

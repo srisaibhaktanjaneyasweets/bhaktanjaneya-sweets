@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Pencil, Trash2, Newspaper } from "lucide-react";
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { Plus, Pencil, Trash2, Newspaper, Upload } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import {
   AdminButton,
@@ -16,6 +17,7 @@ import { formatDate, uid, betterSlugify } from "@/lib/utils";
 import type { Post } from "@/lib/types";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { toast } from "@/components/ui/toast";
+import { uploadProductImage } from "@/lib/api/upload";
 
 function PostEditor({
   post,
@@ -44,9 +46,27 @@ function PostEditor({
   // Paragraphs are edited as plain text, one blank line between paragraphs.
   const [bodyText, setBodyText] = useState(draft.content.join("\n\n"));
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   function set<K extends keyof Post>(key: K, value: Post[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
+  }
+
+  async function onImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const url = await uploadProductImage(file);
+      setDraft((d) => ({ ...d, cover: url }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function save() {
@@ -148,13 +168,58 @@ function PostEditor({
           </Field>
         </div>
 
-        <Field label="Cover image URL">
-          <input
-            className={inputClass}
-            value={draft.cover}
-            onChange={(e) => set("cover", e.target.value)}
-            placeholder="/images/categories/sweets.svg or https://…"
-          />
+        <Field
+          label="Cover image"
+          hint="JPG, PNG, or WebP up to 5 MB. This will be shown at the top of the article."
+        >
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative h-24 w-40 overflow-hidden rounded-xl border border-cream-300 bg-cream-50 flex items-center justify-center">
+              {draft.cover ? (
+                <Image
+                  src={draft.cover}
+                  alt="Post cover preview"
+                  fill
+                  className="object-cover"
+                  sizes="160px"
+                />
+              ) : (
+                <span className="text-xs text-ink-400">No image</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={onImageSelected}
+              />
+              <AdminButton
+                type="button"
+                variant="ghost"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+              >
+                <Upload size={16} />
+                {uploading
+                  ? "Uploading…"
+                  : draft.cover
+                    ? "Replace image"
+                    : "Upload image"}
+              </AdminButton>
+
+              {draft.cover ? (
+                <button
+                  type="button"
+                  onClick={() => set("cover", "")}
+                  className="text-left text-xs text-ink-500 hover:text-maroon-700"
+                >
+                  Remove image
+                </button>
+              ) : null}
+            </div>
+          </div>
         </Field>
 
         <Field label="Content" hint="Separate paragraphs with a blank line.">

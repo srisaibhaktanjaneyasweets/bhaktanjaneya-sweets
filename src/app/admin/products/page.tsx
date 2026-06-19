@@ -80,7 +80,7 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Search */}
-      <div className="relative max-w-sm">
+      <div className="relative w-full md:max-w-sm">
         <Search
           size={16}
           className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
@@ -123,8 +123,8 @@ export default function AdminProductsPage() {
                   const stock = p.variants.reduce((s, v) => s + v.stock, 0);
                   return (
                     <tr key={p.id} className="hover:bg-cream-50">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
+                      <td className="px-4 py-3 min-w-0">
+                        <div className="flex items-center gap-3 min-w-0 w-full">
                           <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-cream-100">
                             <Image
                               src={getProductImage(p)}
@@ -134,7 +134,7 @@ export default function AdminProductsPage() {
                               className="object-cover"
                             />
                           </span>
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <p className="truncate font-medium text-maroon-900">
                               {p.name}
                             </p>

@@ -43,7 +43,7 @@ export default function AdminCustomersPage() {
         </p>
       </div>
 
-      <div className="relative max-w-sm">
+      <div className="relative w-full md:max-w-sm">
         <Search
           size={16}
           className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"

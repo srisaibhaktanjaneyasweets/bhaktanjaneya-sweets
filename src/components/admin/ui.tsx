@@ -86,14 +86,14 @@ export function Modal({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-900/40 p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/40 p-2 sm:p-6">
       <div
         className={cn(
-          "my-4 w-full rounded-2xl bg-white shadow-card",
+          "flex max-h-[calc(100vh-1rem)] sm:max-h-[90vh] w-full flex-col rounded-2xl bg-white shadow-card transition-all",
           wide ? "max-w-3xl" : "max-w-lg",
         )}
       >
-        <div className="flex items-center justify-between border-b border-cream-200 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-cream-200 px-5 py-4">
           <h2 className="font-serif text-lg font-semibold text-maroon-900">
             {title}
           </h2>
@@ -106,9 +106,9 @@ export function Modal({
             <X size={18} />
           </button>
         </div>
-        <div className="px-5 py-5">{children}</div>
+        <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-3 border-t border-cream-200 px-5 py-4">
+          <div className="flex shrink-0 justify-end gap-3 border-t border-cream-200 px-5 py-4">
             {footer}
           </div>
         )}

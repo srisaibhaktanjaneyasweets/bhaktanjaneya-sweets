@@ -17,10 +17,12 @@ export function HeaderSearch({
   variant = "desktop",
   onNavigate,
   autoFocus,
+  inlineResults = false,
 }: {
   variant?: "desktop" | "mobile";
   onNavigate?: () => void;
   autoFocus?: boolean;
+  inlineResults?: boolean;
 }) {
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -103,8 +105,8 @@ export function HeaderSearch({
   }
 
   return (
-    <div ref={rootRef} className="relative w-full">
-      <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="relative">
+    <div ref={rootRef} className={inlineResults ? "w-full" : "relative w-full"}>
+      <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="relative shrink-0">
         <Search
           size={18}
           className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400"
@@ -130,9 +132,22 @@ export function HeaderSearch({
       </form>
 
       {open && q.trim() ? (
-        <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-cream-300 bg-white shadow-card">
+        <div
+          className={
+            inlineResults
+              ? "absolute left-0 right-0 top-[4.25rem] bottom-0 z-50 bg-cream-50 flex flex-col border-t border-cream-200 mt-0"
+              : "absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-cream-300 bg-white shadow-card"
+          }
+        >
           {matches.length > 0 ? (
-            <ul role="listbox" className="max-h-[60vh] overflow-auto overscroll-contain py-1">
+            <ul
+              role="listbox"
+              className={
+                inlineResults
+                  ? "divide-y divide-cream-200 overflow-y-auto flex-1 min-h-0"
+                  : "max-h-[60vh] overflow-auto overscroll-contain py-1"
+              }
+            >
               {matches.map((p, i) => {
                 const { min, hasRange } = priceRange(p);
                 return (
@@ -145,8 +160,12 @@ export function HeaderSearch({
                         go(`/product/${p.slug}`);
                       }}
                       className={
-                        "flex w-full items-center gap-3 px-3 py-2 text-left " +
-                        (i === active ? "bg-saffron-500/10" : "hover:bg-cream-100")
+                        "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors " +
+                        (i === active
+                          ? "bg-saffron-500/10"
+                          : inlineResults
+                            ? "bg-white hover:bg-cream-100"
+                            : "hover:bg-cream-100")
                       }
                     >
                       <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-cream-100">
@@ -182,7 +201,7 @@ export function HeaderSearch({
               })}
             </ul>
           ) : (
-            <p className="px-4 py-3 text-sm text-ink-500">
+            <p className="px-4 py-3 text-sm text-ink-500 bg-white">
               No sweets match &ldquo;{q.trim()}&rdquo;.
             </p>
           )}
@@ -193,7 +212,10 @@ export function HeaderSearch({
               e.preventDefault();
               submit();
             }}
-            className="flex w-full items-center justify-between gap-2 border-t border-cream-200 px-4 py-2.5 text-sm font-semibold text-maroon-800 hover:bg-cream-100"
+            className={
+              "flex w-full items-center justify-between gap-2 border-t border-cream-200 px-4 py-2.5 text-sm font-semibold text-maroon-800 hover:bg-cream-100 " +
+              (inlineResults ? "bg-white shrink-0" : "")
+            }
           >
             See all results for &ldquo;{q.trim()}&rdquo;
             <ArrowRight size={15} />
