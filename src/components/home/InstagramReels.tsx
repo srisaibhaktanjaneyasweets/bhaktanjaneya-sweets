@@ -28,7 +28,7 @@ function InstagramIcon({ className, size = 24 }: { className?: string; size?: nu
 export function InstagramReels() {
   if (instagramReels.length === 0) return null;
 
-  const instagramUrl = "https://www.instagram.com/bhaktanjaneyasweets.in/";
+  const instagramUrl = "https://www.instagram.com/bhaktanjaneyasweets.in/reels/";
 
   return (
     <section className="py-14 bg-cream-50/50 border-t border-cream-200">
