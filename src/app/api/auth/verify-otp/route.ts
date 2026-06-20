@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { issueToken } from "@/lib/server/auth";
 import { customerFromRow } from "@/lib/supabase/mappers";
+import { isMsg91Configured, verifyOtp as verifyMsg91Otp } from "@/lib/server/msg91";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -11,44 +12,55 @@ export async function POST(req: Request) {
   const details = body?.details as { name?: string; email?: string } | undefined;
   if (!phone || !code) return NextResponse.json({ error: "Missing phone or code" }, { status: 400 });
 
-  // Look at the most recent code issued for this phone (independent of the
-  // guess) so we can enforce a per-code attempt limit — without it, the 6-digit
-  // code could be brute-forced within its 5-minute window.
-  const MAX_OTP_ATTEMPTS = 5;
-  const { data, error } = await supabaseAdmin
-    .from("otps")
-    .select("*")
-    .eq("phone", phone)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!data || new Date(data.expires_at) < new Date()) {
-    return NextResponse.json({ error: "Invalid or expired code" }, { status: 400 });
-  }
-
-  if ((data.attempts ?? 0) >= MAX_OTP_ATTEMPTS) {
+  // --- 1. Verify the OTP ---------------------------------------------------
+  if (isMsg91Configured()) {
+    // Production: MSG91 verifies the code it issued (it enforces expiry and its
+    // own attempt limits). We never see or store the live code.
+    const result = await verifyMsg91Otp(phone, String(code));
+    if (!result.ok) {
+      return NextResponse.json(
+        { error: result.error || "Invalid or expired code" },
+        { status: 400 },
+      );
+    }
+    // Clear our throttle markers for this phone.
     await supabaseAdmin.from("otps").delete().eq("phone", phone);
-    return NextResponse.json(
-      { error: "Too many incorrect attempts. Please request a new code." },
-      { status: 429 },
-    );
-  }
-
-  if (String(data.code) !== String(code)) {
-    // Wrong guess — count it against this code's budget. (Update is a no-op if
-    // the `attempts` column hasn't been migrated yet; verification still works.)
-    await supabaseAdmin
+  } else {
+    // Local-dev fallback: verify against the stored code with a per-code attempt
+    // limit so the 6-digit code can't be brute-forced within its window.
+    const MAX_OTP_ATTEMPTS = 5;
+    const { data, error } = await supabaseAdmin
       .from("otps")
-      .update({ attempts: (data.attempts ?? 0) + 1 })
-      .eq("id", data.id);
-    return NextResponse.json({ error: "Invalid or expired code" }, { status: 400 });
+      .select("*")
+      .eq("phone", phone)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data || new Date(data.expires_at) < new Date()) {
+      return NextResponse.json({ error: "Invalid or expired code" }, { status: 400 });
+    }
+    if ((data.attempts ?? 0) >= MAX_OTP_ATTEMPTS) {
+      await supabaseAdmin.from("otps").delete().eq("phone", phone);
+      return NextResponse.json(
+        { error: "Too many incorrect attempts. Please request a new code." },
+        { status: 429 },
+      );
+    }
+    if (String(data.code) !== String(code)) {
+      // Wrong guess — count it against this code's budget. (No-op if the
+      // `attempts` column hasn't been migrated yet; verification still works.)
+      await supabaseAdmin
+        .from("otps")
+        .update({ attempts: (data.attempts ?? 0) + 1 })
+        .eq("id", data.id);
+      return NextResponse.json({ error: "Invalid or expired code" }, { status: 400 });
+    }
+    // Correct code — single-use: invalidate every outstanding code for this phone.
+    await supabaseAdmin.from("otps").delete().eq("phone", phone);
   }
 
-  // Correct code — single-use: invalidate every outstanding code for this phone
-  // so it can't be replayed or brute-forced after a successful verification.
-  await supabaseAdmin.from("otps").delete().eq("phone", phone);
-
+  // --- 2. Resolve / create the customer and issue a session ----------------
   const { data: existingCustomer, error: customerError } = await supabaseAdmin
     .from("customers")
     .select("*")

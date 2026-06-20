@@ -57,6 +57,16 @@ function LoginInner() {
     }
   }
 
+  async function resendCode() {
+    setError("");
+    try {
+      const res = await sendOtp(phone.replace(/\D/g, ""), mode, true);
+      setDevCode(res.devCode);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't resend the code. Please try again.");
+    }
+  }
+
   async function submitCode(e: React.FormEvent) {
     e.preventDefault();
     setError("");
@@ -203,8 +213,9 @@ function LoginInner() {
           </button>
           <button
             type="button"
-            onClick={() => submitPhone(new Event("submit") as unknown as React.FormEvent)}
-            className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-medium text-maroon-700 hover:text-saffron-600"
+            onClick={() => void resendCode()}
+            disabled={loading}
+            className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-medium text-maroon-700 hover:text-saffron-600 disabled:opacity-60"
           >
             <ArrowLeft size={14} /> Resend code
           </button>

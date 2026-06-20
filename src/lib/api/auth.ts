@@ -11,8 +11,9 @@ export interface SignupDetails {
 export async function requestOtp(
   phone: string,
   mode: AuthMode = "login",
+  resend = false,
 ): Promise<{ ok: boolean; devCode?: string }> {
-  const result = await apiPost<{ ok: boolean; devCode?: string }>("/auth/request-otp", { phone, mode });
+  const result = await apiPost<{ ok: boolean; devCode?: string }>("/auth/request-otp", { phone, mode, resend });
   return { ok: true, devCode: result.devCode };
 }
 

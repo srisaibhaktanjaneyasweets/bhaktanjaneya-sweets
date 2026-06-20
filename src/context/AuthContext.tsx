@@ -31,7 +31,7 @@ function isRealSession(value: unknown): value is { token?: string; customer: Cus
 interface AuthContextValue {
   customer: Customer | null;
   loading: boolean;
-  sendOtp: (phone: string, mode?: AuthMode) => Promise<{ devCode?: string }>;
+  sendOtp: (phone: string, mode?: AuthMode, resend?: boolean) => Promise<{ devCode?: string }>;
   confirmOtp: (phone: string, code: string, mode?: AuthMode, details?: SignupDetails) => Promise<void>;
   updateName: (name: string) => void;
   updateCustomer: (patch: Partial<Customer>) => Promise<Customer>;
@@ -67,10 +67,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     else window.localStorage.removeItem(STORAGE_KEY);
   }, []);
 
-  const sendOtp = useCallback(async (phone: string, mode: AuthMode = "login") => {
+  const sendOtp = useCallback(async (phone: string, mode: AuthMode = "login", resend = false) => {
     setLoading(true);
     try {
-      return await requestOtp(phone, mode);
+      return await requestOtp(phone, mode, resend);
     } finally {
       setLoading(false);
     }
