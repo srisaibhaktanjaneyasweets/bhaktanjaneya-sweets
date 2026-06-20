@@ -15,7 +15,7 @@ const slides = [
     text: "From melt-in-your-mouth Kaju Patisa to homestyle Junnu — crafted in small batches with pure ghee and love.",
     primary: { href: "/shop", label: "Shop Sweets" },
     secondary: { href: "/shop?tag=best-seller", label: "Best Sellers" },
-    image: "/images/categories/sweets.svg",
+    image: "/images/ghee_ladoo_reel.png",
     theme: "from-maroon-800 via-maroon-800 to-maroon-900",
   },
   {
@@ -24,7 +24,7 @@ const slides = [
     text: "Agra Mixture, Chakidalu, Flower Janthukulu and more — the perfect crunchy companions to your chai.",
     primary: { href: "/shop", label: "Shop Namkeen" },
     secondary: { href: "/shop", label: "Explore All" },
-    image: "/images/categories/namkeen.svg",
+    image: "/images/special_mixture_reel.png",
     theme: "from-saffron-600 via-saffron-600 to-maroon-800",
   },
   {
@@ -33,7 +33,7 @@ const slides = [
     text: "Use code BAS10 on orders above ₹500. Free shipping over ₹700, delivered fresh across India.",
     primary: { href: "/shop", label: "Start Shopping" },
     secondary: { href: "/bulk-orders", label: "Bulk Orders" },
-    image: "/images/categories/sweets.svg",
+    image: "/images/tapeswaram_kaja_reel.png",
     theme: "from-gold-600 via-saffron-600 to-maroon-800",
   },
 ];
@@ -76,7 +76,7 @@ export function Hero() {
       <Container>
         <div className="overflow-hidden rounded-3xl" ref={emblaRef}>
           <div className="flex">
-            {slides.map((s) => (
+            {slides.map((s, i) => (
               <div key={s.title} className="min-w-0 flex-[0_0_100%]">
                 <div
                   className={cn(
@@ -117,14 +117,16 @@ export function Hero() {
                     </div>
 
                     <div className="hidden justify-self-center md:block">
-                      <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-cream-50/10 ring-1 ring-cream-50/20 lg:h-80 lg:w-80">
+                      <div className="relative h-64 w-64 overflow-hidden rounded-full bg-cream-50/10 shadow-2xl ring-4 ring-cream-50/20 lg:h-80 lg:w-80">
                         <Image
                           src={s.image}
                           alt=""
-                          width={240}
-                          height={240}
-                          className="h-44 w-44 object-contain drop-shadow-xl lg:h-56 lg:w-56"
+                          fill
+                          priority={i === 0}
+                          sizes="(min-width: 1024px) 320px, 256px"
+                          className="object-cover"
                         />
+                        <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-ink-900/10" />
                       </div>
                     </div>
                   </div>

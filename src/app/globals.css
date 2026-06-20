@@ -165,6 +165,21 @@ body {
   animation-play-state: paused;
 }
 
+/* "Now playing" progress bar for the reels carousel — fills over the auto-
+   advance interval, then the carousel rotates to the next reel. */
+@keyframes reel-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.reel-progress {
+  transform-origin: left;
+  animation: reel-progress var(--reel-interval, 5s) linear forwards;
+}
+
 /* Respect users who prefer reduced motion (vestibular safety, WCAG 2.3.3). */
 @media (prefers-reduced-motion: reduce) {
   html {

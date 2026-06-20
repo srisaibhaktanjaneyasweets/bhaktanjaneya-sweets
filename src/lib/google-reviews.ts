@@ -96,11 +96,21 @@ export async function getLiveGoogleReviews() {
       };
     }
 
-    const mappedReviews = (data.result.reviews || []).map((r: any) => ({
-      author: r.author_name,
-      rating: r.rating,
-      text: r.text,
-      relativeTime: r.relative_time_description,
+    type PlacesReview = {
+      author_name?: string;
+      rating?: number;
+      text?: string;
+      relative_time_description?: string;
+      profile_photo_url?: string;
+    };
+
+    const mappedReviews: GoogleReview[] = (
+      (data.result.reviews as PlacesReview[] | undefined) || []
+    ).map((r) => ({
+      author: r.author_name ?? "Google user",
+      rating: r.rating ?? 5,
+      text: r.text ?? "",
+      relativeTime: r.relative_time_description ?? "",
       avatar: r.profile_photo_url,
     }));
 

@@ -88,15 +88,18 @@ export function Testimonials({ reviews, ratingSummary }: TestimonialsProps) {
           </a>
         </div>
 
-      </Container>
-
-      {/* Auto-scrolling marquee of reviews (pauses on hover) */}
-      <div className="marquee-group relative mt-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_4%,black_96%,transparent)]">
-        <ul
-          className="flex w-max animate-marquee"
-          style={{ ["--marquee-duration" as string]: `${Math.max(24, reviews.length * 9)}s` }}
-        >
-          {[...reviews, ...reviews].map((r, idx) => (
+        {/* Auto-scrolling marquee — pauses on hover. The list is repeated 4× so
+            one half always exceeds the container width, keeping the loop
+            seamless with no empty gap; the mask fades both edges within the
+            content column. */}
+        <div className="marquee-group relative mt-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+          <ul
+            className="flex w-max animate-marquee"
+            style={{ ["--marquee-duration" as string]: `${Math.max(24, reviews.length * 9)}s` }}
+          >
+            {Array.from({ length: 4 })
+              .flatMap(() => reviews)
+              .map((r, idx) => (
             <li
               key={`${r.author}-${idx}`}
               className="mr-5 w-[280px] shrink-0 sm:w-[330px]"
@@ -138,8 +141,9 @@ export function Testimonials({ reviews, ratingSummary }: TestimonialsProps) {
               </figure>
             </li>
           ))}
-        </ul>
-      </div>
+          </ul>
+        </div>
+      </Container>
     </section>
   );
 }
