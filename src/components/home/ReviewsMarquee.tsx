@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Star, X } from "lucide-react";
 import type { GoogleReview } from "@/lib/google-reviews";
 
@@ -50,6 +50,20 @@ const READ_MORE_THRESHOLD = 150;
 
 export function ReviewsMarquee({ reviews }: { reviews: GoogleReview[] }) {
   const [active, setActive] = useState<GoogleReview | null>(null);
+
+  // While the modal is open: close on Escape and lock background scroll.
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActive(null);
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [active]);
 
   return (
     <>

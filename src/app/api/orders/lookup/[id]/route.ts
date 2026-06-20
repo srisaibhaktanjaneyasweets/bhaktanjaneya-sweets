@@ -25,10 +25,21 @@ export async function GET(
     return NextResponse.json({ error: "Invalid order id" }, { status: 400 });
   }
 
+  // Require the order's phone too, so an order id alone can't be looked up and a
+  // phone number alone can't be enumerated — both must match the same order.
+  const phone = (new URL(req.url).searchParams.get("phone") ?? "").replace(/\D/g, "");
+  if (!phone || phone.length < 8) {
+    return NextResponse.json(
+      { error: "Enter the phone number used for the order." },
+      { status: 400 },
+    );
+  }
+
   const { data, error } = await supabaseAdmin
     .from("orders")
     .select("*")
     .eq("id", orderId)
+    .eq("customer_phone", phone)
     .maybeSingle();
 
   if (error) {

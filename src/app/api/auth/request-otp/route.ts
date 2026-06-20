@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 function genCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  // Cryptographically secure 6-digit code (Math.random is predictable and
+  // must not be used for security tokens like OTPs).
+  return crypto.randomInt(100000, 1000000).toString();
 }
 
 export async function POST(req: Request) {

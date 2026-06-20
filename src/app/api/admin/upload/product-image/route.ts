@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { requireRole } from "@/lib/server/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
@@ -33,8 +34,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Image must be under 5 MB" }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+  // Derive the extension from the validated MIME type, not the user-supplied
+  // filename, so nothing from `file.name` can influence the storage path.
+  const extByType: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+  };
+  const ext = extByType[file.type] ?? "jpg";
+  const path = `${Date.now()}-${crypto.randomUUID()}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const { error } = await supabaseAdmin.storage

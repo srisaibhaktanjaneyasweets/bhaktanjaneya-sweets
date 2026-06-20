@@ -46,18 +46,6 @@ function normalizePhoneForLookup(raw: string) {
   return raw.trim().replace(/\D/g, "");
 }
 
-function parseLookupQuery(raw: string) {
-  const trimmed = raw.trim();
-  if (!trimmed) return { kind: "empty" as const, value: "" };
-
-  const looksLikePhone = /^\+?[0-9]{8,15}$/.test(trimmed);
-  if (looksLikePhone) {
-    return { kind: "phone" as const, value: normalizePhoneForLookup(trimmed) };
-  }
-
-  return { kind: "order" as const, value: trimmed };
-}
-
 function maskTrackingId(trackingId?: string) {
   if (!trackingId) return undefined;
   if (trackingId.length <= 4) return trackingId;
@@ -72,40 +60,36 @@ export default function FindMyOrderPage() {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState<string>("");
 
-  // If guest: show lookup/search UI
-  const [query, setQuery] = useState("");
+  // If guest: show lookup/search UI. We require BOTH the order id and the phone
+  // used for the order, so neither can be used alone to look up someone's order.
+  const [orderIdInput, setOrderIdInput] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [order, setOrder] = useState<PublicOrderLookupResponse | null>(null);
 
-  const parsedQuery = useMemo(() => parseLookupQuery(query), [query]);
-  const isSearchable = parsedQuery.value.trim().length >= 6;
+  const phoneDigits = useMemo(() => normalizePhoneForLookup(phoneInput), [phoneInput]);
+  const isSearchable = orderIdInput.trim().length >= 4 && phoneDigits.length >= 8;
 
   const runLookup = useCallback(async () => {
-    const parsed = parseLookupQuery(query);
-    const raw = parsed.value.trim();
-    if (!raw) return;
+    const id = orderIdInput.trim();
+    if (!id || phoneDigits.length < 8) return;
 
     setLoading(true);
     setError("");
     setOrder(null);
 
     try {
-      const res =
-        parsed.kind === "phone"
-          ? await apiGet<PublicOrderLookupResponse>(
-              `/orders/lookup/phone/${encodeURIComponent(raw)}`,
-            )
-          : await apiGet<PublicOrderLookupResponse>(
-              `/orders/lookup/${encodeURIComponent(raw)}`,
-            );
+      const res = await apiGet<PublicOrderLookupResponse>(
+        `/orders/lookup/${encodeURIComponent(id)}?phone=${encodeURIComponent(phoneDigits)}`,
+      );
       setOrder(res);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not fetch order");
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [orderIdInput, phoneDigits]);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,23 +207,35 @@ export default function FindMyOrderPage() {
           <div className="mx-auto w-full max-w-2xl space-y-5 px-4 pb-10 pt-8">
             <div className="space-y-2">
               <h1 className="font-serif text-2xl font-bold text-maroon-900">Find my order</h1>
-              <p className="text-sm text-ink-500">Enter your order id or phone number to view status and delivery details.</p>
+              <p className="text-sm text-ink-500">Enter your order id and the phone number used for the order to view its status and delivery details.</p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Order id (ord_...) or phone number"
+                value={orderIdInput}
+                onChange={(e) => setOrderIdInput(e.target.value)}
+                placeholder="Order id (ord_...)"
+                className={inputClass + " flex-1"}
+                autoComplete="off"
+              />
+              <input
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && isSearchable) void runLookup();
+                }}
+                placeholder="Phone number"
+                inputMode="numeric"
+                autoComplete="off"
                 className={inputClass + " flex-1"}
               />
               <button
                 type="button"
                 onClick={() => void runLookup()}
                 disabled={!isSearchable || loading}
-                className="inline-flex h-11 items-center justify-center rounded-full bg-maroon-800 px-5 text-sm font-semibold text-cream-50 hover:bg-maroon-700 disabled:opacity-60"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-maroon-800 px-5 text-sm font-semibold text-cream-50 hover:bg-maroon-700 disabled:opacity-60"
               >
-                {loading ? "Searching..." : <Search size={16} />}
+                {loading ? "Searching..." : <><Search size={16} /> Search</>}
               </button>
             </div>
 
