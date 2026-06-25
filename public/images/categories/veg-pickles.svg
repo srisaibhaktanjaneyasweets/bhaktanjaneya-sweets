@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Veg Pickles">
+  <defs>
+    <linearGradient id="c_veg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2e7d32"/>
+      <stop offset="1" stop-color="#1b5e20"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#c_veg)"/>
+  <g fill="#c8e6c9" opacity="0.25">
+    <circle cx="250" cy="250" r="70"/>
+    <circle cx="550" cy="350" r="90"/>
+    <circle cx="380" cy="400" r="50"/>
+  </g>
+  <text x="400" y="320" text-anchor="middle" font-family="Georgia, serif" font-size="68" fill="#e8f5e9">Veg Pickles</text>
+</svg>

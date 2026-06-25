@@ -47,7 +47,7 @@ export function SiteChrome({
   })();
 
   return (
-    <div className="flex min-h-full w-full min-w-0 flex-col overflow-x-hidden">
+    <div className="flex min-h-full w-full min-w-0 flex-col overflow-x-clip">
       {announcement}
       {header}
       {showCategoryNav ? categoryNav : null}

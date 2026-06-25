@@ -1,8 +1,12 @@
 import type { Tag } from "@/lib/types";
 import { tagFromRow } from "@/lib/supabase/mappers";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
+import { MOCK_TAGS } from "@/lib/mockData";
 
 export async function getTags(): Promise<Tag[]> {
+  if (!isConfigured) {
+    return MOCK_TAGS;
+  }
   const { data, error } = await supabaseAdmin
     .from("tags")
     .select("*")
@@ -15,6 +19,9 @@ export async function getTags(): Promise<Tag[]> {
 
 /** Tags flagged to surface as a carousel on the home page, in sort order. */
 export async function getFeaturedTags(): Promise<Tag[]> {
+  if (!isConfigured) {
+    return MOCK_TAGS.filter((t) => t.featured);
+  }
   const { data, error } = await supabaseAdmin
     .from("tags")
     .select("*")

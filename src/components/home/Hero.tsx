@@ -41,7 +41,6 @@ const slides = [
 export function Hero() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selected, setSelected] = useState(0);
-
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -70,24 +69,23 @@ export function Hero() {
     return () => clearInterval(id);
   }, [emblaApi, reducedMotion]);
 
-
   return (
-    <section className="bg-cream-100 pb-2 pt-4 sm:pt-6">
-      <Container>
-        <div className="overflow-hidden rounded-3xl" ref={emblaRef}>
-          <div className="flex">
-            {slides.map((s, i) => (
-              <div key={s.title} className="min-w-0 flex-[0_0_100%]">
-                <div
-                  className={cn(
-                    "relative flex min-h-[440px] items-center overflow-hidden bg-gradient-to-br px-6 py-12 sm:px-12 md:min-h-[480px]",
-                    s.theme,
-                  )}
-                >
-                  {/* decorative glow */}
-                  <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-cream-50/10 blur-2xl" />
-                  <div className="pointer-events-none absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-saffron-400/10 blur-2xl" />
+    <section className="relative bg-cream-100 pb-0 pt-0">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex">
+          {slides.map((s, i) => (
+            <div key={s.title} className="min-w-0 flex-[0_0_100%]">
+              <div
+                className={cn(
+                  "relative flex min-h-[440px] items-center overflow-hidden bg-gradient-to-br py-12 md:min-h-[480px] lg:min-h-[520px]",
+                  s.theme,
+                )}
+              >
+                {/* decorative glow */}
+                <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-cream-50/10 blur-2xl" />
+                <div className="pointer-events-none absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-saffron-400/10 blur-2xl" />
 
+                <Container>
                   <div className="relative grid w-full items-center gap-8 md:grid-cols-2">
                     <div className="max-w-xl">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-saffron-300">
@@ -130,31 +128,30 @@ export function Hero() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </Container>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* dots */}
-        <div className="mt-4 flex items-center justify-center gap-2">
-          {slides.map((s, i) => (
-            <button
-              key={s.title}
-              type="button"
-              aria-label={`Go to slide ${i + 1}`}
-              onClick={() => scrollTo(i)}
-              className={cn(
-                "h-2 rounded-full transition-all",
-                i === selected
-                  ? "w-6 bg-maroon-800"
-                  : "w-2 bg-maroon-800/30 hover:bg-maroon-800/50",
-              )}
-            />
+            </div>
           ))}
-          {/* pause/play control removed (keep autoplay) */}
         </div>
-      </Container>
+      </div>
+
+      {/* dots */}
+      <div className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-center gap-2">
+        {slides.map((s, i) => (
+          <button
+            key={s.title}
+            type="button"
+            aria-label={`Go to slide ${i + 1}`}
+            onClick={() => scrollTo(i)}
+            className={cn(
+              "h-2 rounded-full transition-all",
+              i === selected
+                ? "w-6 bg-cream-50"
+                : "w-2 bg-cream-50/40 hover:bg-cream-50/60",
+            )}
+          />
+        ))}
+      </div>
     </section>
   );
 }

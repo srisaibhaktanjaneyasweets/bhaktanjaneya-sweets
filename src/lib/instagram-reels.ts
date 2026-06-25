@@ -5,6 +5,8 @@ export interface InstagramReel {
   likes: string;
   views: string;
   link: string;
+  duration?: string;
+  videoUrl?: string;
 }
 
 export const instagramReels: InstagramReel[] = [
@@ -15,6 +17,8 @@ export const instagramReels: InstagramReel[] = [
     likes: "2.4k",
     views: "28.5k",
     link: "https://www.instagram.com/bhaktanjaneyasweets.in/reels/",
+    duration: "00:35",
+    videoUrl: "https://player.vimeo.com/external/435674703.sd.mp4?s=7fdf27e2213e4b77f98c8d8b671a53c9e6d0a7a0&profile_id=165&oauth2_token_id=57447761",
   },
   {
     id: "reel-2",
@@ -23,6 +27,8 @@ export const instagramReels: InstagramReel[] = [
     likes: "4.1k",
     views: "42.9k",
     link: "https://www.instagram.com/bhaktanjaneyasweets.in/reels/",
+    duration: "00:39",
+    videoUrl: "https://player.vimeo.com/external/384761655.sd.mp4?s=38dbbb615015b6510f22d64a27546522c0627d7e&profile_id=165&oauth2_token_id=57447761",
   },
   {
     id: "reel-3",
@@ -31,6 +37,8 @@ export const instagramReels: InstagramReel[] = [
     likes: "1.8k",
     views: "18.2k",
     link: "https://www.instagram.com/bhaktanjaneyasweets.in/reels/",
+    duration: "00:38",
+    videoUrl: "https://player.vimeo.com/external/459389137.sd.mp4?s=872719d3fbd20078b53051493026f8bf962d3a2c&profile_id=165&oauth2_token_id=57447761",
   },
   {
     id: "reel-4",
@@ -39,6 +47,8 @@ export const instagramReels: InstagramReel[] = [
     likes: "3.2k",
     views: "35.1k",
     link: "https://www.instagram.com/bhaktanjaneyasweets.in/reels/",
+    duration: "00:46",
+    videoUrl: "https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c02271881e59db10472b101684c3c3a9&profile_id=139&oauth2_token_id=57447761",
   },
 ];
 

@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
 import {
   categoryFromRow,
@@ -18,7 +18,6 @@ import {
 
 type Resource = "products" | "categories" | "tags" | "offers" | "orders" | "posts";
 
-/** Allowlist — prevents the `[resource]` segment from targeting arbitrary tables. */
 const ALLOWED_RESOURCES: readonly Resource[] = [
   "products",
   "categories",
@@ -73,6 +72,10 @@ async function updateResource(
     return NextResponse.json({ error: validationError }, { status: 400 });
   }
 
+  if (!isConfigured) {
+    return NextResponse.json(body);
+  }
+
   const payload = payloadFor(resource, body);
   const { data, error } = await supabaseAdmin
     .from(resource)
@@ -117,6 +120,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<Rec
   }
   const p = (await params) as Record<string, string>;
   if (!isAllowed(p.resource)) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (!isConfigured) {
+    return new NextResponse(null, { status: 204 });
+  }
+
   const { error } = await supabaseAdmin.from(p.resource).delete().eq("id", p.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return new NextResponse(null, { status: 204 });

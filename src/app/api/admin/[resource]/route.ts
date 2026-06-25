@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
+import { MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_TAGS, MOCK_OFFERS, MOCK_POSTS } from "@/lib/mockData";
 import {
   categoryFromRow,
   categoryToRow,
@@ -26,11 +27,6 @@ type Resource =
   | "customers"
   | "posts";
 
-/**
- * Strict allowlist of tables this generic route may touch. Without it the
- * `[resource]` segment would let an admin token read/write ANY table —
- * including `admins` (password hashes) and `otps` (live login codes).
- */
 const ALLOWED_RESOURCES: readonly Resource[] = [
   "products",
   "categories",
@@ -45,7 +41,6 @@ function isAllowed(resource: string): resource is Resource {
   return (ALLOWED_RESOURCES as readonly string[]).includes(resource);
 }
 
-/** Resources whose slug must be unique + normalized on create. */
 const SLUGGED_RESOURCES: readonly Resource[] = ["categories", "tags", "products", "posts"];
 
 function formatRows(resource: Resource, rows: Record<string, unknown>[]) {
@@ -83,6 +78,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<Record
   if (!isAllowed(p.resource)) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const resource = p.resource;
 
+  if (!isConfigured) {
+    if (resource === "products") return NextResponse.json(MOCK_PRODUCTS);
+    if (resource === "categories") return NextResponse.json(MOCK_CATEGORIES);
+    if (resource === "tags") return NextResponse.json(MOCK_TAGS);
+    if (resource === "offers") return NextResponse.json(MOCK_OFFERS);
+    if (resource === "posts") return NextResponse.json(MOCK_POSTS);
+    return NextResponse.json([]);
+  }
+
   const query = supabaseAdmin.from(resource).select("*");
   const { data, error } = resource === "orders" ? await query.order("created_at", { ascending: false }) : await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -113,24 +117,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<Recor
   const resource = p.resource;
   const body = (await req.json()) as Record<string, unknown>;
   const table = resource;
-  // Slug uniqueness enforcement (case-insensitive) + normalization for slugged resources.
-  // We treat collisions as duplicates based on the normalized slug.
+  
   const normalizeSlug = (value: unknown) => {
     if (typeof value !== "string") return "";
-    // betterSlugify already lowercases + normalizes punctuation/diacritics.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require("@/lib/utils").betterSlugify(value).trim();
   };
 
   let payload = payloadFor(resource, body);
 
+  if (!isConfigured) {
+    return NextResponse.json(body, { status: 201 });
+  }
+
   if (SLUGGED_RESOURCES.includes(resource)) {
     const incomingSlug = normalizeSlug((body as { slug?: unknown })?.slug);
 
-
     if (!incomingSlug) return NextResponse.json({ error: "Slug is required." }, { status: 400 });
 
-    // Normalize and apply slug to payload too, so DB always stores consistent values.
     payload = { ...payload, slug: incomingSlug };
 
     const { data: existing, error: slugCheckError } = await supabaseAdmin
@@ -144,7 +148,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<Recor
     }
 
     if ((existing ?? []).length > 0) {
-      // If admin is creating a new record with same slug, reject.
       return NextResponse.json({ error: "Slug already exists. Please choose a different name/slug." }, { status: 409 });
     }
   }
@@ -157,5 +160,4 @@ export async function POST(req: NextRequest, { params }: { params: Promise<Recor
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(formatRow(resource, data as Record<string, unknown>), { status: 201 });
-
 }

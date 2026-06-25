@@ -1,6 +1,7 @@
+"use client";
+
 import { ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { InstagramReel } from "@/lib/instagram-reels";
 import { ReelsCarousel } from "@/components/home/ReelsCarousel";
 
@@ -37,12 +38,13 @@ export function InstagramReels({ reels }: InstagramReelsProps) {
   return (
     <section className="py-14 bg-cream-50/50 border-t border-cream-200">
       <Container>
-        <SectionHeading
-          eyebrow="Follow us on Instagram"
-          title="Trending Reels"
-        />
+        <div className="text-center mb-8">
+          <h2 className="font-serif text-3xl font-bold text-maroon-900 sm:text-4xl">
+            Every Reel, A Treat
+          </h2>
+        </div>
 
-        {/* Profile summary banner */}
+        {/* Profile summary banner (Restored) */}
         <div className="mb-7 flex flex-col items-start gap-4 rounded-2xl border border-cream-200 bg-white p-5 shadow-soft sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 text-white shadow-sm">
@@ -71,12 +73,9 @@ export function InstagramReels({ reels }: InstagramReelsProps) {
           </a>
         </div>
 
-        {/* Stacked, auto-rotating reels carousel (swipe / click to switch) */}
+        {/* Horizontal auto-sliding reels carousel */}
         <ReelsCarousel reels={reels} />
       </Container>
     </section>
   );
 }
-
-
-

@@ -1,12 +1,16 @@
 import type { Product } from "@/lib/types";
 import { productFromRow } from "@/lib/supabase/mappers";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
+import { MOCK_PRODUCTS } from "@/lib/mockData";
 
 function throwIfSupabaseError(error: { message: string } | null) {
   if (error) throw new Error(error.message);
 }
 
 export async function getProducts(): Promise<Product[]> {
+  if (!isConfigured) {
+    return MOCK_PRODUCTS;
+  }
   const { data, error } = await supabaseAdmin
     .from("products")
     .select("*")
@@ -17,6 +21,9 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  if (!isConfigured) {
+    return MOCK_PRODUCTS.find((p) => p.slug === slug) ?? null;
+  }
   const { data, error } = await supabaseAdmin
     .from("products")
     .select("*")
@@ -29,6 +36,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 export async function getProductsByCategory(category: string): Promise<Product[]> {
+  if (!isConfigured) {
+    return MOCK_PRODUCTS.filter((p) => p.category === category);
+  }
   // Match either the legacy single category or the multi-category array.
   const { data, error } = await supabaseAdmin
     .from("products")
@@ -54,6 +64,9 @@ export async function getProductsByCategory(category: string): Promise<Product[]
 }
 
 export async function getProductsByTag(tag: string): Promise<Product[]> {
+  if (!isConfigured) {
+    return MOCK_PRODUCTS.filter((p) => p.tags.includes(tag));
+  }
   const { data, error } = await supabaseAdmin
     .from("products")
     .select("*")

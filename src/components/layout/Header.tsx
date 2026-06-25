@@ -183,7 +183,7 @@ export function Header() {
 
           {/* Actions */}
           <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-            {/* Mobile search icon — grouped with the other actions on the right */}
+            {/* Mobile search icon â€” grouped with the other actions on the right */}
             <button
               type="button"
               onClick={() => setMobileSearchOpen(true)}
@@ -285,7 +285,7 @@ export function Header() {
         </div>
 
         {/* Desktop nav */}
-        <nav className="hidden h-12 items-center gap-7 border-t border-cream-300/50 text-sm font-medium text-maroon-800 lg:flex">
+        <nav className="hidden h-12 items-center justify-center gap-7 border-t border-cream-300/50 text-sm font-medium text-maroon-800 lg:flex">
           {leadingLinks.map((l) => (
             <Link
               key={l.href + l.label}

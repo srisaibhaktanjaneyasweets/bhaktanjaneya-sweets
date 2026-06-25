@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { productFromRow } from "@/lib/supabase/mappers";
 import type { Product } from "@/lib/types";
+import { MOCK_PRODUCTS } from "@/lib/mockData";
 
 type ProductRow = Record<string, unknown>;
 
@@ -10,6 +11,17 @@ export async function GET(req: Request) {
   const category = url.searchParams.get("category");
   const tag = url.searchParams.get("tag");
   const q = url.searchParams.get("q")?.trim();
+
+  if (!isConfigured) {
+    let list = MOCK_PRODUCTS.filter(p => p.active);
+    if (category) list = list.filter(p => p.category === category);
+    if (tag) list = list.filter(p => p.tags.includes(tag));
+    if (q) {
+      const qLower = q.toLowerCase();
+      list = list.filter(p => p.name.toLowerCase().includes(qLower) || p.description.toLowerCase().includes(qLower));
+    }
+    return NextResponse.json(list);
+  }
 
   // Base: storefront only needs active products.
   let query = supabaseAdmin.from("products").select("*").eq("active", true);
@@ -38,4 +50,3 @@ export async function GET(req: Request) {
 
   return NextResponse.json(((data ?? []) as ProductRow[]).map((row) => productFromRow(row)));
 }
-

@@ -29,16 +29,21 @@ export function ProductCard({
 }) {
   const { add } = useCart();
   const [added, setAdded] = useState(false);
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    product.variants[0]?.id || ""
+  );
 
-  const variant = defaultVariant(product);
-  const { min, hasRange } = priceRange(product);
+  const activeVariant =
+    product.variants.find((v) => v.id === selectedVariantId) ||
+    defaultVariant(product);
+
   const available = inStock(product);
   const discount = bestDiscountPct(product);
   const featureTag = (product.tags ?? [])[0];
   const href = `/product/${product.slug}`;
 
   function quickAdd() {
-    add(toCartItem(product, variant));
+    add(toCartItem(product, activeVariant));
     setAdded(true);
     setTimeout(() => setAdded(false), 1400);
   }
@@ -83,7 +88,7 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col p-3 sm:p-4">
         <span className="line-clamp-1 text-[11px] font-medium uppercase tracking-wide text-ink-400 sm:text-xs">
-          {product.categoryLabel ?? " "}
+          {product.categoryLabel ?? " "}
         </span>
         <h3 className="mt-1 line-clamp-2 min-h-[2.4rem] font-serif text-sm font-semibold leading-snug text-maroon-900 sm:min-h-[2.75rem] sm:text-base">
           <Link href={href} className="transition-colors hover:text-saffron-600">
@@ -97,17 +102,35 @@ export function ProductCard({
 
         <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <span className="text-base font-bold text-maroon-900 sm:text-lg">
-            {hasRange && (
-              <span className="mr-1 text-xs font-medium text-ink-400">from</span>
-            )}
-            {formatINR(min)}
+            {formatINR(activeVariant.price)}
           </span>
-          {variant.mrp && variant.mrp > variant.price && (
+          {activeVariant.mrp && activeVariant.mrp > activeVariant.price && (
             <span className="text-sm text-ink-400 line-through">
-              {formatINR(variant.mrp)}
+              {formatINR(activeVariant.mrp)}
             </span>
           )}
         </div>
+
+        {/* Weight variants selection (inline weight selector) */}
+        {product.variants.length > 1 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {product.variants.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => setSelectedVariantId(v.id)}
+                className={cn(
+                  "rounded-md border px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer",
+                  v.id === selectedVariantId
+                    ? "bg-ink-900 border-ink-900 text-white shadow-sm"
+                    : "bg-white border-cream-200 text-ink-800 hover:bg-cream-50"
+                )}
+              >
+                {v.label}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="mt-auto flex items-center gap-2 pt-3">
           <button
@@ -136,8 +159,8 @@ export function ProductCard({
             href={waLink(
               productEnquiryMessage(
                 product.name,
-                variantLabel(variant),
-                variant.price,
+                variantLabel(activeVariant),
+                activeVariant.price,
               ),
             )}
             target="_blank"

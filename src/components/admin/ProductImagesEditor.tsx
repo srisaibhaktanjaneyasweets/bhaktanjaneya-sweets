@@ -9,6 +9,19 @@ import { AdminButton, Field, inputClass } from "./ui";
 import { uploadProductImage } from "@/lib/api/upload";
 
 
+function isVideo(src: string): boolean {
+  if (!src) return false;
+  if (src.startsWith("data:video/")) return true;
+  const cleanSrc = src.split(/[?#]/)[0].toLowerCase();
+  return (
+    cleanSrc.endsWith(".mp4") ||
+    cleanSrc.endsWith(".webm") ||
+    cleanSrc.endsWith(".ogg") ||
+    cleanSrc.endsWith(".mov") ||
+    cleanSrc.endsWith(".m4v")
+  );
+}
+
 function normalizeImages(images: string[]) {
   // Ensure at least one empty slot for UX.
   const cleaned = (images ?? []).map((s) => s ?? "").filter((s) => typeof s === "string");
@@ -54,14 +67,14 @@ export function ProductImagesEditor({
   return (
     <Field
       label="Product images"
-      hint="Upload images (stored in Supabase storage)." 
+      hint="Upload images or videos (stored in Supabase storage)." 
     >
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-3">
           <input
             ref={fileRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/ogg,video/quicktime"
             className="hidden"
             onChange={onFileSelected}
           />
@@ -72,7 +85,7 @@ export function ProductImagesEditor({
             disabled={uploading}
           >
             <Upload size={16} />
-            {uploading ? "Uploading…" : "Upload image"}
+            {uploading ? "Uploading…" : "Upload image/video"}
           </AdminButton>
 
           <AdminButton
@@ -108,14 +121,18 @@ export function ProductImagesEditor({
               </div>
 
               {img?.trim() ? (
-                <div className="relative h-24 w-full overflow-hidden rounded-lg border border-cream-200 bg-cream-50">
-                  <Image
-                    src={img}
-                    alt="Product image"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, 240px"
-                  />
+                <div className="relative h-24 w-full overflow-hidden rounded-lg border border-cream-200 bg-cream-50 flex items-center justify-center">
+                  {isVideo(img) ? (
+                    <video src={img} controls className="h-full w-full object-cover" muted />
+                  ) : (
+                    <Image
+                      src={img}
+                      alt="Product image"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, 240px"
+                    />
+                  )}
                 </div>
               ) : null}
             </div>

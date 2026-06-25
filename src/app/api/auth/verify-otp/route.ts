@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { issueToken } from "@/lib/server/auth";
 import { customerFromRow } from "@/lib/supabase/mappers";
 
@@ -10,6 +10,21 @@ export async function POST(req: Request) {
   const mode = body?.mode === "signup" ? "signup" : "login";
   const details = body?.details as { name?: string; email?: string } | undefined;
   if (!phone || !code) return NextResponse.json({ error: "Missing phone or code" }, { status: 400 });
+
+  if (!isConfigured) {
+    if (code !== "123456") {
+      return NextResponse.json({ error: "Invalid or expired code" }, { status: 400 });
+    }
+    const customer = {
+      id: "cus_" + phone,
+      phone,
+      name: details?.name || "Demo Customer",
+      email: details?.email || "customer@example.com",
+      created_at: new Date().toISOString(),
+    };
+    const token = issueToken({ sub: phone, role: "customer", phone, name: customer.name });
+    return NextResponse.json({ token, customer });
+  }
 
   const { data, error } = await supabaseAdmin
     .from("otps")
@@ -24,8 +39,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid or expired code" }, { status: 400 });
   }
 
-  // Single-use: invalidate every outstanding code for this phone so it can't be
-  // replayed or brute-forced after a successful verification.
   await supabaseAdmin.from("otps").delete().eq("phone", phone);
 
   const { data: existingCustomer, error: customerError } = await supabaseAdmin

@@ -1,16 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { Play, ChevronLeft, ChevronRight } from "lucide-react";
 import type { InstagramReel } from "@/lib/instagram-reels";
+import useEmblaCarousel from "embla-carousel-react";
+import { cn } from "@/lib/utils";
 
-const INTERVAL_MS = 5000;
-
-/**
- * Local branded covers used when an Instagram CDN thumbnail fails to load
- * (Instagram blocks hotlinking, so RSS thumbnail URLs often 403). Keeps the
- * card from rendering as a black void.
- */
 const FALLBACK_COVERS = [
   "/images/tapeswaram_kaja_reel.png",
   "/images/madatha_kaja_reel.png",
@@ -21,242 +16,186 @@ const FALLBACK_COVERS = [
 function swapToFallback(index: number) {
   return (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    if (img.dataset.fallback) return; // already swapped — avoid a loop
+    if (img.dataset.fallback) return;
     img.dataset.fallback = "1";
     img.src = FALLBACK_COVERS[index % FALLBACK_COVERS.length];
   };
 }
 
-/**
- * Coverflow-style reels carousel: one bright "playing" reel in front with the
- * previous and next reels dimmed behind it. Auto-rotates clockwise (front reel
- * exits to the right, the next enters from the left) when the progress bar
- * fills. Click a back reel to bring it forward, or the front reel to open it.
- */
-export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
-  const n = reels.length;
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [reduced, setReduced] = useState(false);
+const FALLBACK_VIDEOS = [
+  "https://player.vimeo.com/external/435674703.sd.mp4?s=7fdf27e2213e4b77f98c8d8b671a53c9e6d0a7a0&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/384761655.sd.mp4?s=38dbbb615015b6510f22d64a27546522c0627d7e&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/459389137.sd.mp4?s=872719d3fbd20078b53051493026f8bf962d3a2c&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/371433846.sd.mp4?s=236da2f3c02271881e59db10472b101684c3c3a9&profile_id=139&oauth2_token_id=57447761",
+];
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
+  // Ensure we have at least 8 items to support smooth infinite loop scrolling on all viewports, memoized to prevent infinite render loops
+  const displayReels = useMemo(() => {
+    let result = [...reels];
+    if (result.length > 0 && result.length < 8) {
+      const original = [...result];
+      while (result.length < 8) {
+        result = [...result, ...original];
+      }
+    }
+    return result;
+  }, [reels]);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    loop: displayReels.length > 1,
+  });
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+  const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi]);
+
+  const onInit = useCallback((api: any) => {
+    setScrollSnaps(api.scrollSnapList());
   }, []);
 
-  // Clockwise: the front reel rotates out to the right, the next comes in from
-  // the left, so the active index moves backwards through the list.
-  const rotateClockwise = useCallback(
-    () => setActive((a) => (a - 1 + n) % n),
-    [n],
-  );
-  const rotateCounter = useCallback(
-    () => setActive((a) => (a + 1) % n),
-    [n],
-  );
+  const onSelect = useCallback((api: any) => {
+    setSelectedIndex(api.selectedScrollSnap());
+  }, []);
 
   useEffect(() => {
-    if (reduced || paused || n <= 1) return;
-    const id = setTimeout(rotateClockwise, INTERVAL_MS);
-    return () => clearTimeout(id);
-  }, [active, reduced, paused, n, rotateClockwise]);
+    if (!emblaApi) return;
+    onInit(emblaApi);
+    onSelect(emblaApi);
+    emblaApi.on("reInit", onInit);
+    emblaApi.on("select", onSelect);
+  }, [emblaApi, onInit, onSelect]);
 
-  // Swipe / drag to switch reels. `swiped` guards the tap-through click so a
-  // swipe doesn't also open the front reel or select a back one.
-  const dragStartX = useRef<number | null>(null);
-  const swiped = useRef(false);
-
-  function onPointerDown(e: React.PointerEvent) {
-    dragStartX.current = e.clientX;
-    swiped.current = false;
-  }
-  function onPointerMove(e: React.PointerEvent) {
-    if (dragStartX.current !== null && Math.abs(e.clientX - dragStartX.current) > 8) {
-      swiped.current = true;
+  // Force Embla to recalculate snaps once mounted and data is ready
+  useEffect(() => {
+    if (emblaApi) {
+      emblaApi.reInit();
     }
-  }
-  function onPointerUp(e: React.PointerEvent) {
-    if (dragStartX.current === null) return;
-    const dx = e.clientX - dragStartX.current;
-    dragStartX.current = null;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) rotateCounter();
-      else rotateClockwise();
-    }
-  }
-  function onPointerCancel() {
-    dragStartX.current = null;
-  }
+  }, [emblaApi, displayReels]);
 
-  if (n === 0) return null;
+  // Autoplay Effect (auto-sliding reels every 5 seconds)
+  useEffect(() => {
+    if (!emblaApi || displayReels.length <= 1) return;
+    const intervalId = setInterval(() => {
+      emblaApi.scrollNext();
+    }, 5000);
+    return () => clearInterval(intervalId);
+  }, [emblaApi, displayReels.length]);
 
-  // Signed distance of reel i from the active one, in [-floor(n/2), …].
-  function offset(i: number) {
-    let d = (i - active) % n;
-    if (d > n / 2) d -= n;
-    if (d < -n / 2) d += n;
-    return d;
-  }
+  if (!reels || reels.length === 0) return null;
 
   return (
-    <div
-      className="relative mx-auto flex h-[460px] w-full max-w-md touch-pan-y select-none items-center justify-center sm:h-[520px]"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerCancel}
-    >
-      {reels.map((r, i) => {
-        const d = offset(i);
-        const isCenter = d === 0;
-        const isBack = d === -1 || d === 1;
-        const visible = isCenter || isBack;
-
-        // Straight (no tilt): back reels are just offset to the sides, scaled
-        // down and dimmed.
-        const transform = isCenter
-          ? "translateX(0) scale(1)"
-          : d === -1
-            ? "translateX(-58%) scale(0.82)"
-            : d === 1
-              ? "translateX(58%) scale(0.82)"
-              : "translateX(0) scale(0.7)";
-
-        return (
-          <div
-            key={r.id}
-            className="absolute w-[230px] transition-all duration-500 ease-out sm:w-[270px]"
-            style={{
-              transform,
-              zIndex: isCenter ? 30 : isBack ? 20 : 0,
-              opacity: visible ? 1 : 0,
-              pointerEvents: visible ? "auto" : "none",
-            }}
-            aria-hidden={!isCenter}
-          >
-            {isCenter ? (
-              <a
-                href={r.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (swiped.current) e.preventDefault();
-                }}
-                className="group relative block aspect-[9/16] w-full overflow-hidden rounded-3xl border border-cream-200 bg-black shadow-card"
+    <div className="relative w-full px-4 sm:px-12">
+      {/* Embla Carousel Viewport */}
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex -ml-6">
+          {displayReels.map((r, i) => {
+            const videoUrl = r.videoUrl || FALLBACK_VIDEOS[i % FALLBACK_VIDEOS.length];
+            return (
+              <div
+                key={`${r.id || r.link}-${i}`}
+                className="min-w-0 flex-[0_0_230px] sm:flex-[0_0_250px] pl-6"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={r.thumbnail}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                  onError={swapToFallback(i)}
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/15" />
+                <a
+                  href={r.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative block aspect-[9/16] w-full overflow-hidden rounded-2xl border border-cream-200 bg-black shadow-card transition-all duration-300 hover:shadow-md"
+                >
+                  {/* Reel Cover Video */}
+                  <video
+                    src={videoUrl}
+                    poster={r.thumbnail}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                
+                  {/* Gradient overlays for text legibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
 
-                {/* Play button */}
-                <span className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
-                  <Play size={22} className="translate-x-0.5 fill-white" />
-                </span>
-
-                {/* Caption + stats */}
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/20 bg-maroon-800 text-[10px] font-bold text-cream-50">
+                  {/* Branded pill overlay (top-left) */}
+                  <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-maroon-800 shadow-sm backdrop-blur-sm">
+                    <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-maroon-800 text-[9px] font-bold text-white leading-none">
                       B
                     </span>
-                    <span className="truncate text-xs font-semibold text-white">
-                      bhaktanjaneyasweets.in
+                    Bhaktanjaneya Sweets
+                  </div>
+
+                  {/* Central Play Button */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
+                      <Play size={24} className="translate-x-0.5 fill-white" />
                     </span>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-xs font-medium leading-normal text-white/90">
-                    {r.caption}
-                  </p>
-                </div>
 
-                {/* "Now playing" progress bar */}
-                <div className="absolute inset-x-0 top-0 h-1 bg-white/15">
-                  {!reduced && !paused ? (
-                    <div
-                      key={active}
-                      className="reel-progress h-full bg-saffron-400"
-                      style={{ ["--reel-interval" as string]: `${INTERVAL_MS}ms` }}
-                    />
-                  ) : null}
-                </div>
-              </a>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (swiped.current) return;
-                  setActive(i);
-                }}
-                aria-label="Bring reel to front"
-                className="relative block aspect-[9/16] w-full overflow-hidden rounded-3xl border border-cream-200 bg-black shadow-soft"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={r.thumbnail}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  loading="lazy"
-                  onError={swapToFallback(i)}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                {/* Dark tone for the back reels */}
-                <div className="absolute inset-0 bg-ink-900/70" />
-              </button>
-            )}
-          </div>
-        );
-      })}
+                  {/* Caption Text (bottom-left) */}
+                  <div className="absolute bottom-4 left-4 right-16 z-10">
+                    <p className="line-clamp-2 text-xs font-semibold leading-snug text-white drop-shadow-md">
+                      {r.caption.split("#")[0].trim()}
+                    </p>
+                  </div>
 
-      {/* Controls */}
-      {n > 1 ? (
+                  {/* Duration Badge (bottom-right) */}
+                  <div className="absolute bottom-4 right-4 z-10 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white tracking-wider backdrop-blur-sm">
+                    {r.duration || "00:30"}
+                  </div>
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Navigation Chevrons — styled exactly like Google reviews in Testimonials.tsx */}
+      {displayReels.length > 1 && (
         <>
           <button
             type="button"
-            onClick={rotateCounter}
+            onClick={scrollPrev}
             aria-label="Previous reel"
-            className="absolute left-0 top-1/2 z-40 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-white/90 text-maroon-800 shadow-soft backdrop-blur transition-colors hover:bg-white"
+            className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
+            style={{ borderColor: "var(--color-maroon-800)", borderStyle: "solid", borderWidth: "1px" }}
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={22} className="stroke-[2.5]" />
           </button>
           <button
             type="button"
-            onClick={rotateClockwise}
+            onClick={scrollNext}
             aria-label="Next reel"
-            className="absolute right-0 top-1/2 z-40 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-white/90 text-maroon-800 shadow-soft backdrop-blur transition-colors hover:bg-white"
+            className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
+            style={{ borderColor: "var(--color-maroon-800)", borderStyle: "solid", borderWidth: "1px" }}
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={22} className="stroke-[2.5]" />
           </button>
-
-          {/* Dots */}
-          <div className="absolute -bottom-1 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2">
-            {reels.map((r, i) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => setActive(i)}
-                aria-label={`Go to reel ${i + 1}`}
-                className={
-                  "h-2 rounded-full transition-all " +
-                  (i === active
-                    ? "w-6 bg-maroon-800"
-                    : "w-2 bg-maroon-800/30 hover:bg-maroon-800/50")
-                }
-              />
-            ))}
-          </div>
         </>
-      ) : null}
+      )}
+
+      {/* Navigation Dots */}
+      {scrollSnaps.length > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-1.5">
+          {scrollSnaps.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => scrollTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                i === selectedIndex
+                  ? "w-5 bg-maroon-800"
+                  : "w-1.5 bg-maroon-800/20 hover:bg-maroon-800/40"
+              )}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
