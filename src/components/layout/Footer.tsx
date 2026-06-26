@@ -104,12 +104,12 @@ export function Footer() {
           </div>
 
           {/* Newsletter + contact */}
-          <div className="min-w-0 lg:col-span-1">
+          <div className="min-w-0 text-center lg:col-span-1 lg:text-left">
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-saffron-400">
               Stay in touch
             </h3>
             <NewsletterForm stacked />
-            <ul className="mt-5 space-y-2.5 text-sm text-cream-100/80">
+            <ul className="mt-5 flex flex-col items-center space-y-2.5 text-sm text-cream-100/80 lg:items-start">
               <li className="flex items-start gap-2">
                 <MapPin size={16} className="mt-0.5 shrink-0 text-saffron-400" />
                 <span className="min-w-0">{config.contact.address}</span>
@@ -133,14 +133,11 @@ export function Footer() {
 
       <div className="border-t border-cream-50/10">
         <Container>
-          <div className="flex min-w-0 flex-col items-center justify-between gap-3 py-5 text-center text-xs text-cream-100/70 sm:flex-row sm:text-left">
+          <div className="flex min-w-0 flex-col items-center justify-center gap-3 py-5 text-center text-xs text-cream-100/70">
             <p className="min-w-0">
               &copy; {new Date().getFullYear()} {config.businessName}. All rights
               reserved.
             </p>
-            <Link href="/admin" className="transition-colors hover:text-saffron-300">
-              Admin
-            </Link>
           </div>
         </Container>
       </div>

@@ -1,18 +1,21 @@
 // Editable marketing & policy copy. Kept in one place so the owner (or the
 // backend later) can update wording without touching page components.
 
+import { config } from "@/lib/config";
+import { formatINR } from "@/lib/utils";
+
 export const aboutContent = {
   intro:
-    "Bhaktanjaneya Sweets began in a family kitchen with a simple promise — pure ghee, fresh ingredients, and absolutely no artificial flavour. Today we bring those same time-honoured recipes to your doorstep.",
+    "Bhaktanjaneya Sweets began in a family kitchen in Tapeswaram with a simple promise — pure ghee, fresh ingredients, and absolutely no artificial flavour. Today we bring those same time-honoured Andhra recipes to your doorstep across India.",
   story: [
-    "What started as sweets made for family and festivals slowly grew into a small-batch kitchen trusted by Telugu homes across the country.",
+    "Tapeswaram is famous for its kaja, and our story grew from that same tradition — sweets made for family and festivals that slowly became a small-batch kitchen trusted by Telugu homes across the country.",
     "We still make everything the way we always have: in small batches, with premium ingredients, and with the patience that traditional recipes demand. Nothing leaves our kitchen unless we would happily serve it at our own table.",
     "Whether it is a festive box of Kaju Patisa or an everyday packet of Agra Mixture, every order carries the same care that started it all.",
   ],
   stats: [
     { value: "100%", label: "Pure ghee" },
     { value: "8+", label: "Signature items" },
-    { value: "5★", label: "Customer rated" },
+    { value: "4.6★", label: "Customer rated" },
     { value: "Fresh", label: "Made to order" },
   ],
 };
@@ -60,11 +63,19 @@ export const faqs: Faq[] = [
   },
   {
     q: "What areas do you deliver to?",
-    a: "We deliver across serviceable Indian PIN codes. Shipping is free on eligible orders above the free-shipping threshold; smaller orders show shipping at checkout.",
+    a: `We deliver across serviceable Indian PIN codes through trusted courier and postal partners. Shipping is free on eligible orders above ${formatINR(config.freeShippingThreshold)}; smaller orders show a delivery charge at checkout before you pay.`,
+  },
+  {
+    q: "What payment methods do you accept?",
+    a: "You can pay securely online via UPI, debit/credit cards, and net banking through our payment partner. You can also place your order directly on WhatsApp and we'll guide you through payment.",
   },
   {
     q: "Can I place a bulk or gifting order?",
-    a: "Absolutely. Visit our Bulk Orders page or message us on WhatsApp and we'll help you put together the perfect order with custom packaging.",
+    a: "Absolutely. Visit our Bulk Orders page or message us on WhatsApp and we'll help you put together the perfect order with custom packaging and the best per-kg pricing.",
+  },
+  {
+    q: "Can I cancel or change my order?",
+    a: "Cancellations and changes are easiest before we prepare or dispatch your order, so contact us as soon as possible with your order number. Once food is prepared or shipped, cancellation and refund options may be limited.",
   },
   {
     q: "Can I save my delivery address?",

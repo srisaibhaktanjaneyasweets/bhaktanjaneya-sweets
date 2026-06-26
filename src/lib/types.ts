@@ -1,6 +1,4 @@
-// Shared domain types — these double as the API contract between the
-// frontend and the backend your friend will build. Keep them in sync with
-// API_CONTRACT.md.
+// Shared domain types used across the storefront, admin panel, and API routes.
 
 export interface Variant {
   /** Unique within a product, used as the cart/order line key. */
@@ -176,6 +174,8 @@ export interface Post {
   content: string[];
   /** Hidden from the storefront when false. */
   active: boolean;
+  /** When true, this post is the large lead article on the home page. */
+  featured?: boolean;
 }
 
 export interface AdminUser {

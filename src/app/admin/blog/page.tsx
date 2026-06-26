@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { Plus, Pencil, Trash2, Newspaper, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Newspaper, Upload, Star } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import {
   AdminButton,
@@ -41,10 +41,12 @@ function PostEditor({
       readMinutes: 3,
       content: [],
       active: true,
+      featured: false,
     },
   );
   // Paragraphs are edited as plain text, one blank line between paragraphs.
   const [bodyText, setBodyText] = useState(draft.content.join("\n\n"));
+  const [slugEdited, setSlugEdited] = useState(!isNew && !!post?.slug);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -115,7 +117,7 @@ function PostEditor({
                 setDraft((d) => ({
                   ...d,
                   title,
-                  slug: isNew && !d.slug ? betterSlugify(title) : d.slug,
+                  slug: slugEdited ? d.slug : betterSlugify(title),
                 }));
               }}
               placeholder="Why we make everything in pure ghee"
@@ -125,7 +127,10 @@ function PostEditor({
             <input
               className={inputClass}
               value={draft.slug}
-              onChange={(e) => set("slug", e.target.value)}
+              onChange={(e) => {
+                setSlugEdited(true);
+                set("slug", e.target.value);
+              }}
               placeholder="why-we-make-everything-in-pure-ghee"
             />
           </Field>
@@ -238,6 +243,16 @@ function PostEditor({
           label={draft.active ? "Published (visible)" : "Draft (hidden)"}
         />
 
+        <Toggle
+          checked={!!draft.featured}
+          onChange={(v) => set("featured", v)}
+          label={
+            draft.featured
+              ? "Featured — shown as the large lead article on the home page"
+              : "Feature as the large lead article on the home page"
+          }
+        />
+
         {error ? <p className="text-sm text-maroon-700">{error}</p> : null}
       </div>
     </Modal>
@@ -317,15 +332,27 @@ export default function AdminBlogPage() {
                 {posts.map((p) => (
                   <tr key={p.id} className="hover:bg-cream-50">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-maroon-900">{p.title}</div>
+                      <div className="flex items-center gap-1.5 font-medium text-maroon-900">
+                        {p.title}
+                        {p.featured ? (
+                          <Star
+                            size={14}
+                            className="shrink-0 fill-saffron-400 text-saffron-400"
+                            aria-label="Featured lead article"
+                          />
+                        ) : null}
+                      </div>
                       <div className="text-xs text-ink-400">/blog/{p.slug}</div>
                     </td>
                     <td data-label="Date" className="px-4 py-3 text-ink-500">{p.date ? formatDate(p.date) : "—"}</td>
                     <td data-label="Read" className="px-4 py-3 text-ink-500">{p.readMinutes} min</td>
                     <td data-label="Status" className="px-4 py-3">
-                      <Badge tone={p.active ? "leaf" : "muted"}>
-                        {p.active ? "Published" : "Draft"}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Badge tone={p.active ? "leaf" : "muted"}>
+                          {p.active ? "Published" : "Draft"}
+                        </Badge>
+                        {p.featured ? <Badge tone="saffron">Featured</Badge> : null}
+                      </div>
                     </td>
                     <td data-label="Actions" className="px-4 py-3">
                       <div className="flex justify-end gap-1">

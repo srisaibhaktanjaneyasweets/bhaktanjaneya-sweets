@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MessageCircle, Mail } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { policies, policySlugs } from "@/lib/content";
 import { formatDate } from "@/lib/utils";
+import { config } from "@/lib/config";
+import { waLink } from "@/lib/whatsapp";
 
 export function generateStaticParams() {
   return policySlugs.map((slug) => ({ slug }));
@@ -102,10 +105,30 @@ export default async function PolicyPage(props: PageProps<"/policies/[slug]">) {
               ))}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-saffron-200 bg-saffron-50 p-5 text-sm text-ink-600">
-              Need help with an order or a policy question? Message us on WhatsApp
-              with your order number, phone number, and photos if the issue is
-              about delivery or product condition.
+            <div className="mt-6 rounded-2xl border border-saffron-200 bg-saffron-50 p-5">
+              <p className="text-sm text-ink-600">
+                Need help with an order or a policy question? Message us on
+                WhatsApp with your order number, phone number, and photos if the
+                issue is about delivery or product condition.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={waLink(
+                    `Hello ${config.businessName}! I have a question about the ${policy.title}.`,
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center gap-2 rounded-full bg-[#35B664] px-5 text-sm font-semibold text-white hover:bg-[#2E9E57]"
+                >
+                  <MessageCircle size={17} /> Chat on WhatsApp
+                </a>
+                <a
+                  href={`mailto:${config.contact.email}`}
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-maroon-800/30 px-5 text-sm font-semibold text-maroon-800 hover:bg-maroon-800/5"
+                >
+                  <Mail size={16} /> {config.contact.email}
+                </a>
+              </div>
             </div>
           </article>
         </div>

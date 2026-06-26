@@ -48,7 +48,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(-1)}
             aria-label="Scroll categories left"
-            className="absolute left-0 top-[46px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
+            className="absolute left-0 top-[58px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[70px]"
           >
             <ChevronLeft size={20} />
           </button>
@@ -57,7 +57,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
 
       <div
         ref={scrollerRef}
-        className="flex snap-x scroll-px-1 items-start gap-x-5 overflow-x-auto px-1 pb-2 sm:gap-x-8 md:justify-center md:gap-x-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x scroll-px-1 items-start gap-x-5 overflow-x-auto px-1 py-3 sm:gap-x-8 md:justify-center md:gap-x-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         data-cat-scroll
       >
         {categories.map((category) => (
@@ -92,7 +92,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(1)}
             aria-label="Scroll categories right"
-            className="absolute right-0 top-[46px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
+            className="absolute right-0 top-[58px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[70px]"
           >
             <ChevronRight size={20} />
           </button>

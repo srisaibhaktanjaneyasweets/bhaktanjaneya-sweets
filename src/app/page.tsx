@@ -1,9 +1,10 @@
 import { Hero } from "@/components/home/Hero";
+import { ScrollToHero } from "@/components/home/ScrollToHero";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
 import { FeaturedShowcase } from "@/components/home/FeaturedShowcase";
 import { OfferBanner } from "@/components/home/OfferBanner";
-import { Testimonials } from "@/components/home/Testimonials";
+import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { InstagramReels } from "@/components/home/InstagramReels";
 import { BlogTeasers } from "@/components/home/BlogTeasers";
 import { NewsletterCTA } from "@/components/home/NewsletterCTA";
@@ -11,9 +12,26 @@ import { getProducts } from "@/lib/api/products";
 import { getFeaturedTags } from "@/lib/api/tags";
 import { getLiveGoogleReviews } from "@/lib/google-reviews";
 import { getLiveInstagramReels } from "@/lib/instagram-reels";
+import { config } from "@/lib/config";
+import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// ISR: serve a cached home page and rebuild it at most once a minute. Repeat
+// visits are instant instead of re-running every Supabase query + third-party
+// call on each request. Admin catalog edits appear within ~60s.
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
+  description:
+    `${config.tagline} Order fresh traditional Indian sweets, laddu, kaja and namkeen online or instantly on WhatsApp, delivered across India.`,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
+    description: config.tagline,
+    type: "website",
+    url: config.siteUrl,
+  },
+};
 
 export default async function HomePage() {
   const [products, featuredTags, liveReviewsData, liveReels] = await Promise.all([
@@ -41,6 +59,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <ScrollToHero />
       <Hero />
       <TrustStrip />
       {tagRails.map((rail, i) => {
@@ -83,13 +102,45 @@ export default async function HomePage() {
           </div>
         );
       })}
-      <Testimonials
+      <ReviewsSection
         reviews={liveReviewsData.reviews}
         ratingSummary={liveReviewsData.ratingSummary}
       />
       <InstagramReels reels={liveReels} />
       <BlogTeasers />
       <NewsletterCTA />
+
+      {/* SEO: Organization + aggregate rating structured data (Google rich results). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: config.businessName,
+            url: config.siteUrl,
+            description: config.tagline,
+            logo: `${config.siteUrl}/images/logo.png`,
+            telephone: config.contact.phone,
+            email: config.contact.email,
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: config.contact.address,
+              addressCountry: "IN",
+            },
+            sameAs: [
+              config.social.instagram,
+              config.social.facebook,
+              config.social.youtube,
+            ],
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: liveReviewsData.ratingSummary.average,
+              reviewCount: liveReviewsData.ratingSummary.count,
+            },
+          }),
+        }}
+      />
     </>
   );
 }

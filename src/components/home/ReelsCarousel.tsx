@@ -95,7 +95,7 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
             return (
               <div
                 key={`${r.id || r.link}-${i}`}
-                className="min-w-0 flex-[0_0_70%] sm:flex-[0_0_250px] pl-6"
+                className="min-w-0 flex-[0_0_78%] sm:flex-[0_0_320px] lg:flex-[0_0_360px] pl-6"
               >
                 <a
                   href={r.link}
@@ -155,7 +155,7 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
         </div>
       </div>
 
-      {/* Navigation Chevrons — styled exactly like Google reviews in Testimonials.tsx */}
+      {/* Navigation Chevrons */}
       {displayReels.length > 1 && (
         <>
           <button

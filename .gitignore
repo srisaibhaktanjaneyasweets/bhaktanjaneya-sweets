@@ -42,5 +42,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# claude code (local, machine-specific settings)
-.claude/settings.local.json
+# local editor/tooling settings
+.vscode/
+.idea/

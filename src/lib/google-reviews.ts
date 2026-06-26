@@ -90,7 +90,9 @@ export async function getFeaturableReviews() {
   try {
     const res = await fetch(
       `https://featurable.com/api/v2/widgets/${widgetId}`,
-      { cache: "no-store" }, // always fetch fresh so API edits show up immediately
+      // Cache for 30 min so we don't hit a slow third-party on every page load,
+      // and cap the request at 4s so a hanging service can never block render.
+      { next: { revalidate: 1800 }, signal: AbortSignal.timeout(4000) },
     );
     const data = await res.json();
     const widget = data?.widget;
@@ -144,7 +146,8 @@ export async function getLiveGoogleReviews() {
   try {
     const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&key=${apiKey}`;
     const res = await fetch(url, {
-      next: { revalidate: 0 }, // Temporarily disable cache to force fresh calls during configuration testing
+      next: { revalidate: 1800 }, // cache 30 min instead of fetching every load
+      signal: AbortSignal.timeout(4000),
     });
     
     const data = await res.json();

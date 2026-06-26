@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { config } from "@/lib/config";
 import { waLink } from "@/lib/whatsapp";
+
+type ContactDetail = {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  href?: string;
+  external?: boolean;
+};
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -11,7 +20,7 @@ export const metadata: Metadata = {
     "Get in touch with Bhaktanjaneya Sweets. Order on WhatsApp, call us, or send an enquiry for sweets, namkeen, and bulk gifting.",
 };
 
-const details = [
+const details: ContactDetail[] = [
   {
     icon: Phone,
     label: "Phone",
@@ -28,11 +37,15 @@ const details = [
     icon: MapPin,
     label: "Address",
     value: config.contact.address,
+    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      `${config.businessName}, ${config.contact.address}`,
+    )}`,
+    external: true,
   },
   {
     icon: Clock,
     label: "Hours",
-    value: "Mon – Sat, 9:00 AM – 8:00 PM",
+    value: config.supportHours,
   },
 ];
 
@@ -58,7 +71,7 @@ export default function ContactPage() {
                 Contact details
               </h2>
               <ul className="mt-5 space-y-4">
-                {details.map(({ icon: Icon, label, value, href }) => (
+                {details.map(({ icon: Icon, label, value, href, external }) => (
                   <li key={label} className="flex items-start gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream-100 text-maroon-800">
                       <Icon size={18} />
@@ -70,6 +83,9 @@ export default function ContactPage() {
                       {href ? (
                         <a
                           href={href}
+                          {...(external
+                            ? { target: "_blank", rel: "noopener noreferrer" }
+                            : {})}
                           className="text-sm font-medium text-maroon-900 hover:text-saffron-600"
                         >
                           {value}
@@ -83,6 +99,10 @@ export default function ContactPage() {
                   </li>
                 ))}
               </ul>
+
+              <p className="mt-4 text-xs text-ink-400">
+                We usually reply within a few hours during business hours.
+              </p>
 
               <a
                 href={waLink(`Hello ${config.businessName}! I have a question.`)}

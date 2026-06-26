@@ -61,7 +61,7 @@ export function ReviewsMarquee({ reviews }: { reviews: GoogleReview[] }) {
         <div className="marquee-group relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]">
           <ul
             className="flex w-max animate-marquee"
-            style={{ ["--marquee-duration" as string]: `${Math.max(24, reviews.length * 9)}s` }}
+            style={{ ["--marquee-duration" as string]: `${Math.max(80, reviews.length * 26)}s` }}
           >
             {Array.from({ length: 4 })
               .flatMap(() => reviews)

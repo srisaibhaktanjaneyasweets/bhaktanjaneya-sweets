@@ -42,6 +42,9 @@ function CategoryEditor({
   );
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
+  // Track whether the admin has hand-edited the slug. Until they do, the slug
+  // mirrors the name on every keystroke; after, we leave their slug alone.
+  const [slugEdited, setSlugEdited] = useState(!isNew && !!category?.slug);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function onImageSelected(e: React.ChangeEvent<HTMLInputElement>) {
@@ -97,14 +100,11 @@ function CategoryEditor({
             value={draft.name}
             onChange={(e) => {
               const name = e.target.value;
-              setDraft((d) => {
-                const shouldAutoSlug = isNew && !d.slug;
-                return {
-                  ...d,
-                  name,
-                  slug: shouldAutoSlug ? betterSlugify(name) : d.slug,
-                };
-              });
+              setDraft((d) => ({
+                ...d,
+                name,
+                slug: slugEdited ? d.slug : betterSlugify(name),
+              }));
             }}
             placeholder="Sweets"
           />
@@ -114,7 +114,10 @@ function CategoryEditor({
           <input
             className={inputClass}
             value={draft.slug}
-            onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))}
+            onChange={(e) => {
+              setSlugEdited(true);
+              setDraft((d) => ({ ...d, slug: e.target.value }));
+            }}
             placeholder="sweets"
           />
         </Field>
@@ -226,6 +229,7 @@ function TagEditor({
     },
   );
   const [error, setError] = useState("");
+  const [slugEdited, setSlugEdited] = useState(!isNew && !!tag?.slug);
 
   // Featuring this tag would exceed the cap only when the slots are already
   // full with OTHER tags (editing an already-featured tag stays allowed).
@@ -279,14 +283,11 @@ function TagEditor({
             value={draft.name}
             onChange={(e) => {
               const name = e.target.value;
-              setDraft((d) => {
-                const shouldAutoSlug = isNew && !d.slug;
-                return {
-                  ...d,
-                  name,
-                  slug: shouldAutoSlug ? betterSlugify(name) : d.slug,
-                };
-              });
+              setDraft((d) => ({
+                ...d,
+                name,
+                slug: slugEdited ? d.slug : betterSlugify(name),
+              }));
             }}
             placeholder="Best Sellers"
           />
@@ -296,7 +297,10 @@ function TagEditor({
           <input
             className={inputClass}
             value={draft.slug}
-            onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))}
+            onChange={(e) => {
+              setSlugEdited(true);
+              setDraft((d) => ({ ...d, slug: e.target.value }));
+            }}
             placeholder="best-seller"
           />
         </Field>

@@ -1,6 +1,3 @@
-// Central runtime config. All values that the backend/owner will change live
-// here, sourced from environment variables (see .env.example).
-
 export const config = {
   businessName: "Bhaktanjaneya Sweets",
   tagline: "Pure ghee sweets & crunchy namkeen, made fresh.",
@@ -11,9 +8,7 @@ export const config = {
   /** Public site URL, used for SEO/Open Graph absolute URLs. */
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
 
-  /** Link to the business's Google reviews / Maps listing. Set this to your real
-   *  Google Business Profile URL so the "Read all reviews on Google" button works.
-   *  Falls back to a Google search until configured. */
+  /** Link to the business's Google reviews / Maps listing. */
   googleReviewsUrl:
     process.env.NEXT_PUBLIC_GOOGLE_REVIEWS_URL ??
     "https://share.google/VtpbijkHqNKIoOb48",
@@ -21,10 +16,10 @@ export const config = {
   /** Base URL for the Next.js API routes. Empty env resolves to /api. */
   apiBaseUrl: (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/$/, ""),
 
-  /** Razorpay publishable key id (phase 2). Secret stays on the backend. */
+  /** Razorpay publishable key id. Secret stays on the server. */
   razorpayKeyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "",
 
-  /** True when Razorpay env is fully configured (frontend only checks publishable key presence). */
+  /** True when Razorpay env is fully configured. */
   razorpayEnabled:
     Boolean(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) &&
     process.env.NODE_ENV !== "test",
@@ -40,14 +35,17 @@ export const config = {
   contact: {
     phone: "+91 99999 99999",
     email: "orders@bhaktanjaneyasweets.com",
-    address: "Hyderabad, Telangana, India",
+    address: "Rajamahendravaram, Andhra Pradesh, India",
   },
 
   social: {
-    instagram: "https://instagram.com/",
+    instagram: "https://www.instagram.com/bhaktanjaneyasweets.in/",
     facebook: "https://facebook.com/",
     youtube: "https://youtube.com/",
   },
+
+  /** Customer-support hours, shown on the Contact page. */
+  supportHours: "Mon - Sat, 9:00 AM - 8:00 PM",
 };
 
 export type AppConfig = typeof config;

@@ -114,7 +114,12 @@ export async function getRssReels(): Promise<InstagramReel[] | null> {
   if (!feedUrl) return null;
 
   try {
-    const res = await fetch(feedUrl, { cache: "no-store" });
+    // Cache the feed for 30 min and cap at 4s so a slow rss.app/Instagram CDN
+    // can't block the home page render on every visit.
+    const res = await fetch(feedUrl, {
+      next: { revalidate: 1800 },
+      signal: AbortSignal.timeout(4000),
+    });
     const contentType = res.headers.get("content-type") ?? "";
     const body = await res.text();
 
@@ -145,6 +150,7 @@ export async function getLiveInstagramReels(): Promise<InstagramReel[]> {
     const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&limit=12&access_token=${token}`;
     const res = await fetch(url, {
       next: { revalidate: 3600 }, // Cache Instagram reels server-side for 1 hour
+      signal: AbortSignal.timeout(4000),
     });
 
     const data = (await res.json()) as { data?: Array<Record<string, unknown>> };

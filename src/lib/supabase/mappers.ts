@@ -241,6 +241,7 @@ export function postFromRow(row: Row): Post {
       ? row.content.filter((p): p is string => typeof p === "string")
       : [],
     active: row.active !== false,
+    featured: row.featured === true,
   };
 }
 

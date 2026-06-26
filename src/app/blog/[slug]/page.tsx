@@ -9,7 +9,8 @@ import { formatDate } from "@/lib/utils";
 import { config } from "@/lib/config";
 import { waLink } from "@/lib/whatsapp";
 
-export const dynamic = "force-dynamic";
+// ISR: cached article pages, rebuilt at most once a minute.
+export const revalidate = 60;
 
 export async function generateMetadata(
   props: PageProps<"/blog/[slug]">,

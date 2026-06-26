@@ -67,7 +67,7 @@ export function Hero() {
   }, [emblaApi, reducedMotion]);
 
   return (
-    <section className="relative bg-cream-100">
+    <section id="hero" className="relative scroll-mt-16 bg-cream-100 lg:scroll-mt-32">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {slides.map((s, i) => (

@@ -110,10 +110,12 @@ export function ProductCard({
           )}
         </div>
 
-        {/* Weight variants (real weights from product data) */}
-        {product.variants.length > 1 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {product.variants.map((v) => (
+        {/* Weight variants (real weights from product data). The row always
+            reserves its height — even for single-variant products — so cards
+            never render shorter than their neighbours. */}
+        <div className="mt-2 flex min-h-[1.625rem] flex-wrap gap-1">
+          {product.variants.length > 1 &&
+            product.variants.map((v) => (
               <button
                 key={v.id}
                 type="button"
@@ -128,8 +130,7 @@ export function ProductCard({
                 {v.label}
               </button>
             ))}
-          </div>
-        )}
+        </div>
 
         <div className="mt-auto flex items-center gap-2 pt-2.5">
           <button
