@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand palette — warm, traditional Indian sweets */
-  --color-cream-50: #fffaf3;
-  --color-cream-100: #fff3e3;
-  --color-cream-200: #f8e8d2;
-  --color-cream-300: #f0d8ba;
+  /* Brand palette — golden-white canvas, pistachio + gold accents, espresso ink */
+  --color-cream-50: #fffdf7;
+  --color-cream-100: #fbf5e9;
+  --color-cream-200: #f2e9d6;
+  --color-cream-300: #e8dbc2;
 
-  --color-maroon-600: #8a1a2b;
-  --color-maroon-700: #74121f;
-  --color-maroon-800: #5d0e19;
-  --color-maroon-900: #470a13;
+  /* "maroon" scale — deep warm russet (orange-brown), pairs with gold accents */
+  --color-maroon-600: #8c4618;
+  --color-maroon-700: #793b13;
+  --color-maroon-800: #6b340e;
+  --color-maroon-900: #55290c;
+  --color-maroon-950: #411f08;
 
   --color-saffron-300: #f8c06b;
   --color-saffron-400: #f4a73a;
@@ -24,6 +26,15 @@
   --color-leaf-500: #3a9461;
   --color-leaf-600: #2f7d4f;
 
+  /* Pistachio — soft, muted secondary accent (fresh, not lime) */
+  --color-pista-50: #f4f8ee;
+  --color-pista-100: #e7f0db;
+  --color-pista-200: #cfe0bb;
+  --color-pista-400: #9cbd79;
+  --color-pista-500: #6f9a50;
+  --color-pista-600: #547a3a;
+  --color-pista-700: #41602e;
+
   --color-ink-900: #2a1810;
   --color-ink-700: #4a3528;
   --color-ink-500: #6f5848;
@@ -32,13 +43,13 @@
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-heading), ui-serif, Georgia, "Times New Roman", serif;
 
-  --shadow-card: 0 8px 30px -12px rgba(71, 10, 19, 0.22);
-  --shadow-soft: 0 2px 12px -4px rgba(71, 10, 19, 0.12);
+  --shadow-card: 0 8px 30px -12px rgba(46, 36, 23, 0.18);
+  --shadow-soft: 0 2px 12px -4px rgba(46, 36, 23, 0.10);
 }
 
 :root {
-  --background: #fffaf3;
-  --foreground: #2a1810;
+  --background: #fffdf7;
+  --foreground: #2e2417;
 }
 
 html {
@@ -178,6 +189,30 @@ body {
 .reel-progress {
   transform-origin: left;
   animation: reel-progress var(--reel-interval, 5s) linear forwards;
+}
+
+/* Pulsing gold halo for the welcome-offer banner — a soft gold glow around the
+   card edge that gently breathes. Pure box-shadow, so it renders AND animates in
+   every browser (incl. Safari / iOS, where the old @property shimmer did not).
+   The base shadow (--shadow-card) is folded in so the card keeps its depth.
+   Reduced-motion (below) freezes it to a steady gold glow. */
+@keyframes offer-halo {
+  0%,
+  100% {
+    box-shadow:
+      var(--shadow-card),
+      0 0 22px 2px rgba(201, 150, 30, 0.45),
+      0 0 8px 0 rgba(245, 221, 149, 0.5);
+  }
+  50% {
+    box-shadow:
+      var(--shadow-card),
+      0 0 54px 13px rgba(201, 150, 30, 0.72),
+      0 0 18px 2px rgba(245, 221, 149, 0.92);
+  }
+}
+.offer-glow {
+  animation: offer-halo 3.2s ease-in-out infinite;
 }
 
 /* Respect users who prefer reduced motion (vestibular safety, WCAG 2.3.3). */

@@ -48,7 +48,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(-1)}
             aria-label="Scroll categories left"
-            className="absolute left-0 top-[42px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[50px]"
+            className="absolute left-0 top-[46px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
           >
             <ChevronLeft size={20} />
           </button>
@@ -64,18 +64,20 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
           <Link
             key={category.id}
             href={`/collections/${category.slug}`}
-            className="group flex w-[76px] shrink-0 snap-start flex-col items-center sm:w-[92px]"
+            className="group flex w-[88px] shrink-0 snap-start flex-col items-center sm:w-[112px]"
           >
-            <div className="relative h-[76px] w-[76px] overflow-hidden rounded-full border border-maroon-800/15 bg-white shadow-sm transition-transform duration-200 group-hover:scale-[1.03] sm:h-[92px] sm:w-[92px]">
-              <Image
-                src={getCategoryImage(category)}
-                alt={category.name}
-                fill
-                sizes="92px"
-                className="object-cover"
-              />
+            <div className="relative rounded-full bg-gold-400/70 p-[2px] shadow-sm transition duration-200 group-hover:scale-[1.04] group-hover:bg-gold-500 group-hover:shadow-card">
+              <div className="relative h-[88px] w-[88px] overflow-hidden rounded-full border-2 border-white bg-cream-100 sm:h-[112px] sm:w-[112px]">
+                <Image
+                  src={getCategoryImage(category)}
+                  alt={category.name}
+                  fill
+                  sizes="112px"
+                  className="object-cover"
+                />
+              </div>
             </div>
-            <span className="mt-2.5 line-clamp-2 h-[2.2rem] text-center text-[11px] font-medium leading-snug tracking-tight text-maroon-900/90 sm:text-xs">
+            <span className="mt-3 line-clamp-2 h-[2.2rem] text-center text-xs font-medium leading-snug tracking-tight text-maroon-900/90 transition-colors group-hover:text-maroon-700 sm:text-[13px]">
               {category.name}
             </span>
           </Link>
@@ -90,7 +92,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(1)}
             aria-label="Scroll categories right"
-            className="absolute right-0 top-[42px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[50px]"
+            className="absolute right-0 top-[46px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
           >
             <ChevronRight size={20} />
           </button>

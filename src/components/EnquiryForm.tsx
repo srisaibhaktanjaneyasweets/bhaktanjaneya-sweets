@@ -75,7 +75,7 @@ export function EnquiryForm({
       {error && <p className="mt-2 text-sm text-maroon-700">{error}</p>}
       <button
         type="submit"
-        className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-semibold text-white hover:bg-[#1fb457]"
+        className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#35B664] text-sm font-semibold text-white hover:bg-[#2E9E57]"
       >
         <MessageCircle size={18} /> {ctaLabel}
       </button>

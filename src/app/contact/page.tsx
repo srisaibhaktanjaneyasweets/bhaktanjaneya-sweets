@@ -88,7 +88,7 @@ export default function ContactPage() {
                 href={waLink(`Hello ${config.businessName}! I have a question.`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-semibold text-white hover:bg-[#1fb457]"
+                className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#35B664] text-sm font-semibold text-white hover:bg-[#2E9E57]"
               >
                 <MessageCircle size={18} /> Message us on WhatsApp
               </a>

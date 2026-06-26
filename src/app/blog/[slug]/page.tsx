@@ -96,7 +96,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
                 href={waLink(`Hello ${config.businessName}!`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[#25D366] px-6 text-sm font-semibold text-white hover:bg-[#1fb457]"
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-[#35B664] px-6 text-sm font-semibold text-white hover:bg-[#2E9E57]"
               >
                 <MessageCircle size={17} /> WhatsApp
               </a>

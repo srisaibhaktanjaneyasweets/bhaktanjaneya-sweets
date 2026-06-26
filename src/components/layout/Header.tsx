@@ -197,7 +197,7 @@ export function Header() {
               href={waLink(`Hello ${config.businessName}! I have a question.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden h-10 items-center gap-2 rounded-full bg-[#25D366] px-4 text-sm font-medium text-white transition-colors hover:bg-[#1fb457] md:inline-flex"
+              className="hidden h-10 items-center gap-2 rounded-full bg-[#35B664] px-4 text-sm font-medium text-white transition-colors hover:bg-[#2E9E57] md:inline-flex"
             >
               <MessageCircle size={18} />
               WhatsApp
@@ -410,7 +410,7 @@ export function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "mt-3 flex h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-medium text-white",
+                  "mt-3 flex h-11 items-center justify-center gap-2 rounded-full bg-[#35B664] text-sm font-medium text-white",
                 )}
               >
                 <MessageCircle size={18} />

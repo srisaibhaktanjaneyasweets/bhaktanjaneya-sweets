@@ -435,7 +435,7 @@ export default function AdminOrdersPage() {
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#25D366] text-sm font-semibold text-white hover:bg-[#1fb457]"
+              className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#35B664] text-sm font-semibold text-white hover:bg-[#2E9E57]"
             >
               <MessageCircle size={17} /> Message customer
             </a>

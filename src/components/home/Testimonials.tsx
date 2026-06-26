@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Star, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import useEmblaCarousel from "embla-carousel-react";
 import { config } from "@/lib/config";
 
@@ -114,13 +115,14 @@ export function Testimonials({ reviews, ratingSummary }: any) {
   const summary = ratingSummary || { average: 4.6, count: 750 };
 
   return (
-    <section className="py-16 bg-cream-50/30">
+    <section className="py-16 bg-pista-50">
       <Container>
-        <div className="text-center mb-10">
-          <h2 className="font-serif text-3xl font-bold text-maroon-900 sm:text-4xl">
-            A Taste Loved by Many
-          </h2>
-        </div>
+        <SectionHeading
+          eyebrow="Kind words"
+          title="A Taste Loved by Many"
+          subtitle="From festive gifting to everyday treats — here's what our customers say."
+          align="center"
+        />
 
 
         <div className="relative px-4 sm:px-12">
@@ -132,13 +134,18 @@ export function Testimonials({ reviews, ratingSummary }: any) {
                   key={`${t.name}-${idx}`}
                   className="min-w-0 flex-[0_0_100%] pl-6 md:flex-[0_0_50%]"
                 >
-                  <div className="flex h-full flex-col items-center justify-between rounded-xl bg-zinc-200/60 p-8 text-center border border-cream-200/50 shadow-sm transition-all duration-300 hover:shadow-md">
+                  <div className="flex h-full flex-col items-center justify-between rounded-2xl bg-white p-8 text-center border border-cream-200 shadow-soft transition-all duration-300 hover:border-gold-400/40 hover:shadow-card">
+                    <div className="mb-4 flex items-center gap-1">
+                      {Array.from({ length: 5 }).map((_, s) => (
+                        <Star key={s} size={16} className="fill-gold-500 text-gold-500" />
+                      ))}
+                    </div>
                     <blockquote className="text-base font-medium leading-relaxed text-ink-800 max-w-lg mb-6">
                       &ldquo;{t.quote}&rdquo;
                     </blockquote>
 
                     <div className="flex items-center gap-4">
-                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-maroon-800/10 bg-white/80 p-2 flex items-center justify-center">
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-gold-400/40 bg-cream-50 p-2 flex items-center justify-center ring-1 ring-inset ring-gold-400/20">
                         <img
                           src={t.avatar}
                           alt=""
@@ -149,7 +156,7 @@ export function Testimonials({ reviews, ratingSummary }: any) {
                         <p className="text-sm font-bold text-maroon-900 tracking-wide">
                           {t.name}
                         </p>
-                        <p className="text-xs font-semibold text-saffron-600">
+                        <p className="text-xs font-semibold text-gold-600">
                           ({t.role})
                         </p>
                       </div>
@@ -165,7 +172,7 @@ export function Testimonials({ reviews, ratingSummary }: any) {
             type="button"
             onClick={scrollPrev}
             aria-label="Previous review"
-            className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
+            className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
             style={{ borderColor: "var(--color-maroon-800)", borderStyle: "solid", borderWidth: "1px" }}
           >
             <ChevronLeft size={22} className="stroke-[2.5]" />
@@ -174,7 +181,7 @@ export function Testimonials({ reviews, ratingSummary }: any) {
             type="button"
             onClick={scrollNext}
             aria-label="Next review"
-            className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
+            className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
             style={{ borderColor: "var(--color-maroon-800)", borderStyle: "solid", borderWidth: "1px" }}
           >
             <ChevronRight size={22} className="stroke-[2.5]" />

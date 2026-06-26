@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Poppins } from "next/font/google";
+import { Playfair_Display, Mulish } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
@@ -19,7 +19,7 @@ const heading = Playfair_Display({
   weight: ["500", "600", "700", "800"],
 });
 
-const body = Poppins({
+const body = Mulish({
   variable: "--font-body",
   subsets: ["latin"],
   display: "swap",

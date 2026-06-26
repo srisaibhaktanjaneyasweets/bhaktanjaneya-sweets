@@ -1,6 +1,7 @@
 import { Hero } from "@/components/home/Hero";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
+import { FeaturedShowcase } from "@/components/home/FeaturedShowcase";
 import { OfferBanner } from "@/components/home/OfferBanner";
 import { Testimonials } from "@/components/home/Testimonials";
 import { InstagramReels } from "@/components/home/InstagramReels";
@@ -42,18 +43,46 @@ export default async function HomePage() {
     <>
       <Hero />
       <TrustStrip />
-      {tagRails.map((rail, i) => (
-        <div key={rail.slug || i}>
-          <ProductCarousel
-            eyebrow={i === 0 ? "Handpicked for you" : "More to love"}
-            title={rail.title}
-            viewAllHref={rail.slug ? `/shop?tag=${rail.slug}` : "/shop"}
-            products={rail.products}
-          />
-          {/* Slot the offer banner in after the first rail. */}
-          {i === 0 ? <OfferBanner /> : null}
-        </div>
-      ))}
+      {tagRails.map((rail, i) => {
+        if (i === 0) {
+          // Flagship grid: feature the tag's picks first, then pad with other
+          // products so the two-row grid stays full even when the tag is thin.
+          const picked = rail.products.slice(0, 8);
+          const seen = new Set(picked.map((p) => p.id));
+          const flagship =
+            picked.length >= 8
+              ? picked
+              : [
+                  ...picked,
+                  ...products
+                    .filter((p) => !seen.has(p.id))
+                    .slice(0, 8 - picked.length),
+                ];
+          return (
+            <div key={rail.slug || i}>
+              <FeaturedShowcase
+                eyebrow="Handpicked for you"
+                title={rail.title}
+                subtitle="Freshly made sweets, namkeen and festive favourites — handpicked and ready to gift."
+                viewAllHref={rail.slug ? `/shop?tag=${rail.slug}` : "/shop"}
+                products={flagship}
+              />
+              {/* Slot the offer banner in after the flagship grid. */}
+              <OfferBanner />
+            </div>
+          );
+        }
+        return (
+          <div key={rail.slug || i}>
+            <ProductCarousel
+              eyebrow="More to love"
+              title={rail.title}
+              viewAllHref={rail.slug ? `/shop?tag=${rail.slug}` : "/shop"}
+              products={rail.products}
+            />
+          </div>
+        );
+      })}
       <Testimonials
         reviews={liveReviewsData.reviews}
         ratingSummary={liveReviewsData.ratingSummary}

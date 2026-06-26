@@ -10,11 +10,11 @@ export type ButtonVariant =
 export type ButtonSize = "sm" | "md" | "lg";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-maroon-800 text-cream-50 hover:bg-maroon-700",
+  primary: "bg-gold-500 text-maroon-900 hover:bg-gold-400",
   secondary: "bg-saffron-500 text-maroon-900 hover:bg-saffron-400",
   outline: "border border-maroon-800/30 text-maroon-800 hover:bg-maroon-800/5",
   ghost: "text-maroon-800 hover:bg-maroon-800/5",
-  whatsapp: "bg-[#25D366] text-white hover:bg-[#1fb457]",
+  whatsapp: "bg-[#35B664] text-white hover:bg-[#2E9E57]",
 };
 
 const sizes: Record<ButtonSize, string> = {

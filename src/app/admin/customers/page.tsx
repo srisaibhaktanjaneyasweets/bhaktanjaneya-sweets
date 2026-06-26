@@ -111,7 +111,7 @@ export default function AdminCustomersPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`Message ${c.name || c.phone}`}
-                        className="ml-auto flex h-9 w-9 items-center justify-center rounded-lg text-[#25D366] hover:bg-[#25D366]/10"
+                        className="ml-auto flex h-9 w-9 items-center justify-center rounded-lg text-[#35B664] hover:bg-[#35B664]/10"
                       >
                         <MessageCircle size={17} />
                       </a>

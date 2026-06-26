@@ -15,8 +15,7 @@ const slides = [
     text: "From melt-in-your-mouth Kaju Patisa to homestyle Junnu — crafted in small batches with pure ghee and love.",
     primary: { href: "/shop", label: "Shop Sweets" },
     secondary: { href: "/shop?tag=best-seller", label: "Best Sellers" },
-    image: "/images/ghee_ladoo_reel.png",
-    theme: "from-maroon-800 via-maroon-800 to-maroon-900",
+    image: "/images/hero/hero-laddu.png",
   },
   {
     eyebrow: "Crunchy • Spiced • Fresh",
@@ -24,8 +23,7 @@ const slides = [
     text: "Agra Mixture, Chakidalu, Flower Janthukulu and more — the perfect crunchy companions to your chai.",
     primary: { href: "/shop", label: "Shop Namkeen" },
     secondary: { href: "/shop", label: "Explore All" },
-    image: "/images/special_mixture_reel.png",
-    theme: "from-saffron-600 via-saffron-600 to-maroon-800",
+    image: "/images/hero/hero-khaja.png",
   },
   {
     eyebrow: "Welcome Offer",
@@ -33,8 +31,7 @@ const slides = [
     text: "Use code BAS10 on orders above ₹500. Free shipping over ₹700, delivered fresh across India.",
     primary: { href: "/shop", label: "Start Shopping" },
     secondary: { href: "/bulk-orders", label: "Bulk Orders" },
-    image: "/images/tapeswaram_kaja_reel.png",
-    theme: "from-gold-600 via-saffron-600 to-maroon-800",
+    image: "/images/hero/hero-mysorepak.png",
   },
 ];
 
@@ -70,62 +67,53 @@ export function Hero() {
   }, [emblaApi, reducedMotion]);
 
   return (
-    <section className="relative bg-cream-100 pb-0 pt-0">
+    <section className="relative bg-cream-100">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {slides.map((s, i) => (
             <div key={s.title} className="min-w-0 flex-[0_0_100%]">
-              <div
-                className={cn(
-                  "relative flex min-h-[440px] items-center overflow-hidden bg-gradient-to-br py-12 md:min-h-[480px] lg:min-h-[520px]",
-                  s.theme,
-                )}
-              >
-                {/* decorative glow */}
-                <div className="pointer-events-none absolute -right-16 -top-16 h-72 w-72 rounded-full bg-cream-50/10 blur-2xl" />
-                <div className="pointer-events-none absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-saffron-400/10 blur-2xl" />
+              <div className="relative flex min-h-[460px] items-center overflow-hidden py-12 md:min-h-[520px] lg:min-h-[560px]">
+                {/* Full-bleed product photo (shows on mobile + desktop) */}
+                <Image
+                  src={s.image}
+                  alt={s.title}
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className="object-cover object-center"
+                />
 
-                <Container>
-                  <div className="relative grid w-full items-center gap-8 md:grid-cols-2">
-                    <div className="max-w-xl">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-saffron-300">
-                        {s.eyebrow}
-                      </p>
-                      <h1 className="mt-3 font-serif text-3xl font-bold leading-tight text-cream-50 sm:text-4xl md:text-5xl">
-                        {s.title}
-                      </h1>
-                      <p className="mt-4 max-w-md text-sm leading-relaxed text-cream-100/85 sm:text-base">
-                        {s.text}
-                      </p>
-                      <div className="mt-7 flex flex-wrap gap-3">
-                        <Link
-                          href={s.primary.href}
-                          className="inline-flex h-12 items-center gap-2 rounded-full bg-saffron-500 px-7 text-sm font-semibold text-maroon-900 transition-colors hover:bg-saffron-400"
-                        >
-                          {s.primary.label}
-                          <ArrowRight size={18} />
-                        </Link>
-                        <Link
-                          href={s.secondary.href}
-                          className="inline-flex h-12 items-center rounded-full border border-cream-50/40 px-7 text-sm font-semibold text-cream-50 transition-colors hover:bg-cream-50/10"
-                        >
-                          {s.secondary.label}
-                        </Link>
-                      </div>
-                    </div>
+                {/* Legibility scrim — base tint + stronger fade on the text side,
+                    so copy stays readable over both dark and light photos. */}
+                <div className="pointer-events-none absolute inset-0 bg-ink-900/40" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-ink-900/85 via-ink-900/55 to-transparent" />
 
-                    <div className="hidden justify-self-center md:block">
-                      <div className="relative h-64 w-64 overflow-hidden rounded-full bg-cream-50/10 shadow-2xl ring-4 ring-cream-50/20 lg:h-80 lg:w-80">
-                        <Image
-                          src={s.image}
-                          alt=""
-                          fill
-                          priority={i === 0}
-                          sizes="(min-width: 1024px) 320px, 256px"
-                          className="object-cover"
-                        />
-                        <span className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-ink-900/10" />
-                      </div>
+                <Container className="relative">
+                  <div className="max-w-xl">
+                    <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-saffron-300">
+                      <span className="inline-block h-1.5 w-1.5 rotate-45 bg-gold-400" />
+                      {s.eyebrow}
+                    </p>
+                    <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight text-cream-50 drop-shadow-sm sm:text-4xl md:text-5xl">
+                      {s.title}
+                    </h1>
+                    <p className="mt-4 max-w-md text-sm leading-relaxed text-cream-100/90 sm:text-base">
+                      {s.text}
+                    </p>
+                    <div className="mt-7 flex flex-wrap gap-3">
+                      <Link
+                        href={s.primary.href}
+                        className="inline-flex h-12 items-center gap-2 rounded-full bg-gold-500 px-7 text-sm font-semibold text-maroon-900 shadow-sm transition-colors hover:bg-gold-400"
+                      >
+                        {s.primary.label}
+                        <ArrowRight size={18} />
+                      </Link>
+                      <Link
+                        href={s.secondary.href}
+                        className="inline-flex h-12 items-center rounded-full border border-cream-50/40 px-7 text-sm font-semibold text-cream-50 backdrop-blur-sm transition-colors hover:bg-cream-50/10"
+                      >
+                        {s.secondary.label}
+                      </Link>
                     </div>
                   </div>
                 </Container>
@@ -146,8 +134,8 @@ export function Hero() {
             className={cn(
               "h-2 rounded-full transition-all",
               i === selected
-                ? "w-6 bg-cream-50"
-                : "w-2 bg-cream-50/40 hover:bg-cream-50/60",
+                ? "w-6 bg-gold-400"
+                : "w-2 bg-cream-50/50 hover:bg-cream-50/80",
             )}
           />
         ))}

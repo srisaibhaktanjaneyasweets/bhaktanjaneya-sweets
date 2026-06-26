@@ -89,7 +89,7 @@ export default function AboutPage() {
                 href={waLink(`Hello ${config.businessName}! I'd like to know more.`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 items-center gap-2 rounded-full bg-[#25D366] px-7 text-sm font-semibold text-white hover:bg-[#1fb457]"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-[#35B664] px-7 text-sm font-semibold text-white hover:bg-[#2E9E57]"
               >
                 <MessageCircle size={18} /> Chat with us
               </a>
