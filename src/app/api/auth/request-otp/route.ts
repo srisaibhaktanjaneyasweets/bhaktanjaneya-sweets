@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
+import { sendWhatsAppOtp, whatsappConfigured } from "@/lib/server/whatsapp";
 
 function genCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -50,5 +51,17 @@ export async function POST(req: Request) {
 
   const debug =
     process.env.OTP_DEBUG === "true" || process.env.NODE_ENV === "development";
+
+  if (whatsappConfigured) {
+    const sendError = await sendWhatsAppOtp(phone, code);
+    if (sendError && !debug) {
+      return NextResponse.json(
+        { error: `Could not send WhatsApp message: ${sendError}` },
+        { status: 502 },
+      );
+    }
+    if (sendError) console.error("WhatsApp OTP send failed:", sendError);
+  }
+
   return NextResponse.json(debug ? { ok: true, devCode: code } : { ok: true });
 }
