@@ -280,6 +280,27 @@ export default function CartPage() {
     }
   }
 
+  async function saveCheckoutContactIfNeeded() {
+    if (!customer) return;
+    const digits = phone.replace(/\D/g, "");
+    const patch: Partial<typeof customer> = {};
+
+    if (digits && digits !== customer.phone) {
+      patch.phone = digits;
+    }
+    if (name.trim() && name.trim() !== customer.name) {
+      patch.name = name.trim();
+    }
+
+    if (Object.keys(patch).length === 0) return;
+
+    try {
+      await updateCustomer(patch);
+    } catch {
+      // Don't block checkout if profile sync fails.
+    }
+  }
+
   async function placeRazorpayOrder() {
     if (!config.razorpayEnabled) {
       setCheckoutError({
@@ -298,6 +319,7 @@ export default function CartPage() {
 
     setPlacing(true);
     try {
+      await saveCheckoutContactIfNeeded();
       await saveCheckoutAddressIfNeeded();
       const loaded = await loadRazorpayScript();
       if (!loaded) throw new Error("Could not load payment gateway. Please try again.");

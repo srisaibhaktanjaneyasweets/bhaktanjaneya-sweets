@@ -8,7 +8,7 @@ const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 export async function POST(req: Request) {
   try {
-    requireRole(req, "admin");
+    await requireRole(req, "admin");
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unauthorized" },

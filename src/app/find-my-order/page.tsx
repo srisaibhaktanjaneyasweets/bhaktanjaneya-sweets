@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { Search, Package, User, Truck } from "lucide-react";
 
@@ -77,6 +77,7 @@ export default function FindMyOrderPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [order, setOrder] = useState<PublicOrderLookupResponse | null>(null);
+  const loadedOrdersCustomerId = useRef<string | null>(null);
 
   const parsedQuery = useMemo(() => parseLookupQuery(query), [query]);
   const isSearchable = parsedQuery.value.trim().length >= 6;
@@ -111,6 +112,8 @@ export default function FindMyOrderPage() {
     let cancelled = false;
     async function loadOrders() {
       if (!customer) return;
+      if (loadedOrdersCustomerId.current === customer.id) return;
+      loadedOrdersCustomerId.current = customer.id;
       setOrdersLoading(true);
       setOrdersError("");
       try {
@@ -126,7 +129,7 @@ export default function FindMyOrderPage() {
     return () => {
       cancelled = true;
     };
-  }, [customer]);
+  }, [customer?.id]);
 
   return (
     <Container>

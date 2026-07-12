@@ -89,7 +89,7 @@ async function updateResource(
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<Record<string, string>> | Record<string, string> }) {
   try {
-    requireRole(req, "admin");
+    await requireRole(req, "admin");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }
@@ -101,7 +101,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<Record
 
 export async function PATCH(req: NextRequest, context: { params: Promise<Record<string, string>> | Record<string, string> }) {
   try {
-    requireRole(req, "admin");
+    await requireRole(req, "admin");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }
@@ -114,7 +114,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<Record<
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<Record<string, string>> | Record<string, string> }) {
   try {
-    requireRole(req, "admin");
+    await requireRole(req, "admin");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }

@@ -63,6 +63,7 @@ export default function AccountPage() {
   const [pincodeDetails, setPincodeDetails] = useState<PincodeLookup | null>(null);
   const [lookingUpPincode, setLookingUpPincode] = useState(false);
   const lastLookupPincode = useRef("");
+  const loadedOrdersCustomerId = useRef<string | null>(null);
 
   const districtOptions = useMemo(() => {
     const fromState = address.state ? (STATE_DISTRICTS[address.state] ?? []) : [];
@@ -105,7 +106,6 @@ export default function AccountPage() {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (customer) {
-
       setNameInput(customer.name ?? "");
       setAddress({
         line1: customer.savedAddress?.line1 ?? "",
@@ -115,17 +115,21 @@ export default function AccountPage() {
         state: customer.savedAddress?.state ?? "",
         pincode: customer.savedAddress?.pincode ?? "",
       });
-      apiGet<Order[]>("/orders")
-        .then((data) => {
-          setOrders(data);
-          setOrdersError("");
-        })
-        .catch((error) => {
-          setOrders([]);
-          setOrdersError(getErrorMessage(error, "Could not load your orders. Please refresh the page."));
-        });
+
+      if (loadedOrdersCustomerId.current !== customer.id) {
+        loadedOrdersCustomerId.current = customer.id;
+        apiGet<Order[]>("/orders")
+          .then((data) => {
+            setOrders(data);
+            setOrdersError("");
+          })
+          .catch((error) => {
+            setOrders([]);
+            setOrdersError(getErrorMessage(error, "Could not load your orders. Please refresh the page."));
+          });
+      }
     }
-  }, [customer]);
+  }, [customer?.id]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {

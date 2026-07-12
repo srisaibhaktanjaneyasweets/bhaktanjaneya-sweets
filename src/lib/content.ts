@@ -192,7 +192,7 @@ export const policies: Record<string, Policy> = {
         heading: "Information we collect",
         body: [
           "When you sign up or place an order, we may collect your name, phone number, email address, saved delivery address, order items, payment method, and order history.",
-          "Your phone number is used for OTP login, delivery coordination, order support, and important order updates.",
+          "Your phone number is used for delivery coordination, order support, and important order updates.",
           "If you save an address in your account, we use it to prefill checkout and reduce mistakes in future orders.",
         ],
       },
@@ -248,7 +248,7 @@ export const policies: Record<string, Policy> = {
         heading: "Customer responsibilities",
         body: [
           "You agree to provide accurate account, contact, delivery, and payment information. Incorrect details can delay or prevent delivery.",
-          "You are responsible for keeping your OTP and account access secure. Do not share OTPs with anyone claiming to be from our team.",
+          "You are responsible for keeping your account access secure. Do not share passwords, verification links, or one-time codes from email with anyone claiming to be from our team.",
           "You agree not to misuse the website, interfere with its operation, or place fraudulent or abusive orders.",
         ],
       },

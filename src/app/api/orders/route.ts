@@ -117,16 +117,25 @@ function isValidAddress(address: unknown): address is ShippingAddress {
 export async function GET(req: Request) {
   let payload;
   try {
-    payload = requireRole(req, "customer");
+    payload = await requireRole(req, "customer");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }
 
-  const { data, error } = await supabaseAdmin
-    .from("orders")
-    .select("*")
-    .eq("customer_phone", payload.phone ?? payload.sub)
-    .order("created_at", { ascending: false });
+  const phone = typeof payload.phone === "string" ? payload.phone.replace(/\D/g, "") : "";
+  const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
+  let query = supabaseAdmin.from("orders").select("*").order("created_at", { ascending: false });
+  if (phone && email) {
+    query = query.or(`customer_phone.eq.${phone},customer_email.eq.${email}`);
+  } else if (phone) {
+    query = query.eq("customer_phone", phone);
+  } else if (email) {
+    query = query.eq("customer_email", email);
+  } else {
+    return NextResponse.json([]);
+  }
+
+  const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json((data ?? []).map((row) => orderFromRow(row)));
 }

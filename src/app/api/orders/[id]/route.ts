@@ -11,7 +11,7 @@ export async function PATCH(
 ) {
   let payload;
   try {
-    payload = requireRole(req, "customer");
+    payload = await requireRole(req, "customer");
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unauthorized" },
@@ -29,18 +29,27 @@ export async function PATCH(
     );
   }
 
-  const phone = payload.phone ?? payload.sub;
+  const phone = typeof payload.phone === "string" ? payload.phone.replace(/\D/g, "") : "";
+  const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
   const { data: existing, error: fetchError } = await supabaseAdmin
     .from("orders")
     .select("*")
     .eq("id", id)
-    .eq("customer_phone", phone)
     .maybeSingle();
 
   if (fetchError) {
     return NextResponse.json({ error: fetchError.message }, { status: 500 });
   }
   if (!existing) {
+    return NextResponse.json(
+      { error: "Order not found or you do not have access to it." },
+      { status: 404 },
+    );
+  }
+
+  const ownerPhone = String((existing as { customer_phone?: string }).customer_phone ?? "").replace(/\D/g, "");
+  const ownerEmail = String((existing as { customer_email?: string }).customer_email ?? "").trim().toLowerCase();
+  if (phone !== ownerPhone && email !== ownerEmail) {
     return NextResponse.json(
       { error: "Order not found or you do not have access to it." },
       { status: 404 },
@@ -71,7 +80,6 @@ export async function PATCH(
     .from("orders")
     .update(orderToRow({ status: "cancelled" }))
     .eq("id", id)
-    .eq("customer_phone", phone)
     .select("*")
     .single();
 

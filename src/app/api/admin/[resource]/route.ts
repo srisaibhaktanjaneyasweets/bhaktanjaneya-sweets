@@ -68,7 +68,7 @@ function payloadFor(resource: Resource, body: Record<string, unknown>) {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<Record<string, string>> | Record<string, string> }) {
   try {
-    requireRole(req, "admin");
+    await requireRole(req, "admin");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }
@@ -100,7 +100,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<Record
 
 export async function POST(req: NextRequest, { params }: { params: Promise<Record<string, string>> | Record<string, string> }) {
   try {
-    requireRole(req, "admin");
+    await requireRole(req, "admin");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }

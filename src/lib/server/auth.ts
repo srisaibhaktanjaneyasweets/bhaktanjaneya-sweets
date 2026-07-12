@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 type Role = "admin" | "customer";
 
@@ -58,10 +59,42 @@ export function getBearerToken(req: Request) {
   return match?.[1] ?? "";
 }
 
-export function requireRole(req: Request, role: Role) {
+function normalizePhone(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const digits = value.replace(/\D/g, "").trim();
+  return digits || undefined;
+}
+
+export async function requireRole(req: Request, role: Role) {
   const token = getBearerToken(req);
   if (!token) throw new Error("Missing bearer token");
-  const payload = verifyToken(token);
-  if (payload.role !== role) throw new Error("Forbidden");
-  return payload;
+
+  try {
+    const payload = verifyToken(token);
+    if (payload.role !== role) throw new Error("Forbidden");
+    return payload;
+  } catch {
+    if (role === "admin") {
+      throw new Error("Unauthorized");
+    }
+  }
+
+  const { data, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !data.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = data.user;
+  if (!user.email_confirmed_at && !user.confirmed_at) {
+    throw new Error("Please verify your email before continuing.");
+  }
+
+  const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
+  return {
+    sub: user.id,
+    role: "customer" as const,
+    email: typeof user.email === "string" ? user.email : undefined,
+    name: typeof metadata.name === "string" ? metadata.name : undefined,
+    phone: normalizePhone(metadata.phone ?? user.phone),
+  };
 }

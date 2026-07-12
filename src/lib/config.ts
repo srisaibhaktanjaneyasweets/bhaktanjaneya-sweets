@@ -19,6 +19,9 @@ export const config = {
   /** Razorpay publishable key id. Secret stays on the server. */
   razorpayKeyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ?? "",
 
+  /** True when Google sign-in has been enabled for this deployment. */
+  googleOAuthEnabled: process.env.NEXT_PUBLIC_SUPABASE_GOOGLE_OAUTH_ENABLED === "true",
+
   /** True when Razorpay env is fully configured. */
   razorpayEnabled:
     Boolean(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) &&

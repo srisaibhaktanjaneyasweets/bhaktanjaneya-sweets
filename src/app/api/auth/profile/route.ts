@@ -33,7 +33,7 @@ function cleanAddress(address: ShippingAddress): ShippingAddress {
 export async function GET(req: Request) {
   let payload;
   try {
-    payload = requireRole(req, "customer");
+    payload = await requireRole(req, "customer");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }
@@ -53,7 +53,7 @@ export async function GET(req: Request) {
 export async function PATCH(req: Request) {
   let payload;
   try {
-    payload = requireRole(req, "customer");
+    payload = await requireRole(req, "customer");
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }

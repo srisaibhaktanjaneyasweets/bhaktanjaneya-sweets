@@ -8,6 +8,7 @@ Premium storefront and admin dashboard for Bhaktanjaneya Sweets, built with Next
 - Admin dashboard for products, categories, tags, offers, blog posts, orders, customers, uploads, and featured homepage content.
 - Supabase-backed API routes for catalog, orders, auth, admin data, uploads, pincode checks, and payments.
 - OTP-style customer login, admin JWT sessions, cart persistence, serviceable-area checks, and saved customer addresses.
+- Email/password customer login with optional Google OAuth through Supabase, verified-email sign-in, and mandatory phone capture during checkout.
 - Razorpay order creation and payment verification handled server-side.
 - Google reviews and Instagram reels sections with curated fallbacks and optional live server-side sync.
 
@@ -52,6 +53,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 AUTH_TOKEN_SECRET=
+NEXT_PUBLIC_SUPABASE_GOOGLE_OAUTH_ENABLED=false
 ```
 
 Storefront configuration:
@@ -81,6 +83,8 @@ INSTAGRAM_ACCESS_TOKEN=
 ```
 
 Never commit real secrets. Keep production values in your hosting provider's environment settings.
+
+If Google sign-in is needed, enable the Google provider in the Supabase dashboard and set NEXT_PUBLIC_SUPABASE_GOOGLE_OAUTH_ENABLED=true for that deployment.
 
 ## Database
 

@@ -62,7 +62,7 @@ export default function AdminCustomersPage() {
           title="No customers yet"
           text={
             customers.length === 0
-              ? "Phone numbers from OTP login and checkout will appear here."
+              ? "Phone numbers from checkout will appear here."
               : "No customers match your search."
           }
         />
