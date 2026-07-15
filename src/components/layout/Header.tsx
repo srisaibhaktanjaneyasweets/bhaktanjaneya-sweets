@@ -11,7 +11,7 @@ import {
   Search,
   ShoppingBag,
   User,
-  MessageCircle,
+  Phone,
   ChevronDown,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -19,7 +19,6 @@ import { HeaderSearch } from "@/components/layout/HeaderSearch";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { apiGet } from "@/lib/api/client";
-import { waLink } from "@/lib/whatsapp";
 import { config } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/types";
@@ -32,7 +31,6 @@ const leadingLinks = [
 
 const trailingLinks = [
   { href: "/shop?tag=best-seller", label: "Best Sellers" },
-  { href: "/bulk-orders", label: "Bulk Orders" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
@@ -194,13 +192,11 @@ export function Header() {
             </button>
 
             <a
-              href={waLink(`Hello ${config.businessName}! I have a question.`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden h-10 items-center gap-2 rounded-full bg-[#35B664] px-4 text-sm font-medium text-white transition-colors hover:bg-[#2E9E57] md:inline-flex"
+              href={`tel:${config.contact.phone.replace(/\s/g, "")}`}
+              aria-label="Call us"
+              className="hidden h-10 w-10 items-center justify-center rounded-full text-maroon-800 transition-colors hover:bg-maroon-800/5 md:inline-flex"
             >
-              <MessageCircle size={18} />
-              WhatsApp
+              <Phone size={20} />
             </a>
 
             <div className="relative">
@@ -406,15 +402,13 @@ export function Header() {
                 {customer ? "My Account" : "Login / Sign up"}
               </Link>
               <a
-                href={waLink(`Hello ${config.businessName}! I have a question.`)}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={`tel:${config.contact.phone.replace(/\s/g, "")}`}
                 className={cn(
-                  "mt-3 flex h-11 items-center justify-center gap-2 rounded-full bg-[#35B664] text-sm font-medium text-white",
+                  "mt-3 flex h-11 items-center justify-center gap-2 rounded-full bg-maroon-800 text-sm font-medium text-cream-50",
                 )}
               >
-                <MessageCircle size={18} />
-                Chat on WhatsApp
+                <Phone size={18} />
+                Call us
               </a>
             </div>
           </div>

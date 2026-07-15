@@ -48,7 +48,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(-1)}
             aria-label="Scroll categories left"
-            className="absolute left-0 top-[58px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[70px]"
+            className="absolute left-0 top-[48px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
           >
             <ChevronLeft size={20} />
           </button>
@@ -57,22 +57,22 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
 
       <div
         ref={scrollerRef}
-        className="flex snap-x scroll-px-1 items-start gap-x-5 overflow-x-auto px-1 py-3 sm:gap-x-8 md:justify-center md:gap-x-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x scroll-px-1 items-start gap-x-5 overflow-x-auto px-1 py-2 sm:gap-x-8 md:justify-center md:gap-x-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         data-cat-scroll
       >
         {categories.map((category) => (
           <Link
             key={category.id}
             href={`/collections/${category.slug}`}
-            className="group flex w-[88px] shrink-0 snap-start flex-col items-center sm:w-[112px]"
+            className="group flex w-[80px] shrink-0 snap-start flex-col items-center sm:w-[100px]"
           >
             <div className="relative rounded-full bg-gold-400/70 p-[2px] shadow-sm transition duration-200 group-hover:scale-[1.04] group-hover:bg-gold-500 group-hover:shadow-card">
-              <div className="relative h-[88px] w-[88px] overflow-hidden rounded-full border-2 border-white bg-cream-100 sm:h-[112px] sm:w-[112px]">
+              <div className="relative h-[80px] w-[80px] overflow-hidden rounded-full border-2 border-white bg-cream-100 sm:h-[100px] sm:w-[100px]">
                 <Image
                   src={getCategoryImage(category)}
                   alt={category.name}
                   fill
-                  sizes="112px"
+                  sizes="100px"
                   className="object-cover"
                 />
               </div>
@@ -92,7 +92,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(1)}
             aria-label="Scroll categories right"
-            className="absolute right-0 top-[58px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[70px]"
+            className="absolute right-0 top-[48px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
           >
             <ChevronRight size={20} />
           </button>

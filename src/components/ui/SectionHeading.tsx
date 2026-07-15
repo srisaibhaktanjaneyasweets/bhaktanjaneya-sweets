@@ -47,9 +47,13 @@ export function SectionHeading({
 
   if (centered) {
     return (
-      <div className="mb-8 flex flex-col items-center">
+      <div className="relative mb-8 flex flex-col items-center">
         {heading}
-        {action && <div className="mt-5">{action}</div>}
+        {action && (
+          <div className="mt-5 sm:absolute sm:bottom-0 sm:right-0 sm:mt-0">
+            {action}
+          </div>
+        )}
       </div>
     );
   }

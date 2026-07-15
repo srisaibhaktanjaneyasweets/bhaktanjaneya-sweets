@@ -12,7 +12,6 @@ import { config } from "@/lib/config";
 
 const companyLinks = [
   { href: "/about", label: "Our Story" },
-  { href: "/bulk-orders", label: "Bulk & Corporate Orders" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
 ];
