@@ -70,7 +70,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
       return [...prev, item];
     });
-    setOpen(true);
+    // Only slide the cart open on desktop. On mobile the drawer is full-screen,
+    // so auto-opening it on every add interrupts anyone adding several items;
+    // there we rely on the inline "Added" button state + the header cart badge.
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 768px)").matches
+    ) {
+      setOpen(true);
+    }
   }, []);
 
   const remove = useCallback(

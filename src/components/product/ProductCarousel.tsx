@@ -15,12 +15,14 @@ export function ProductCarousel({
   title,
   viewAllHref,
   products,
+  align = "left",
   className,
 }: {
   eyebrow?: string;
   title: string;
   viewAllHref?: string;
   products: Product[];
+  align?: "left" | "center";
   className?: string;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -55,6 +57,7 @@ export function ProductCarousel({
         <SectionHeading
           eyebrow={eyebrow}
           title={title}
+          align={align}
           action={
             <div className="flex items-center gap-2">
               {viewAllHref && (

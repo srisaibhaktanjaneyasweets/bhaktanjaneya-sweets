@@ -17,7 +17,7 @@ type ContactDetail = {
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with Bhaktanjaneya Sweets. Order on WhatsApp, call us, or send an enquiry for sweets, namkeen, and bulk gifting.",
+    "Get in touch with Bhaktanjaneya Sweets. Order on WhatsApp, call us, or send an enquiry about our sweets and namkeen.",
 };
 
 const details: ContactDetail[] = [
@@ -58,7 +58,7 @@ export default function ContactPage() {
             We&apos;d love to hear from you
           </h1>
           <p className="mt-3 text-ink-500">
-            Questions about an order, a product, or bulk gifting? Reach out and
+            Questions about an order or a product? Reach out and
             we&apos;ll get back to you quickly.
           </p>
         </div>

@@ -20,29 +20,6 @@ export const aboutContent = {
   ],
 };
 
-export const bulkContent = {
-  intro:
-    "Planning a wedding, festival, or corporate gifting order? We make bulk ordering simple, with custom packaging and pricing for large quantities.",
-  benefits: [
-    {
-      title: "Festivals & Weddings",
-      text: "Assorted boxes and hampers in the quantities you need, packed fresh for the occasion.",
-    },
-    {
-      title: "Corporate Gifting",
-      text: "Branded or custom-packed gift boxes for clients and teams, delivered on schedule.",
-    },
-    {
-      title: "Best Bulk Pricing",
-      text: "Special per-kg pricing on large orders — the bigger the order, the better the rate.",
-    },
-    {
-      title: "Made to Order",
-      text: "Everything is prepared fresh for your delivery date, never sitting on a shelf.",
-    },
-  ],
-};
-
 export interface Faq {
   q: string;
   a: string;
@@ -68,10 +45,6 @@ export const faqs: Faq[] = [
   {
     q: "What payment methods do you accept?",
     a: "You can pay securely online via UPI, debit/credit cards, and net banking through our payment partner. You can also place your order directly on WhatsApp and we'll guide you through payment.",
-  },
-  {
-    q: "Can I place a bulk or gifting order?",
-    a: "Absolutely. Visit our Bulk Orders page or message us on WhatsApp and we'll help you put together the perfect order with custom packaging and the best per-kg pricing.",
   },
   {
     q: "Can I cancel or change my order?",
@@ -107,7 +80,7 @@ export const policies: Record<string, Policy> = {
         body: [
           "We deliver across serviceable PIN codes in India through trusted courier and postal partners. If a PIN code is temporarily not serviceable, we will contact you before processing the order.",
           "Shipping is free on eligible orders above the free-shipping threshold shown at checkout. Orders below that threshold may include a standard delivery charge, shown before payment or order confirmation.",
-          "For bulk, wedding, corporate, or fragile gifting orders, delivery charges and timelines may vary based on quantity, packaging, destination, and urgency.",
+          "For large, wedding, or fragile gifting orders, delivery charges and timelines may vary based on quantity, packaging, destination, and urgency.",
         ],
       },
       {

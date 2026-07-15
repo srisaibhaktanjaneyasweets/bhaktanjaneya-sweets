@@ -1,8 +1,6 @@
 import { Hero } from "@/components/home/Hero";
-import { ScrollToHero } from "@/components/home/ScrollToHero";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
-import { FeaturedShowcase } from "@/components/home/FeaturedShowcase";
 import { OfferBanner } from "@/components/home/OfferBanner";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { InstagramReels } from "@/components/home/InstagramReels";
@@ -57,36 +55,54 @@ export default async function HomePage() {
     ? featuredRails
     : [{ slug: "", title: "Top Picks", products: products.slice(0, 6) }];
 
+  // Dedicated "Sweets" rail. Product categories don't map 1:1 to the storefront
+  // category slugs, so match every category slug that actually holds sweets.
+  const SWEET_CATEGORY_SLUGS = ["sweets", "andhra-specials", "dryfruit-sweets"];
+  const sweetsProducts = products
+    .filter(
+      (p) =>
+        SWEET_CATEGORY_SLUGS.includes(p.category) ||
+        p.categories.some((c) => SWEET_CATEGORY_SLUGS.includes(c)),
+    )
+    .slice(0, 12);
+
   return (
     <>
-      <ScrollToHero />
       <Hero />
       <TrustStrip />
       {tagRails.map((rail, i) => {
         if (i === 0) {
-          // Flagship grid: feature the tag's picks first, then pad with other
-          // products so the two-row grid stays full even when the tag is thin.
-          const picked = rail.products.slice(0, 8);
-          const seen = new Set(picked.map((p) => p.id));
-          const flagship =
-            picked.length >= 8
-              ? picked
+          // "Our Specials": lead with the tag's picks, then pad with other
+          // products so the rail still feels full when the tag is thin.
+          const seen = new Set(rail.products.map((p) => p.id));
+          const specials =
+            rail.products.length >= 8
+              ? rail.products
               : [
-                  ...picked,
+                  ...rail.products,
                   ...products
                     .filter((p) => !seen.has(p.id))
-                    .slice(0, 8 - picked.length),
+                    .slice(0, 8 - rail.products.length),
                 ];
           return (
             <div key={rail.slug || i}>
-              <FeaturedShowcase
+              <ProductCarousel
                 eyebrow="Handpicked for you"
                 title={rail.title}
-                subtitle="Freshly made sweets, namkeen and festive favourites — handpicked and ready to gift."
                 viewAllHref={rail.slug ? `/shop?tag=${rail.slug}` : "/shop"}
-                products={flagship}
+                products={specials}
+                align="center"
               />
-              {/* Slot the offer banner in after the flagship grid. */}
+              {/* New dedicated Sweets rail, directly below Our Specials. */}
+              {sweetsProducts.length > 0 && (
+                <ProductCarousel
+                  eyebrow="Pure ghee, made fresh"
+                  title="Sweets"
+                  viewAllHref="/shop"
+                  products={sweetsProducts}
+                />
+              )}
+              {/* Slot the offer banner in after the sweets rail. */}
               <OfferBanner />
             </div>
           );

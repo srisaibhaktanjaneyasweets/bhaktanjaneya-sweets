@@ -9,7 +9,7 @@ export async function CategoryNav() {
   if (!categories.length) return null;
 
   return (
-    <section className="border-b border-cream-300/60 bg-cream-50 py-6 sm:py-8">
+    <section className="border-b border-cream-300/60 bg-cream-50 py-2 sm:py-3">
       <Container>
         <CategoryRail categories={categories} />
       </Container>

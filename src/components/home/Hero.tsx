@@ -30,7 +30,7 @@ const slides = [
     title: "Get 10% Off Your First Order",
     text: "Use code BAS10 on orders above ₹500. Free shipping over ₹700, delivered fresh across India.",
     primary: { href: "/shop", label: "Start Shopping" },
-    secondary: { href: "/bulk-orders", label: "Bulk Orders" },
+    secondary: { href: "/shop", label: "Shop All" },
     image: "/images/hero/hero-mysorepak.png",
   },
 ];
