@@ -2,19 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { Truck, BadgePercent, MessageCircle } from "lucide-react";
-import { config } from "@/lib/config";
-import { formatINR, cn } from "@/lib/utils";
-
-const items = [
-  {
-    icon: Truck,
-    text: `Free shipping on orders over ${formatINR(config.freeShippingThreshold)}`,
-  },
-  { icon: BadgePercent, text: "Use code BAS10 for 10% off your first order" },
-  { icon: MessageCircle, text: `Order on WhatsApp: ${config.contact.phone}` },
-];
+import { cn } from "@/lib/utils";
+import {
+  defaultAnnouncementMessages,
+  type AnnouncementMessages,
+} from "@/lib/announcement";
 
 export function AnnouncementBar() {
+  // Messages are editable from the admin panel (Announcements page); start
+  // with the built-in defaults so the bar renders instantly, then swap in the
+  // saved texts once they load.
+  const [messages, setMessages] = useState<AnnouncementMessages>(
+    defaultAnnouncementMessages(),
+  );
+
+  useEffect(() => {
+    fetch("/api/settings/announcement")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.messages) setMessages((m) => ({ ...m, ...d.messages }));
+      })
+      .catch(() => {});
+  }, []);
+
+  const items = [
+    { icon: Truck, text: messages.shipping },
+    { icon: BadgePercent, text: messages.offer },
+    { icon: MessageCircle, text: messages.whatsapp },
+  ];
+
   // Mobile shows one message at a time and rotates through them; desktop has
   // room to show all three at once (handled by the static row below).
   const [index, setIndex] = useState(0);
