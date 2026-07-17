@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Package,
   FolderTree,
+  Tag,
   BadgePercent,
   Megaphone,
   ShoppingBag,
@@ -25,7 +26,8 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/categories", label: "Categories & Tags", icon: FolderTree },
+  { href: "/admin/categories", label: "Categories", icon: FolderTree },
+  { href: "/admin/tags", label: "Tags", icon: Tag },
   { href: "/admin/offers", label: "Offers", icon: BadgePercent },
   { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },

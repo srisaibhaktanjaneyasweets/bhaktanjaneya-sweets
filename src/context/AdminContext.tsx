@@ -22,6 +22,13 @@ import { adminLogin, type AdminSession } from "@/lib/api/adminAuth";
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/api/client";
 
 const SESSION_KEY = "bas_admin_session";
+const ADMIN_SESSION_COOKIE = "bas_admin_session";
+
+function clearAdminSessionCookie() {
+  if (typeof window === "undefined") return;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${ADMIN_SESSION_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax${secure}`;
+}
 
 function isRealSession(value: unknown): value is AdminSession {
   return (
@@ -157,6 +164,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     setSession(null);
     window.localStorage.removeItem(SESSION_KEY);
+    clearAdminSessionCookie();
   }, []);
 
   const saveProduct = useCallback((product: Product) => {

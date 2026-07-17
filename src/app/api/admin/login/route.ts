@@ -9,6 +9,19 @@ export async function POST(req: Request) {
   const password = body?.password;
   if (!email || !password) return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
 
+  const setSessionCookie = (response: NextResponse, token: string) => {
+    response.cookies.set({
+      name: "bas_admin_session",
+      value: token,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+    return response;
+  };
+
   // Local mock testing mode fallback when Supabase keys are not set up
   if (!isConfigured) {
     const isMockPassword = password === "admin123" || password === "admin";
@@ -19,7 +32,7 @@ export async function POST(req: Request) {
         email: email,
         name: "Bhaktanjaneya Admin",
       });
-      return NextResponse.json({
+      return setSessionCookie(NextResponse.json({
         token,
         user: {
           id: "mock-admin-id",
@@ -27,7 +40,7 @@ export async function POST(req: Request) {
           name: "Bhaktanjaneya Admin",
           role: "admin",
         },
-      });
+      }), token);
     }
     return NextResponse.json(
       { error: "Invalid password for mock mode. Please use admin123." },
@@ -44,5 +57,5 @@ export async function POST(req: Request) {
   if (!ok) return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
 
   const token = issueToken({ sub: admin.id, role: "admin", email: admin.email, name: admin.name });
-  return NextResponse.json({ token, user: { id: admin.id, email: admin.email, name: admin.name, role: admin.role } });
+  return setSessionCookie(NextResponse.json({ token, user: { id: admin.id, email: admin.email, name: admin.name, role: admin.role } }), token);
 }

@@ -59,6 +59,12 @@ export function getBearerToken(req: Request) {
   return match?.[1] ?? "";
 }
 
+function getCookieToken(req: Request) {
+  const header = req.headers.get("cookie") ?? "";
+  const match = header.match(/(?:^|;\s*)bas_admin_session=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
 function normalizePhone(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
   const digits = value.replace(/\D/g, "").trim();
@@ -66,7 +72,7 @@ function normalizePhone(value: unknown): string | undefined {
 }
 
 export async function requireRole(req: Request, role: Role) {
-  const token = getBearerToken(req);
+  const token = getBearerToken(req) || getCookieToken(req);
   if (!token) throw new Error("Missing bearer token");
 
   try {

@@ -3,9 +3,9 @@ import { formatINR } from "@/lib/utils";
 
 /**
  * Announcement-bar messages shown in the site header. Editable from the admin
- * panel (Announcements page); stored as a small JSON document in Supabase
- * Storage so no database schema changes are needed. These defaults are used
- * whenever nothing has been saved yet or storage is unreachable.
+ * panel (Announcements page); stored in a backend table so the browser never
+ * talks to storage directly. These defaults are used whenever nothing has
+ * been saved yet or the backend record is unavailable.
  */
 export interface AnnouncementMessages {
   shipping: string;
@@ -13,8 +13,8 @@ export interface AnnouncementMessages {
   whatsapp: string;
 }
 
-export const ANNOUNCEMENT_BUCKET = "site-content";
-export const ANNOUNCEMENT_PATH = "announcement.json";
+export const ANNOUNCEMENT_TABLE = "site_settings";
+export const ANNOUNCEMENT_ROW_KEY = "announcement";
 
 export function defaultAnnouncementMessages(): AnnouncementMessages {
   return {

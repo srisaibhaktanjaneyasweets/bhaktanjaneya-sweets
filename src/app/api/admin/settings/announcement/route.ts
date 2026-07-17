@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import {
-  ANNOUNCEMENT_BUCKET,
-  ANNOUNCEMENT_PATH,
+  ANNOUNCEMENT_ROW_KEY,
+  ANNOUNCEMENT_TABLE,
   normalizeAnnouncementMessages,
   type AnnouncementMessages,
 } from "@/lib/announcement";
@@ -41,18 +41,9 @@ export async function PUT(req: Request) {
     return NextResponse.json({ messages });
   }
 
-  // Bucket creation is idempotent enough for our needs: ignore the
-  // "already exists" failure and let the upload surface real errors.
-  await supabaseAdmin.storage
-    .createBucket(ANNOUNCEMENT_BUCKET, { public: false })
-    .catch(() => {});
-
-  const { error } = await supabaseAdmin.storage
-    .from(ANNOUNCEMENT_BUCKET)
-    .upload(ANNOUNCEMENT_PATH, JSON.stringify(messages, null, 2), {
-      contentType: "application/json",
-      upsert: true,
-    });
+  const { error } = await supabaseAdmin
+    .from(ANNOUNCEMENT_TABLE)
+    .upsert({ key: ANNOUNCEMENT_ROW_KEY, messages }, { onConflict: "key" });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
