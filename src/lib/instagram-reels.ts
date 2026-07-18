@@ -1,6 +1,8 @@
 export interface InstagramReel {
   id: string;
   thumbnail: string;
+  /** Original upstream thumbnail, used to retry a freshly signed CDN URL. */
+  sourceThumbnail?: string;
   caption: string;
   likes: string;
   views: string;
@@ -48,6 +50,18 @@ export function proxyInstagramImage(url: string): string {
   return url;
 }
 
+function reelWithThumbnail(
+  data: Omit<InstagramReel, "thumbnail" | "sourceThumbnail">,
+  thumbnail: string,
+): InstagramReel {
+  const sourceThumbnail = thumbnail.trim();
+  return {
+    ...data,
+    thumbnail: proxyInstagramImage(sourceThumbnail),
+    sourceThumbnail,
+  };
+}
+
 /** Parse an rss.app JSON Feed (the /v1.1/…json variant). */
 function parseJsonReels(body: string): InstagramReel[] {
   let data: { items?: Array<Record<string, unknown>> };
@@ -65,14 +79,13 @@ function parseJsonReels(body: string): InstagramReel[] {
       const attachments = item.attachments as Array<{ url?: string }> | undefined;
       const thumbnail =
         str(item.image) || str(item.banner_image) || str(attachments?.[0]?.url);
-      return {
+      return reelWithThumbnail({
         id: String(item.id || item.url || caption),
-        thumbnail: proxyInstagramImage(thumbnail),
         caption,
         likes: "",
         views: "",
         link: str(item.url) || REELS_FALLBACK_LINK,
-      };
+      }, thumbnail);
     })
     .filter((r) => r.thumbnail);
 }
@@ -97,14 +110,13 @@ function parseXmlReels(body: string): InstagramReel[] {
       }
       thumbnail = decodeXmlEntities(thumbnail).trim();
 
-      return {
+      return reelWithThumbnail({
         id: guid || link || caption,
-        thumbnail: proxyInstagramImage(thumbnail),
         caption,
         likes: "",
         views: "",
         link: link || REELS_FALLBACK_LINK,
-      };
+      }, thumbnail);
     })
     .filter((r) => r.thumbnail);
 }
@@ -167,14 +179,13 @@ export async function getLiveInstagramReels(): Promise<InstagramReel[]> {
         (item) =>
           item.media_type === "VIDEO" || item.media_type === "CAROUSEL_ALBUM",
       )
-      .map((item) => ({
+      .map((item) => reelWithThumbnail({
         id: str(item.id),
-        thumbnail: proxyInstagramImage(str(item.thumbnail_url) || str(item.media_url)),
         caption: str(item.caption),
         likes: "", // Basic Display API doesn't return like/view counts
         views: "",
         link: str(item.permalink),
-      }));
+      }, str(item.thumbnail_url) || str(item.media_url)));
   } catch (error) {
     console.error("Error fetching Instagram reels:", error);
     return [];

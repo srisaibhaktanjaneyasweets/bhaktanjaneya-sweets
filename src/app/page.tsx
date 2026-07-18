@@ -55,6 +55,9 @@ export default async function HomePage() {
     ? featuredRails
     : [{ slug: "", title: "Top Picks", products: products.slice(0, 6) }];
 
+  const tagShopHref = (slug: string) =>
+    slug ? `/shop?tag=${encodeURIComponent(slug)}` : "/shop";
+
   // Dedicated "Sweets" rail. Product categories don't map 1:1 to the storefront
   // category slugs, so match every category slug that actually holds sweets.
   const SWEET_CATEGORY_SLUGS = ["sweets", "andhra-specials", "dryfruit-sweets"];
@@ -72,25 +75,13 @@ export default async function HomePage() {
       <TrustStrip />
       {tagRails.map((rail, i) => {
         if (i === 0) {
-          // "Our Specials": lead with the tag's picks, then pad with other
-          // products so the rail still feels full when the tag is thin.
-          const seen = new Set(rail.products.map((p) => p.id));
-          const specials =
-            rail.products.length >= 8
-              ? rail.products
-              : [
-                  ...rail.products,
-                  ...products
-                    .filter((p) => !seen.has(p.id))
-                    .slice(0, 8 - rail.products.length),
-                ];
           return (
             <div key={rail.slug || i}>
               <ProductCarousel
                 eyebrow="Handpicked for you"
                 title={rail.title}
-                viewAllHref={rail.slug ? `/shop?tag=${rail.slug}` : "/shop"}
-                products={specials}
+                viewAllHref={tagShopHref(rail.slug)}
+                products={rail.products}
                 align="center"
               />
               {/* New dedicated Sweets rail, directly below Our Specials. */}
@@ -112,7 +103,7 @@ export default async function HomePage() {
             <ProductCarousel
               eyebrow="More to love"
               title={rail.title}
-              viewAllHref={rail.slug ? `/shop?tag=${rail.slug}` : "/shop"}
+              viewAllHref={tagShopHref(rail.slug)}
               products={rail.products}
             />
           </div>

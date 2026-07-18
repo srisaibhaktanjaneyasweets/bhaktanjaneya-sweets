@@ -7,21 +7,14 @@ import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaCarouselType } from "embla-carousel";
 import { cn } from "@/lib/utils";
 
-// Local reel covers used only when a remote Instagram thumbnail fails to load
-// (Instagram's CDN sometimes blocks hot-linking with a 403).
-const FALLBACK_COVERS = [
-  "/images/tapeswaram_kaja_reel.png",
-  "/images/madatha_kaja_reel.png",
-  "/images/special_mixture_reel.png",
-  "/images/ghee_ladoo_reel.png",
-];
-
-function swapToFallback(index: number) {
+function retryInstagramThumbnail(sourceUrl?: string) {
   return (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    if (img.dataset.fallback) return;
-    img.dataset.fallback = "1";
-    img.src = FALLBACK_COVERS[index % FALLBACK_COVERS.length];
+    // RSS/Instagram CDN URLs can briefly fail due to an edge-cache miss. Retry
+    // the original feed URL once; do not substitute unrelated static artwork.
+    if (!sourceUrl || img.dataset.retried) return;
+    img.dataset.retried = "1";
+    img.src = sourceUrl;
   };
 }
 
@@ -108,10 +101,10 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
                       not a playable video — tapping opens the reel on Instagram). */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={r.thumbnail || FALLBACK_COVERS[i % FALLBACK_COVERS.length]}
+                    src={r.thumbnail}
                     alt={caption || "Instagram reel"}
                     loading="lazy"
-                    onError={swapToFallback(i)}
+                    onError={retryInstagramThumbnail(r.sourceThumbnail)}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                   />
 
