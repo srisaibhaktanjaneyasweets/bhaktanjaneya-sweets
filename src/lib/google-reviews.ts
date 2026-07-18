@@ -29,6 +29,13 @@ export interface GoogleReview {
   avatar?: string;
 }
 
+interface FeaturableReview {
+  author?: { name?: string; avatarUrl?: string };
+  rating?: { value?: number };
+  text?: string;
+  publishedAt?: string;
+}
+
 /** TODO: Replace every entry below with a real Google review. */
 export const googleReviews: GoogleReview[] = [
   {
@@ -102,12 +109,12 @@ export async function getFeaturableReviews() {
     }
 
     const reviews: GoogleReview[] = (widget.reviews ?? [])
-      .filter((r: any) => r?.text && r.text.trim().length > 0)
-      .map((r: any) => ({
+      .filter((r: FeaturableReview) => r?.text && r.text.trim().length > 0)
+      .map((r: FeaturableReview) => ({
         author: r.author?.name ?? "Google user",
         rating: r.rating?.value ?? 5,
         text: r.text,
-        relativeTime: toRelativeTime(r.publishedAt),
+        relativeTime: toRelativeTime(r.publishedAt ?? ""),
         avatar: r.author?.avatarUrl ?? undefined,
       }));
 

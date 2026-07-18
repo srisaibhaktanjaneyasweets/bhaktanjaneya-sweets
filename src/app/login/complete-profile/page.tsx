@@ -6,9 +6,6 @@ import { CheckCircle2, Mail, Phone, User } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { useAuth } from "@/context/AuthContext";
 
-const inputClass =
-  "h-12 w-full rounded-xl border border-cream-300 bg-white px-4 text-sm focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40";
-
 function CompleteProfileInner() {
   const router = useRouter();
   const params = useSearchParams();
@@ -22,6 +19,9 @@ function CompleteProfileInner() {
 
   useEffect(() => {
     if (!customer) return;
+    // The authenticated profile is loaded asynchronously; hydrate the form once
+    // it becomes available so the customer can correct either value.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setName(customer.name ?? "");
     setPhone(customer.phone ?? "");
     if (customer.name && customer.phone) {

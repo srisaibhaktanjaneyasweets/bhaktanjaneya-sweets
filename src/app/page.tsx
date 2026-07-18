@@ -11,6 +11,7 @@ import { getFeaturedTags } from "@/lib/api/tags";
 import { getLiveGoogleReviews } from "@/lib/google-reviews";
 import { getLiveInstagramReels } from "@/lib/instagram-reels";
 import { config } from "@/lib/config";
+import { Analytics } from "@vercel/analytics/next"
 import type { Metadata } from "next";
 
 // ISR: serve a cached home page and rebuild it at most once a minute. Repeat
@@ -148,6 +149,7 @@ export default async function HomePage() {
           }),
         }}
       />
+      <Analytics/>
     </>
   );
 }

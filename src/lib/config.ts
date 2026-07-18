@@ -36,15 +36,15 @@ export const config = {
   shippingFee: 60,
 
   contact: {
-    phone: "+91 99999 99999",
+    phone: "+91 90302 74345",
     email: "orders@bhaktanjaneyasweets.com",
     address: "Rajamahendravaram, Andhra Pradesh, India",
   },
 
   social: {
     instagram: "https://www.instagram.com/bhaktanjaneyasweets.in/",
-    facebook: "https://facebook.com/",
-    youtube: "https://youtube.com/",
+    facebook: "https://www.facebook.com/BhakthanjaneyaSweets/",
+    youtube: "https://www.youtube.com/@bhaktanjaneyasweets9949",
   },
 
   /** Customer-support hours, shown on the Contact page. */
