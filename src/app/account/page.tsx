@@ -129,7 +129,7 @@ export default function AccountPage() {
           });
       }
     }
-  }, [customer?.id]);
+  }, [customer]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {

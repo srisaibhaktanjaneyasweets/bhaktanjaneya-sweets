@@ -167,6 +167,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     clearAdminSessionCookie();
   }, []);
 
+  useEffect(() => {
+    window.addEventListener("bas:admin-session-expired", logout);
+    return () => window.removeEventListener("bas:admin-session-expired", logout);
+  }, [logout]);
+
   const saveProduct = useCallback((product: Product) => {
     void (async () => {
       const exists = products.some((p) => p.id === product.id);

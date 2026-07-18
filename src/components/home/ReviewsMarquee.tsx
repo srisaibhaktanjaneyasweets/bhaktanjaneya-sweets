@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Star, X } from "lucide-react";
 import type { GoogleReview } from "@/lib/google-reviews";
 
@@ -28,11 +29,13 @@ function Stars({ rating }: { rating: number }) {
 
 function Avatar({ review }: { review: GoogleReview }) {
   if (review.avatar) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
-      <img
+      <Image
         src={review.avatar}
         alt=""
+        width={40}
+        height={40}
+        unoptimized
         referrerPolicy="no-referrer"
         className="h-10 w-10 shrink-0 rounded-full object-cover"
       />

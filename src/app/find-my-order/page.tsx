@@ -129,7 +129,7 @@ export default function FindMyOrderPage() {
     return () => {
       cancelled = true;
     };
-  }, [customer?.id]);
+  }, [customer]);
 
   return (
     <Container>

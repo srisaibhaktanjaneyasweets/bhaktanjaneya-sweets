@@ -34,13 +34,14 @@ export function AnnouncementBar() {
   // Mobile shows one message at a time and rotates through them; desktop has
   // room to show all three at once (handled by the static row below).
   const [index, setIndex] = useState(0);
+  const itemCount = items.length;
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) return; // respect reduced-motion: don't auto-rotate
-    const id = setInterval(() => setIndex((i) => (i + 1) % items.length), 4000);
+    const id = setInterval(() => setIndex((i) => (i + 1) % itemCount), 4000);
     return () => clearInterval(id);
-  }, []);
+  }, [itemCount]);
 
   return (
     <div className="bg-maroon-900 text-cream-100">

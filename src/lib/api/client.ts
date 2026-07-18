@@ -99,6 +99,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       errorData.message ??
       response.statusText ??
       "An unexpected error occurred";
+    // Admin tokens are kept in browser storage. When a deployment secret changes
+    // or a token expires, clear that stale session and return to the sign-in UI.
+    if (response.status === 401 && path.startsWith("/admin/") && typeof window !== "undefined") {
+      window.dispatchEvent(new Event("bas:admin-session-expired"));
+    }
     throw new ApiError(message, response.status, errorData);
   }
 
