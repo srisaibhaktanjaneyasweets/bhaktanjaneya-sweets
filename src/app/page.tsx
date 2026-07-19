@@ -9,7 +9,7 @@ import { NewsletterCTA } from "@/components/home/NewsletterCTA";
 import { getProducts } from "@/lib/api/products";
 import { getFeaturedTags } from "@/lib/api/tags";
 import { getLiveGoogleReviews } from "@/lib/google-reviews";
-import { getLiveInstagramReels } from "@/lib/instagram-reels";
+import { getManagedInstagramReels } from "@/lib/managed-instagram-reels";
 import { config } from "@/lib/config";
 import { Analytics } from "@vercel/analytics/next"
 import type { Metadata } from "next";
@@ -33,11 +33,11 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [products, featuredTags, liveReviewsData, liveReels] = await Promise.all([
+  const [products, featuredTags, liveReviewsData, reels] = await Promise.all([
     getProducts(),
     getFeaturedTags(),
     getLiveGoogleReviews(),
-    getLiveInstagramReels(),
+    getManagedInstagramReels(),
   ]);
 
   // Build a carousel for each admin-featured tag, keeping only those that
@@ -114,7 +114,7 @@ export default async function HomePage() {
         reviews={liveReviewsData.reviews}
         ratingSummary={liveReviewsData.ratingSummary}
       />
-      <InstagramReels reels={liveReels} />
+      <InstagramReels reels={reels} />
       <BlogTeasers />
       <NewsletterCTA />
 

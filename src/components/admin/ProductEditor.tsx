@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, Check, Star } from "lucide-react";
+import { Plus, Trash2, Check } from "lucide-react";
 import type { Category, Product, Variant } from "@/lib/types";
 import { defaultProductImage } from "@/lib/images";
 import { uid, betterSlugify } from "@/lib/utils";
@@ -32,6 +32,29 @@ function blankProduct(category: string): Draft {
   };
 }
 
+function suggestedVariants(base: Variant) {
+  const match = base.label.trim().toLowerCase().match(/^(\d+(?:\.\d+)?)\s*(kg|g|gm|pcs?|pieces?)$/);
+  if (!match || !base.price) return [];
+  const amount = Number(match[1]);
+  const unit = match[2];
+  const isWeight = unit === "kg" || unit === "g" || unit === "gm";
+  const grams = unit === "kg" ? amount * 1000 : amount;
+  return [0.5, 0.25]
+    .map((factor) => {
+      const quantity = isWeight ? grams * factor : amount * factor;
+      if (!Number.isInteger(quantity) || quantity <= 0) return null;
+      const label = isWeight
+        ? quantity >= 1000 && quantity % 1000 === 0 ? `${quantity / 1000} kg` : `${quantity} g`
+        : `${quantity} pcs`;
+      return {
+        id: uid("var"), label, price: Math.round(base.price * factor), stock: base.stock,
+        ...(base.mrp ? { mrp: Math.round(base.mrp * factor) } : {}),
+        ...(base.pieces ? { pieces: Math.max(1, Math.round(base.pieces * factor)) } : {}),
+      };
+    })
+    .filter((variant): variant is Variant => variant !== null);
+}
+
 export function ProductEditor({
   product,
   categories,
@@ -50,10 +73,10 @@ export function ProductEditor({
       ? {
           ...product,
           categories:
-            product.categories?.length
-              ? [...product.categories]
-              : product.category
-                ? [product.category]
+            product.category
+              ? [product.category]
+              : product.categories?.length
+                ? [product.categories[0]]
                 : [],
           images: product.images.length ? [...product.images] : [""],
           variants: product.variants.map((v) => ({ ...v })),
@@ -86,17 +109,7 @@ export function ProductEditor({
   function toggleCategory(slug: string) {
     setDraft((d) => ({
       ...d,
-      categories: d.categories.includes(slug)
-        ? d.categories.filter((c) => c !== slug)
-        : [...d.categories, slug],
-    }));
-  }
-
-  /** Move a selected category to the front so it becomes the primary one. */
-  function setPrimaryCategory(slug: string) {
-    setDraft((d) => ({
-      ...d,
-      categories: [slug, ...d.categories.filter((c) => c !== slug)],
+      categories: [slug],
     }));
   }
 
@@ -130,7 +143,7 @@ export function ProductEditor({
     onSave({
       ...draft,
       name,
-      slug: (draft.slug.trim() ? betterSlugify(draft.slug) : betterSlugify(name)),
+      slug: betterSlugify(name),
 
       description: draft.description.trim(),
       category: primarySlug,
@@ -171,17 +184,17 @@ export function ProductEditor({
                 setDraft((d) => ({
                   ...d,
                   name,
-                  slug: isNew && !d.slug ? betterSlugify(name) : d.slug,
+                  slug: betterSlugify(name),
                 }));
               }}
               placeholder="Kaju Patisa"
             />
           </Field>
-          <Field label="Slug" hint="Used in the product URL.">
+          <Field label="Slug" hint="Generated from the product name for the URL.">
             <input
-              className={inputClass}
+              className={`${inputClass} cursor-not-allowed bg-cream-100 text-ink-500`}
               value={draft.slug}
-              onChange={(e) => set("slug", e.target.value)}
+              readOnly
               placeholder="kaju-patisa"
             />
           </Field>
@@ -190,13 +203,13 @@ export function ProductEditor({
         {/* Categories — multi-select with a primary picker */}
         <div className="rounded-xl border border-cream-200 bg-cream-50/50 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="text-xs font-semibold text-ink-600">Categories</p>
+            <p className="text-xs font-semibold text-ink-600">Category</p>
             <span className="text-[11px] text-ink-400">
-              {draft.categories.length} selected
+              {draft.categories.length ? "1 selected" : "None selected"}
             </span>
           </div>
           <p className="mb-3 text-xs text-ink-400">
-            A product can live in several categories. Tap to add or remove.
+            Choose the category where this product should appear.
           </p>
 
           <div className="flex flex-wrap gap-2">
@@ -222,38 +235,6 @@ export function ProductEditor({
             })}
           </div>
 
-          {draft.categories.length > 1 ? (
-            <div className="mt-4 border-t border-cream-200 pt-3">
-              <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-500">
-                <Star size={12} className="fill-saffron-400 text-saffron-400" />
-                Primary category
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {draft.categories.map((slug, i) => {
-                  const cat = categories.find((c) => c.slug === slug);
-                  const isPrimary = i === 0;
-                  return (
-                    <button
-                      key={slug}
-                      type="button"
-                      onClick={() => setPrimaryCategory(slug)}
-                      className={
-                        isPrimary
-                          ? "inline-flex items-center gap-1.5 rounded-full bg-saffron-400 px-3 py-1.5 text-xs font-semibold text-maroon-900"
-                          : "inline-flex items-center gap-1.5 rounded-full border border-cream-300 bg-white px-3 py-1.5 text-xs font-medium text-ink-500 hover:bg-cream-100"
-                      }
-                    >
-                      {isPrimary ? <Star size={12} className="fill-maroon-900" /> : null}
-                      {cat?.name ?? slug}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-2 text-[11px] text-ink-400">
-                Drives the breadcrumb, related products, and default image.
-              </p>
-            </div>
-          ) : null}
         </div>
 
         <Toggle
@@ -285,6 +266,7 @@ export function ProductEditor({
           </p>
           <div className="space-y-3">
             {draft.variants.map((v, i) => (
+              <div key={v.id}>
               <div
                 key={v.id}
                 className="rounded-xl border border-cream-200 p-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:border-0 sm:p-0"
@@ -383,6 +365,24 @@ export function ProductEditor({
                   <Trash2 size={16} />
                   <span className="sm:hidden">Remove variant</span>
                 </button>
+              </div>
+              {suggestedVariants(v).filter((suggestion) => !draft.variants.some((existing) => existing.label.toLowerCase() === suggestion.label.toLowerCase())).length > 0 ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="text-ink-400">Suggested:</span>
+                  {suggestedVariants(v)
+                    .filter((suggestion) => !draft.variants.some((existing) => existing.label.toLowerCase() === suggestion.label.toLowerCase()))
+                    .map((suggestion) => (
+                      <button
+                        key={suggestion.label}
+                        type="button"
+                        onClick={() => setDraft((d) => ({ ...d, variants: [...d.variants, suggestion] }))}
+                        className="rounded-full border border-gold-400/50 bg-gold-400/10 px-2.5 py-1 font-semibold text-maroon-800 hover:bg-gold-400/20"
+                      >
+                        + {suggestion.label} · ₹{suggestion.price}
+                      </button>
+                    ))}
+                </div>
+              ) : null}
               </div>
             ))}
           </div>

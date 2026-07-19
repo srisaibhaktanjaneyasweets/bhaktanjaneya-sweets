@@ -146,7 +146,12 @@ export function ShopControls({ categories }: { categories: Category[] }) {
               type="button"
               onClick={() => {
                 setQ("");
-                update({ q: null });
+                update({
+                  q: null,
+                  category: null,
+                  tag: null,
+                  sort: null,
+                });
               }}
               className="inline-flex items-center gap-1 text-sm font-medium text-maroon-700 hover:text-saffron-600"
             >

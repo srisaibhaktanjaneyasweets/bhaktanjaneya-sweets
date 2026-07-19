@@ -114,6 +114,11 @@ export function ProductCard({
             reserves its height — even for single-variant products — so cards
             never render shorter than their neighbours. */}
         <div className="mt-2 flex min-h-[1.625rem] flex-wrap gap-1">
+          {product.variants.length === 1 && (
+            <span className="rounded-full border border-cream-300 bg-cream-50 px-2.5 py-0.5 text-[11px] font-medium text-ink-600">
+              {variantLabel(activeVariant)}
+            </span>
+          )}
           {product.variants.length > 1 &&
             product.variants.map((v) => (
               <button
@@ -127,7 +132,7 @@ export function ProductCard({
                     : "border-cream-300 bg-white text-ink-600 hover:border-maroon-800/40 hover:text-maroon-900"
                 )}
               >
-                {v.label}
+                {variantLabel(v)}
               </button>
             ))}
         </div>

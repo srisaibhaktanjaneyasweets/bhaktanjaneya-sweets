@@ -1,12 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { getCategoryImage } from "@/lib/images";
 import type { Category } from "@/lib/types";
+
+const CATEGORY_PALETTES: Record<string, { background: string; ring: string; text: string }> = {
+  sweets: { background: "linear-gradient(135deg, #fbbf5b, #d97706)", ring: "#f7c45b", text: "#4a1d08" },
+  podis: { background: "linear-gradient(135deg, #f97316, #be123c)", ring: "#ef8b37", text: "#fff7ed" },
+  "namkeen-and-mixture": { background: "linear-gradient(135deg, #f8c968, #c77813)", ring: "#e8ae42", text: "#54290a" },
+  namkeen: { background: "linear-gradient(135deg, #f8c968, #c77813)", ring: "#e8ae42", text: "#54290a" },
+  "veg-pickles": { background: "linear-gradient(135deg, #3d943d, #155c2d)", ring: "#6baa42", text: "#f7fee7" },
+  "nonveg-pickles": { background: "linear-gradient(135deg, #9b2c2c, #581c1c)", ring: "#d06c47", text: "#fff7ed" },
+  "special-combos": { background: "linear-gradient(135deg, #d8891a, #8b3e0a)", ring: "#cf8b2c", text: "#fff8df" },
+  snacks: { background: "linear-gradient(135deg, #0f766e, #164e63)", ring: "#36a59b", text: "#ecfeff" },
+};
+
+const FALLBACK_PALETTES = [
+  { background: "linear-gradient(135deg, #7c3aed, #4c1d95)", ring: "#9b71e8", text: "#f5f3ff" },
+  { background: "linear-gradient(135deg, #0f766e, #155e75)", ring: "#36a59b", text: "#ecfeff" },
+  { background: "linear-gradient(135deg, #be185d, #831843)", ring: "#db6091", text: "#fff1f2" },
+];
+
+function categoryPalette(slug: string) {
+  if (CATEGORY_PALETTES[slug]) return CATEGORY_PALETTES[slug];
+  const hash = [...slug].reduce((total, char) => total + char.charCodeAt(0), 0);
+  return FALLBACK_PALETTES[hash % FALLBACK_PALETTES.length];
+}
 
 export function CategoryRail({ categories }: { categories: Category[] }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -63,18 +84,23 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
         {categories.map((category) => (
           <Link
             key={category.id}
-            href={`/collections/${category.slug}`}
+            href={`/shop?category=${encodeURIComponent(category.slug)}`}
             className="group flex w-[80px] shrink-0 snap-start flex-col items-center sm:w-[100px]"
           >
-            <div className="relative rounded-full bg-gold-400/70 p-[2px] shadow-sm transition duration-200 group-hover:scale-[1.04] group-hover:bg-gold-500 group-hover:shadow-card">
-              <div className="relative h-[80px] w-[80px] overflow-hidden rounded-full border-2 border-white bg-cream-100 sm:h-[100px] sm:w-[100px]">
-                <Image
-                  src={getCategoryImage(category)}
-                  alt={category.name}
-                  fill
-                  sizes="100px"
-                  className="object-cover"
-                />
+            <div
+              className="rounded-full p-[2px] shadow-sm transition duration-200 group-hover:scale-[1.04] group-hover:shadow-card"
+              style={{ backgroundColor: categoryPalette(category.slug).ring }}
+            >
+              <div
+                className="relative flex h-[80px] w-[80px] items-center justify-center overflow-hidden rounded-full border-2 border-white px-2 text-center font-serif text-xs font-semibold leading-tight shadow-inner sm:h-[100px] sm:w-[100px] sm:px-3 sm:text-sm"
+                style={{
+                  background: categoryPalette(category.slug).background,
+                  color: categoryPalette(category.slug).text,
+                }}
+              >
+                <span className="relative z-10 line-clamp-3">{category.name}</span>
+                <span className="absolute -left-4 top-5 h-10 w-10 rounded-full bg-white/20" />
+                <span className="absolute -right-3 bottom-3 h-7 w-7 rounded-full bg-white/15" />
               </div>
             </div>
             <span className="mt-3 line-clamp-2 h-[2.2rem] text-center text-xs font-medium leading-snug tracking-tight text-maroon-900/90 transition-colors group-hover:text-maroon-700 sm:text-[13px]">

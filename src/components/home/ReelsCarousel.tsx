@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { InstagramReel } from "@/lib/instagram-reels";
 import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaCarouselType } from "embla-carousel";
@@ -117,13 +117,6 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
                       B
                     </span>
                     Bhaktanjaneya Sweets
-                  </div>
-
-                  {/* Central Play Button */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/30">
-                      <Play size={24} className="translate-x-0.5 fill-white" />
-                    </span>
                   </div>
 
                   {/* Caption Text (bottom-left) */}

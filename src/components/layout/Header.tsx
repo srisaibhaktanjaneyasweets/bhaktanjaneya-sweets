@@ -326,7 +326,7 @@ export function Header() {
                   {categories.map((c) => (
                     <Link
                       key={c.id}
-                      href={`/collections/${c.slug}`}
+                      href={`/shop?category=${encodeURIComponent(c.slug)}`}
                       role="menuitem"
                       onClick={handleCategoryClick}
                       className="block rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 transition-colors hover:bg-maroon-800/5 hover:text-saffron-600"

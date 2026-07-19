@@ -108,6 +108,11 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           </div>
         </div>
       )}
+      {sorted.length === 1 && (
+        <p className="mt-5 text-sm text-ink-500">
+          Size: <span className="font-semibold text-maroon-900">{variantLabel(variant)}</span>
+        </p>
+      )}
 
       {/* Quantity + stock */}
       <div className="mt-5 flex items-center gap-4">

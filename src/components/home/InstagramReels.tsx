@@ -3,8 +3,8 @@
 import { ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { InstagramReel } from "@/lib/instagram-reels";
 import { ReelsCarousel } from "@/components/home/ReelsCarousel";
+import type { InstagramReel } from "@/lib/instagram-reels";
 
 function InstagramIcon({ className, size = 24 }: { className?: string; size?: number }) {
   return (
@@ -27,14 +27,8 @@ function InstagramIcon({ className, size = 24 }: { className?: string; size?: nu
   );
 }
 
-interface InstagramReelsProps {
-  reels: InstagramReel[];
-}
-
-export function InstagramReels({ reels }: InstagramReelsProps) {
+export function InstagramReels({ reels }: { reels: InstagramReel[] }) {
   const instagramUrl = "https://www.instagram.com/bhaktanjaneyasweets.in/reels/";
-
-  if (!reels || reels.length === 0) return null;
 
   return (
     <section className="py-14 bg-cream-50/50 border-t border-cream-200">
@@ -75,8 +69,7 @@ export function InstagramReels({ reels }: InstagramReelsProps) {
           </a>
         </div>
 
-        {/* Horizontal auto-sliding reels carousel */}
-        <ReelsCarousel reels={reels} />
+        {reels.length > 0 ? <ReelsCarousel reels={reels} /> : null}
       </Container>
     </section>
   );
