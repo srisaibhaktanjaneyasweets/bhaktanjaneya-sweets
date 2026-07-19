@@ -16,7 +16,7 @@ export function SectionHeading({
   const centered = align === "center";
 
   const heading = (
-    <div className={cn(centered && "flex flex-col items-center text-center")}>
+    <div className={cn("min-w-0 flex-1", centered && "flex flex-col items-center text-center")}>
       {eyebrow && (
         <div className={cn("flex items-center gap-2.5", centered && "justify-center")}>
           {centered && (

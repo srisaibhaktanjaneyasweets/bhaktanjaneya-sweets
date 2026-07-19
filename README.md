@@ -90,7 +90,7 @@ If Google sign-in is needed, enable the Google provider in the Supabase dashboar
 
 Supabase migrations live in `supabase/migrations`.
 
-Apply them in order to create the storefront tables, admin tables, order fields, category images, blog posts, tags, and featured-post support.
+Apply them in order to create the storefront tables, admin tables, order fields, category images, blog posts, tags, featured-post support, and the admin-managed Instagram reels table plus its thumbnail storage bucket.
 
 ## Project Structure
 

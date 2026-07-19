@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import type { InstagramReel } from "@/lib/instagram-reels";
 import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaCarouselType } from "embla-carousel";
@@ -19,21 +19,9 @@ function retryInstagramThumbnail(sourceUrl?: string) {
 }
 
 export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
-  // Ensure we have at least 8 items to support smooth infinite loop scrolling on all viewports, memoized to prevent infinite render loops
-  const displayReels = useMemo(() => {
-    let result = [...reels];
-    if (result.length > 0 && result.length < 8) {
-      const original = [...result];
-      while (result.length < 8) {
-        result = [...result, ...original];
-      }
-    }
-    return result;
-  }, [reels]);
-
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
-    loop: displayReels.length > 1,
+    loop: reels.length > 1,
   });
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -65,16 +53,16 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
     if (emblaApi) {
       emblaApi.reInit();
     }
-  }, [emblaApi, displayReels]);
+  }, [emblaApi, reels]);
 
   // Autoplay Effect (auto-sliding reels every 5 seconds)
   useEffect(() => {
-    if (!emblaApi || displayReels.length <= 1) return;
+    if (!emblaApi || reels.length <= 1) return;
     const intervalId = setInterval(() => {
       emblaApi.scrollNext();
     }, 5000);
     return () => clearInterval(intervalId);
-  }, [emblaApi, displayReels.length]);
+  }, [emblaApi, reels.length]);
 
   if (!reels || reels.length === 0) return null;
 
@@ -83,11 +71,11 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
       {/* Embla Carousel Viewport */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex -ml-6">
-          {displayReels.map((r, i) => {
+          {reels.map((r) => {
             const caption = (r.caption ?? "").split("#")[0].trim();
             return (
               <div
-                key={`${r.id || r.link}-${i}`}
+                key={r.id || r.link}
                 className="min-w-0 flex-[0_0_78%] sm:flex-[0_0_320px] lg:flex-[0_0_360px] pl-6"
               >
                 <a
@@ -109,7 +97,7 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
                   />
 
                   {/* Gradient overlays for text legibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
 
                   {/* Branded pill overlay (top-left) */}
                   <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-maroon-800 shadow-sm backdrop-blur-sm">
@@ -119,18 +107,25 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
                     Bhaktanjaneya Sweets
                   </div>
 
-                  {/* Caption Text (bottom-left) */}
+                  {/* Play button (center) */}
+                  <div className="absolute inset-0 z-10 flex items-center justify-center">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-maroon-800 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                      <Play size={24} fill="currentColor" className="ml-0.5" aria-hidden="true" />
+                    </span>
+                  </div>
+
+                  {/* Caption (bottom) */}
                   {caption ? (
-                    <div className="absolute bottom-4 left-4 right-4 z-10">
-                      <p className="line-clamp-2 text-xs font-semibold leading-snug text-white drop-shadow-md">
+                    <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 to-transparent px-3 pb-3 pt-8">
+                      <p className="line-clamp-2 text-sm leading-snug text-white/90">
                         {caption}
                       </p>
                     </div>
                   ) : null}
 
-                  {/* Duration Badge (bottom-right) — only when the feed reports it */}
+                  {/* Duration badge (bottom-right) */}
                   {r.duration ? (
-                    <div className="absolute bottom-4 right-4 z-10 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white tracking-wider backdrop-blur-sm">
+                    <div className="absolute bottom-3 right-3 z-20 rounded-md bg-black/60 px-1.5 py-0.5 text-[9px] font-semibold text-white tracking-wider backdrop-blur-sm">
                       {r.duration}
                     </div>
                   ) : null}
@@ -142,13 +137,13 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
       </div>
 
       {/* Navigation Chevrons */}
-      {displayReels.length > 1 && (
+      {reels.length > 1 && (
         <>
           <button
             type="button"
             onClick={scrollPrev}
             aria-label="Previous reel"
-            className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
+            className="absolute left-0 top-1/2 z-10 hidden sm:flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
             style={{ borderColor: "var(--color-maroon-800)", borderStyle: "solid", borderWidth: "1px" }}
           >
             <ChevronLeft size={22} className="stroke-[2.5]" />
@@ -157,7 +152,7 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
             type="button"
             onClick={scrollNext}
             aria-label="Next reel"
-            className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
+            className="absolute right-0 top-1/2 z-10 hidden sm:flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border bg-cream-50 text-maroon-800 transition-all hover:bg-white hover:border-maroon-800 active:scale-95 shadow-sm"
             style={{ borderColor: "var(--color-maroon-800)", borderStyle: "solid", borderWidth: "1px" }}
           >
             <ChevronRight size={22} className="stroke-[2.5]" />

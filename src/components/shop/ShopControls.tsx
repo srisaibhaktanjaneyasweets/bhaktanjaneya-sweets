@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import type { Category } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -114,14 +113,13 @@ export function ShopControls({ categories }: { categories: Category[] }) {
 
             {/* Mobile: icon-only button opens native select */}
             <div className="relative sm:hidden">
-              <Button
+              <button
                 type="button"
-                variant="outline"
                 aria-label="Sort"
-                className="flex h-10 w-10 items-center justify-center rounded-full border-maroon-800/30 bg-white p-0"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-maroon-800/30 bg-white p-0 transition-colors hover:bg-maroon-800/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron-400"
               >
                 <SlidersHorizontal size={18} className="text-maroon-800" />
-              </Button>
+              </button>
 
               <select
                 aria-label="Sort"

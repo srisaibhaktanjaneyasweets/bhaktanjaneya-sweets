@@ -379,8 +379,38 @@ export function Header() {
 
 
             <nav className="flex-1 overflow-y-auto p-2">
-              {leadingLinks.concat(trailingLinks).map((l) => (
+              {leadingLinks.map((l) => (
+                <Link
+                  key={l.href + l.label}
+                  href={l.href}
+                  onClick={closeMenu}
+                  className="block rounded-xl px-4 py-3 text-base font-medium text-maroon-900 hover:bg-maroon-800/5"
+                >
+                  {l.label}
+                </Link>
+              ))}
 
+              {categories.length > 0 && (
+                <div className="my-2 border-y border-cream-200 py-2">
+                  <p className="px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-saffron-600">
+                    Categories
+                  </p>
+                  <div className="grid grid-cols-2 gap-1 px-2">
+                    {categories.map((c) => (
+                      <Link
+                        key={c.id}
+                        href={`/shop?category=${encodeURIComponent(c.slug)}`}
+                        onClick={closeMenu}
+                        className="block rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 hover:bg-maroon-800/5 hover:text-saffron-600"
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {trailingLinks.map((l) => (
                 <Link
                   key={l.href + l.label}
                   href={l.href}
