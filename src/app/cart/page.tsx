@@ -418,12 +418,17 @@ export default function CartPage() {
 
   useEffect(() => {
     if (!placed) return;
+    // Immediately scroll mobile screen to top so the WhatsApp receipt card is centered
+    window.scrollTo({ top: 0, behavior: "instant" });
+    if (document.body) document.body.scrollTop = 0;
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+
     const waMessage = buildFormattedWhatsAppOrderMessage(placed);
     const waUrl = waLink(waMessage);
 
     const timer = setTimeout(() => {
       window.location.href = waUrl;
-    }, 600);
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, [placed]);
