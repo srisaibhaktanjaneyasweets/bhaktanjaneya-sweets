@@ -124,7 +124,7 @@ export interface DeliveryTracking {
 
 export type PaymentMethod = "razorpay" | "cod";
 export type OrderChannel = "online";
-export type PaymentStatus = "pending" | "paid" | "failed" | "cod";
+export type PaymentStatus = "pending" | "paid" | "failed" | "cod" | "refunded";
 export type OrderStatus =
   | "new"
   | "confirmed"

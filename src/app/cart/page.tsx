@@ -13,6 +13,8 @@ import {
   Check,
   ArrowLeft,
   Loader2,
+  FileText,
+  MessageCircle,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Alert } from "@/components/ui/Alert";
@@ -35,7 +37,14 @@ import {
 import { DeliveryLocationGate } from "@/components/cart/DeliveryLocationGate";
 import { Combobox } from "@/components/ui/Combobox";
 import { loadRazorpayScript, openRazorpayCheckout } from "@/lib/razorpay";
-import { waLink } from "@/lib/whatsapp";
+import { apiGet } from "@/lib/api/client";
+import {
+  DEFAULT_SHIPPING_SETTINGS,
+  calculateShippingFee,
+  checkMinOrderRequirement,
+  type ShippingSettings,
+} from "@/lib/shipping";
+import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
 import { formatINR, uid } from "@/lib/utils";
 import type { Offer, Order, PaymentMethod, ShippingAddress } from "@/lib/types";
 
@@ -75,7 +84,7 @@ export default function CartPage() {
 
   const [checkoutError, setCheckoutError] = useState<ErrorDetails | null>(null);
   const [placing, setPlacing] = useState(false);
-  const [placed, setPlaced] = useState<{ id: string; method: PaymentMethod } | null>(null);
+  const [placed, setPlaced] = useState<Order | null>(null);
   const [pincodeDetails, setPincodeDetails] = useState<PincodeLookup | null>(null);
   const [lookingUpPincode, setLookingUpPincode] = useState(false);
   const [pincodeHint, setPincodeHint] = useState("");
@@ -117,8 +126,15 @@ export default function CartPage() {
   }, [customer]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  const [shippingSettings, setShippingSettings] = useState<ShippingSettings>(DEFAULT_SHIPPING_SETTINGS);
+
   useEffect(() => {
     getActiveOffers().then(setOffers).catch(() => setOffers([]));
+    apiGet<ShippingSettings>("/settings/shipping")
+      .then((data) => {
+        if (data) setShippingSettings(data);
+      })
+      .catch(() => {});
   }, []);
 
   const districtOptions = useMemo(() => {
@@ -135,8 +151,6 @@ export default function CartPage() {
       const details = await lookupPincode(pincode.trim());
       lastLookupPincode.current = pincode.trim();
       setPincodeDetails(details);
-      // State & city are chosen from the serviceable-area dropdowns, so the PIN
-      // lookup only fills in the district/area hint — it must not override them.
       setDistrict((prev) => prev || details.district);
 
       const dists = Array.from(new Set(details.postOffices.map((po) => po.district).filter(Boolean)));
@@ -172,11 +186,14 @@ export default function CartPage() {
   );
 
   const discount = useMemo(() => discountFor(offer, subtotal), [offer, subtotal]);
-  const freeShipping =
-    subtotal >= config.freeShippingThreshold ||
-    (offer?.type === "free_shipping" &&
-      (!offer.minSubtotal || subtotal >= offer.minSubtotal));
-  const shipping = freeShipping ? 0 : config.shippingFee;
+  const shipping = useMemo(
+    () => calculateShippingFee(subtotal, shippingSettings, offer?.type === "free_shipping"),
+    [subtotal, shippingSettings, offer],
+  );
+  const minOrderCheck = useMemo(
+    () => checkMinOrderRequirement(subtotal, shippingSettings),
+    [subtotal, shippingSettings],
+  );
   const total = Math.max(0, subtotal - discount + shipping);
 
   function applyCode() {
@@ -353,7 +370,7 @@ export default function CartPage() {
             if (!verified) throw new Error("Payment verification failed.");
 
             clear();
-            setPlaced({ id: saved.id, method: "razorpay" });
+            setPlaced({ ...saved, paymentStatus: "paid" });
           } catch (error) {
             setCheckoutError(
               getErrorDetails(error, "Payment succeeded but order could not be saved"),
@@ -374,12 +391,14 @@ export default function CartPage() {
     }
   }
 
-  function goLoginForPurchase() {
-    const redirect = `/cart`;
-    window.location.href = `/login?redirect=${encodeURIComponent(redirect)}`;
-  }
-
   function handlePlaceOrder() {
+    if (!minOrderCheck.satisfied) {
+      setCheckoutError({
+        title: "Minimum order requirement",
+        message: `Minimum order value is ${formatINR(shippingSettings.minOrderValue)}. Add ${formatINR(minOrderCheck.remaining)} more to place your order.`,
+      });
+      return;
+    }
     if (!deliveryConfirmed) {
       setCheckoutError({
         title: "Confirm delivery location",
@@ -387,32 +406,59 @@ export default function CartPage() {
       });
       return;
     }
-    if (!customer) {
-      goLoginForPurchase();
-      return;
-    }
     void placeRazorpayOrder();
   }
 
 
   if (placed) {
+    const waMessage = buildFormattedWhatsAppOrderMessage(placed);
+    const waUrl = waLink(waMessage);
+
     return (
       <Container>
-        <div className="mx-auto max-w-lg py-20 text-center">
-          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-leaf-600/12 text-leaf-600">
-            <Check size={32} />
+        <div className="mx-auto max-w-xl py-16 text-center space-y-6">
+          <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-leaf-600/12 text-leaf-600 shadow-sm">
+            <Check size={40} />
           </span>
-          <h1 className="mt-5 font-serif text-2xl font-bold text-maroon-900">
-            Order placed!
-          </h1>
-          <p className="mt-2 text-ink-600">
-            Payment received. We&apos;re preparing your order and will update you
-            soon.
-          </p>
-          <p className="mt-3 text-sm font-medium text-maroon-800">
-            Order #{placed.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)}
-          </p>
-          <div className="mt-7 flex justify-center gap-3">
+
+          <div className="space-y-1.5">
+            <h1 className="font-serif text-3xl font-bold text-maroon-900">
+              Order Placed &amp; Payment Completed!
+            </h1>
+            <p className="text-sm text-ink-600 max-w-md mx-auto">
+              Your payment has been verified. We&apos;re preparing your fresh sweets and will dispatch your package shortly.
+            </p>
+            <p className="text-sm font-semibold text-maroon-800">
+              Order #{placed.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)}
+            </p>
+          </div>
+
+          {/* WhatsApp Direct Action Box */}
+          <div className="mx-auto max-w-md rounded-3xl border border-emerald-300/60 bg-emerald-50/70 p-6 text-center space-y-3.5 shadow-soft">
+            <div className="flex justify-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md">
+                <MessageCircle size={24} />
+              </span>
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-bold text-emerald-950">
+                Send Order Receipt to WhatsApp
+              </h3>
+              <p className="mt-1 text-xs text-emerald-900/80">
+                Click below to send your complete order summary, items, and address directly to our WhatsApp support team.
+              </p>
+            </div>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 text-sm font-bold text-white shadow-md hover:bg-emerald-700 transition-colors"
+            >
+              <MessageCircle size={20} /> Send Order via WhatsApp
+            </a>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3 pt-2">
             <Link
               href="/shop"
               className="inline-flex h-11 items-center rounded-full bg-maroon-800 px-6 text-sm font-semibold text-cream-50 hover:bg-maroon-700"
@@ -780,6 +826,28 @@ export default function CartPage() {
                 )}
               </div>
               ) : null}
+            </section>
+
+            {/* Order Note */}
+            <section className="rounded-2xl border border-cream-200 bg-white p-5">
+              <div className="flex items-center gap-2 text-maroon-900">
+                <FileText size={18} className="shrink-0 text-saffron-600" />
+                <h2 className="font-serif text-lg font-bold">
+                  Add Order Note / Special Instructions
+                </h2>
+              </div>
+              <p className="mt-1 text-sm text-ink-500">
+                Have a specific request? Add instructions for gift packaging, less sweet preference, delivery timing, or custom notes.
+              </p>
+              <div className="mt-3">
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g. Please pack in separate boxes, deliver before 6 PM, or write 'Happy Birthday!' on the gift tag..."
+                  rows={3}
+                  className="w-full resize-none rounded-xl border border-cream-300 bg-white p-3.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/30"
+                />
+              </div>
             </section>
               </>
             )}

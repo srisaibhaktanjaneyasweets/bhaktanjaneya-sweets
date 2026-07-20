@@ -30,7 +30,7 @@ export function SiteChrome({
   if (isAdmin) return <>{children}</>;
 
   const showCategoryNav = (() => {
-    // Category nav is meant for storefront browsing, not utility/auth pages.
+    // Category nav is meant for storefront browsing, not utility/auth or product pages.
     const p = pathname ?? "";
     if (
       p === "/" ||
@@ -38,9 +38,6 @@ export function SiteChrome({
       p.startsWith("/shop")
     )
       return true;
-
-    // Product pages also benefit from it.
-    if (p.startsWith("/product/")) return true;
 
     // Otherwise hide.
     return false;

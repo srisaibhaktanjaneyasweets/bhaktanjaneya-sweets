@@ -13,7 +13,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { config } from "@/lib/config";
 import { formatINR, cn } from "@/lib/utils";
 import { defaultProductImage, getProductImage } from "@/lib/images";
 import { apiGet } from "@/lib/api/client";
@@ -21,8 +20,16 @@ import { defaultVariant, toCartItem, priceRange } from "@/lib/product";
 import { recommendForBasket } from "@/lib/recommend";
 import type { Product } from "@/lib/types";
 
+import {
+  DEFAULT_SHIPPING_SETTINGS,
+  getFreeShippingRemaining,
+  checkMinOrderRequirement,
+  type ShippingSettings,
+} from "@/lib/shipping";
+
 // Fetch the catalogue once and share it across opens.
 let productCache: Product[] | null = null;
+let shippingCache: ShippingSettings | null = null;
 
 export function CartDrawer() {
   const {
@@ -39,6 +46,9 @@ export function CartDrawer() {
   } = useCart();
 
   const [products, setProducts] = useState<Product[]>(productCache ?? []);
+  const [shippingSettings, setShippingSettings] = useState<ShippingSettings>(
+    shippingCache ?? DEFAULT_SHIPPING_SETTINGS,
+  );
   const [notesOpen, setNotesOpen] = useState(false);
 
   useEffect(() => {
@@ -48,23 +58,42 @@ export function CartDrawer() {
     };
   }, [isOpen]);
 
-  // Load products the first time the drawer opens (for recommendations).
+  // Load products & shipping settings the first time the drawer opens.
   useEffect(() => {
-    if (productCache || !isOpen) return;
+    if (!isOpen) return;
     let alive = true;
-    apiGet<Product[]>("/products")
-      .then((p) => {
-        productCache = p;
-        if (alive) setProducts(p);
-      })
-      .catch(() => {});
+
+    if (!productCache) {
+      apiGet<Product[]>("/products")
+        .then((p) => {
+          productCache = p;
+          if (alive) setProducts(p);
+        })
+        .catch(() => {});
+    }
+
+    if (!shippingCache) {
+      apiGet<ShippingSettings>("/settings/shipping")
+        .then((s) => {
+          if (s) {
+            shippingCache = s;
+            if (alive) setShippingSettings(s);
+          }
+        })
+        .catch(() => {});
+    }
+
     return () => {
       alive = false;
     };
   }, [isOpen]);
 
-  const remaining = Math.max(0, config.freeShippingThreshold - subtotal);
-  const progress = Math.min(100, (subtotal / config.freeShippingThreshold) * 100);
+  const remaining = getFreeShippingRemaining(subtotal, shippingSettings);
+  const progress = Math.min(
+    100,
+    (subtotal / (shippingSettings.freeShippingThreshold || 1)) * 100,
+  );
+  const minOrderCheck = checkMinOrderRequirement(subtotal, shippingSettings);
 
   // Basket-aware recommendations: rank the catalogue by similarity to what's
   // already in the cart (falls back to best-rated when the cart is empty).
@@ -140,6 +169,11 @@ export function CartDrawer() {
         ) : (
           <>
             <div className="flex-1 overflow-y-auto px-5 py-4">
+              {!minOrderCheck.satisfied && (
+                <div className="mb-3 rounded-xl border border-maroon-800/20 bg-maroon-800/10 p-3 text-xs font-medium text-maroon-900">
+                  Minimum order value is <strong>{formatINR(shippingSettings.minOrderValue)}</strong>. Add <strong>{formatINR(minOrderCheck.remaining)}</strong> more to checkout.
+                </div>
+              )}
               {/* Free shipping progress */}
               <div className="mb-4 rounded-xl bg-cream-100 p-3">
                 <div className="flex items-center justify-between gap-2">

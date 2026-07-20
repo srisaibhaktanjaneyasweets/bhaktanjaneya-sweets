@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, MessageCircle } from "lucide-react";
 
 import { EmptyState, inputClass } from "@/components/admin/ui";
 import { Alert } from "@/components/ui/Alert";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatINR, formatDate } from "@/lib/utils";
 import type { Order, OrderStatus, PaymentStatus } from "@/lib/types";
 import { apiGet } from "@/lib/api/client";
+import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
 
 type PublicOrderLookupResponse = {
   id: string;
@@ -150,6 +151,17 @@ export default function PublicOrderLookupPage() {
           <div className="mt-4 flex items-center justify-between border-t border-cream-200 pt-3 text-base font-bold text-maroon-900">
             <span>Total</span>
             <span>{formatINR(order.total)}</span>
+          </div>
+
+          <div className="mt-4 pt-2">
+            <a
+              href={waLink(buildFormattedWhatsAppOrderMessage(order as unknown as Order))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors"
+            >
+              <MessageCircle size={18} /> Send Order Details via WhatsApp
+            </a>
           </div>
         </div>
       ) : (

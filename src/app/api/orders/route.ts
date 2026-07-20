@@ -4,7 +4,11 @@ import { requireRole } from "@/lib/server/auth";
 import { offerFromRow, orderFromRow, orderToRow, productFromRow } from "@/lib/supabase/mappers";
 import { isServiceableCity } from "@/lib/constants/serviceable-areas";
 import { variantLabel } from "@/lib/product";
-import { config } from "@/lib/config";
+import {
+  DEFAULT_SHIPPING_SETTINGS,
+  calculateShippingFee,
+  type ShippingSettings,
+} from "@/lib/shipping";
 import type { Offer, Order, OrderItem, Product, ShippingAddress } from "@/lib/types";
 
 /** Look up + validate a coupon against the offers table (never trust the client). */
@@ -83,17 +87,44 @@ async function priceOrder(rawItems: unknown, couponCode: unknown): Promise<Price
     });
   }
 
+  // Fetch active shipping config (try site_settings first, then settings)
+  let shippingSettings = DEFAULT_SHIPPING_SETTINGS;
+  try {
+    const { data: siteData } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "shipping_config")
+      .maybeSingle();
+
+    if (siteData?.value) {
+      shippingSettings = siteData.value as ShippingSettings;
+    } else {
+      const { data: setModeData } = await supabaseAdmin
+        .from("settings")
+        .select("value")
+        .eq("key", "shipping_config")
+        .maybeSingle();
+      if (setModeData?.value) {
+        shippingSettings = setModeData.value as ShippingSettings;
+      }
+    }
+  } catch {}
+
+  if (shippingSettings.minOrderValue > 0 && subtotal < shippingSettings.minOrderValue) {
+    return `Minimum order subtotal is ₹${shippingSettings.minOrderValue}. Please add more items to place your order.`;
+  }
+
   // Discount comes ONLY from a server-validated coupon — never the client value.
   const offer = await validatedOffer(couponCode, subtotal);
   let discount = 0;
-  let freeShipping = subtotal >= config.freeShippingThreshold;
+  let offerFreeShipping = false;
   if (offer) {
     if (offer.type === "percent") discount = Math.round((subtotal * offer.value) / 100);
     else if (offer.type === "flat") discount = Math.min(subtotal, offer.value);
-    else if (offer.type === "free_shipping") freeShipping = true;
+    else if (offer.type === "free_shipping") offerFreeShipping = true;
   }
   discount = Math.min(Math.max(0, discount), subtotal);
-  const shipping = freeShipping ? 0 : config.shippingFee;
+  const shipping = calculateShippingFee(subtotal, shippingSettings, offerFreeShipping);
   const total = Math.max(0, subtotal - discount + shipping);
 
   return { items, subtotal, shipping, discount, total };

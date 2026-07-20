@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/toast";
 export default function AdminProductsPage() {
   const { products, categories, saveProduct, deleteProduct } = useAdmin();
   const [query, setQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -25,15 +26,21 @@ export default function AdminProductsPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter(
-      (p) =>
+    return products.filter((p) => {
+      const matchesCategory =
+        selectedCategory === "all" ||
+        p.category === selectedCategory ||
+        (p.categories ?? []).includes(selectedCategory);
+
+      const matchesQuery =
+        !q ||
         p.name.toLowerCase().includes(q) ||
-        (p.categories ?? [p.category]).some((c) =>
-          c.toLowerCase().includes(q),
-        ),
-    );
-  }, [products, query]);
+        p.slug.toLowerCase().includes(q) ||
+        (p.categories ?? [p.category]).some((c) => c.toLowerCase().includes(q));
+
+      return matchesCategory && matchesQuery;
+    });
+  }, [products, query, selectedCategory]);
 
   function requestDelete(p: Product) {
     setConfirmId(p.id);
@@ -81,18 +88,34 @@ export default function AdminProductsPage() {
         </AdminButton>
       </div>
 
-      {/* Search */}
-      <div className="relative w-full md:max-w-sm">
-        <Search
-          size={16}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
-        />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search products…"
-          className={`${inputClass} pl-9`}
-        />
+      {/* Search & Category Filter */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative w-full sm:max-w-xs">
+          <Search
+            size={16}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
+          />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search products…"
+            className={`${inputClass} pl-9`}
+          />
+        </div>
+
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          aria-label="Filter by category"
+          className={`${inputClass} w-full sm:w-56 cursor-pointer font-medium`}
+        >
+          <option value="all">All Categories ({products.length})</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.slug}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {filtered.length === 0 ? (

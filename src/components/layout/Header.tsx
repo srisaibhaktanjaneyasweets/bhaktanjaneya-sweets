@@ -118,7 +118,7 @@ export function Header() {
 
   return (
     <Fragment>
-    <header className="sticky top-0 z-40 border-b border-cream-300/60 bg-cream-50/95 backdrop-blur supports-[backdrop-filter]:bg-cream-50/80">
+    <header className="sticky top-0 z-40 border-b border-cream-300/60 bg-cream-50">
       <Container>
         <div className="flex h-16 min-w-0 items-center gap-2 sm:gap-3 lg:h-20">
           {/* Mobile menu toggle */}
