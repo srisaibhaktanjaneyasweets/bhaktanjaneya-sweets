@@ -9,9 +9,6 @@ import {
 } from "@/lib/announcement";
 
 export function AnnouncementBar() {
-  // Messages are editable from the admin panel (Announcements page); start
-  // with the built-in defaults so the bar renders instantly, then swap in the
-  // saved texts once they load.
   const [messages, setMessages] = useState<AnnouncementMessages>(
     defaultAnnouncementMessages(),
   );
@@ -31,21 +28,19 @@ export function AnnouncementBar() {
     { icon: MessageCircle, text: messages.whatsapp },
   ];
 
-  // Mobile shows one message at a time and rotates through them; desktop has
-  // room to show all three at once (handled by the static row below).
   const [index, setIndex] = useState(0);
   const itemCount = items.length;
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) return; // respect reduced-motion: don't auto-rotate
+    if (mq.matches) return;
     const id = setInterval(() => setIndex((i) => (i + 1) % itemCount), 4000);
     return () => clearInterval(id);
   }, [itemCount]);
 
   return (
-    <div className="bg-maroon-900 text-cream-100">
-      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-2 text-xs sm:text-[13px]">
+    <div className="bg-maroon-900 text-cream-50">
+      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-2 text-xs font-medium sm:text-[13px]">
         {/* Mobile: single rotating message (carousel). */}
         <div className="relative h-4 w-full overflow-hidden lg:hidden" aria-live="polite">
           {items.map(({ icon: Icon, text }, i) => (
@@ -57,7 +52,7 @@ export function AnnouncementBar() {
               )}
               aria-hidden={i !== index}
             >
-              <Icon size={14} className="shrink-0 text-saffron-400" />
+              <Icon size={14} className="shrink-0 text-gold-300" />
               {text}
             </span>
           ))}
@@ -67,7 +62,7 @@ export function AnnouncementBar() {
         <div className="hidden items-center justify-center gap-x-8 lg:flex">
           {items.map(({ icon: Icon, text }) => (
             <span key={text} className="inline-flex items-center gap-1.5 whitespace-nowrap">
-              <Icon size={14} className="shrink-0 text-saffron-400" />
+              <Icon size={14} className="shrink-0 text-gold-300" />
               {text}
             </span>
           ))}

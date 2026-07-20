@@ -16,7 +16,7 @@ export function Rating({
     <span className={cn("inline-flex items-center gap-1 text-sm", className)}>
       <Star size={size} className="fill-gold-500 text-gold-500" />
       <span className="font-medium text-ink-900">{value.toFixed(1)}</span>
-      {count != null && <span className="text-ink-400">({count})</span>}
+      {count != null && <span className="font-semibold text-ink-700">({count})</span>}
     </span>
   );
 }

@@ -86,7 +86,7 @@ export function ProductCard({
       </Link>
 
       <div className="flex flex-1 flex-col p-2.5 sm:p-3">
-        <span className="line-clamp-1 text-[10px] font-medium uppercase tracking-wide text-ink-400 sm:text-[11px]">
+        <span className="line-clamp-1 text-[10px] font-semibold uppercase tracking-wide text-ink-700 sm:text-[11px]">
           {product.categoryLabel ?? " "}
         </span>
         <h3 className="mt-0.5 line-clamp-2 min-h-[2.1rem] font-serif text-sm font-medium leading-snug text-maroon-900 sm:min-h-[2.3rem] sm:text-[15px]">

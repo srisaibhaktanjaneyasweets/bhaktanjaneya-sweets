@@ -79,7 +79,9 @@ export function Hero() {
                   alt={s.title}
                   fill
                   priority={i === 0}
-                  sizes="100vw"
+                  fetchPriority={i === 0 ? "high" : "low"}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  sizes="(max-width: 768px) 100vw, 100vw"
                   className="object-cover object-center"
                 />
 
@@ -103,6 +105,7 @@ export function Hero() {
                     <div className="mt-7 flex flex-wrap gap-3">
                       <Link
                         href={s.primary.href}
+                        aria-label={`${s.primary.label} - ${s.title}`}
                         className="inline-flex h-12 items-center gap-2 rounded-full bg-gold-500 px-7 text-sm font-semibold text-maroon-900 shadow-sm transition-colors hover:bg-gold-400"
                       >
                         {s.primary.label}
@@ -110,6 +113,7 @@ export function Hero() {
                       </Link>
                       <Link
                         href={s.secondary.href}
+                        aria-label={`${s.secondary.label} - ${s.title}`}
                         className="inline-flex h-12 items-center rounded-full border border-cream-50/40 px-7 text-sm font-semibold text-cream-50 backdrop-blur-sm transition-colors hover:bg-cream-50/10"
                       >
                         {s.secondary.label}
@@ -131,13 +135,17 @@ export function Hero() {
             type="button"
             aria-label={`Go to slide ${i + 1}`}
             onClick={() => scrollTo(i)}
-            className={cn(
-              "h-2 rounded-full transition-all",
-              i === selected
-                ? "w-6 bg-gold-400"
-                : "w-2 bg-cream-50/50 hover:bg-cream-50/80",
-            )}
-          />
+            className="flex h-11 items-center justify-center p-2"
+          >
+            <span
+              className={cn(
+                "h-2.5 rounded-full transition-all",
+                i === selected
+                  ? "w-6 bg-gold-400"
+                  : "w-2.5 bg-cream-50/60 hover:bg-cream-50/90",
+              )}
+            />
+          </button>
         ))}
       </div>
     </section>

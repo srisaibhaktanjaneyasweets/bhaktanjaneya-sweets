@@ -23,7 +23,7 @@ export function SectionHeading({
             <span className="h-px w-8 bg-gradient-to-r from-transparent to-gold-400 sm:w-12" />
           )}
           <span className="inline-block h-1.5 w-1.5 rotate-45 bg-gold-500" />
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-600">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-maroon-800">
             {eyebrow}
           </span>
           {centered && (
