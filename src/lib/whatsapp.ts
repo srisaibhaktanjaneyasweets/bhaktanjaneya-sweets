@@ -2,10 +2,16 @@ import { config } from "./config";
 import type { CartItem, Order } from "./types";
 import { formatINR } from "./utils";
 
-/** Build an official WhatsApp deep link with a pre-filled message. */
+/** Build an official WhatsApp deep link with a pre-filled message for store support. */
 export function waLink(message: string): string {
   const num = config.whatsappNumber.replace(/[^0-9]/g, "");
-  // Normalize string to NFC to ensure proper multi-byte UTF-8 encoding of all emojis
+  const normalized = message.normalize("NFC");
+  return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(normalized)}`;
+}
+
+/** Build a WhatsApp deep link targeting a specific customer phone number. */
+export function waLinkToPhone(phone: string, message: string): string {
+  const num = phone.replace(/[^0-9]/g, "");
   const normalized = message.normalize("NFC");
   return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(normalized)}`;
 }
@@ -82,8 +88,8 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
 
   const itemsList = (order.items ?? [])
     .map(
-      (it) =>
-        `⭐ ${it.name} - ${it.variantLabel} x ${it.quantity} => ₹${it.price * it.quantity} INR`,
+      (it, idx) =>
+        `⭐ ${idx + 1}. ${it.name} - ${it.variantLabel} x ${it.quantity} => ₹${it.price * it.quantity} INR`,
     )
     .join("\n");
 
@@ -110,7 +116,7 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
   const divider = "--------------------------------";
 
   const parts = [
-    "👉 New Order Received @ ",
+    "👉 New Order Received",
     "",
     divider,
     "",
@@ -143,4 +149,11 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
   ];
 
   return parts.join("\n");
+}
+
+/** Build exact formatted WhatsApp message template for admin messaging a customer. */
+export function buildAdminCustomerWhatsAppMessage(order: Partial<Order>): string {
+  const baseMessage = buildFormattedWhatsAppOrderMessage(order);
+  const divider = "--------------------------------";
+  return `${baseMessage}\n\n${divider}\n\nPlease confirm the above order details.`;
 }

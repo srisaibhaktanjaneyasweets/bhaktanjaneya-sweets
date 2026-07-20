@@ -410,6 +410,18 @@ export default function CartPage() {
   }
 
 
+  useEffect(() => {
+    if (!placed) return;
+    const waMessage = buildFormattedWhatsAppOrderMessage(placed);
+    const waUrl = waLink(waMessage);
+
+    const timer = setTimeout(() => {
+      window.location.href = waUrl;
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [placed]);
+
   if (placed) {
     const waMessage = buildFormattedWhatsAppOrderMessage(placed);
     const waUrl = waLink(waMessage);
