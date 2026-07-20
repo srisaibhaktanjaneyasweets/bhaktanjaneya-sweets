@@ -42,6 +42,9 @@ export function generateThermalReceiptHtml(order: Order): string {
     )
     .join("");
 
+  const itemsCount = order.items?.length ?? 1;
+  const receiptHeightMm = Math.max(180, 140 + itemsCount * 25);
+
   return `
 <!DOCTYPE html>
 <html>
@@ -50,7 +53,7 @@ export function generateThermalReceiptHtml(order: Order): string {
   <title>Thermal Receipt #${shortId}</title>
   <style>
     @page {
-      size: 80mm auto;
+      size: 80mm ${receiptHeightMm}mm;
       margin: 0;
     }
     html, body {
@@ -75,6 +78,10 @@ export function generateThermalReceiptHtml(order: Order): string {
     .title { font-size: 24px; font-weight: 900; letter-spacing: 0.02em; }
     .subtitle { font-size: 15px; font-weight: 700; }
     @media print {
+      @page {
+        size: 80mm ${receiptHeightMm}mm !important;
+        margin: 0 !important;
+      }
       html, body {
         width: 80mm !important;
         max-width: 80mm !important;
