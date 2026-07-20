@@ -31,12 +31,12 @@ export function generateThermalReceiptHtml(order: Order): string {
     .map(
       (it, idx) => `
       <tr>
-        <td style="padding: 3px 0; text-align: left; vertical-align: top; word-break: break-word;">
+        <td style="padding: 4px 0; text-align: left; vertical-align: top; word-break: break-word;">
           <strong>${idx + 1}. ${it.name}</strong><br/>
-          <span style="font-size: 11px; color: #111;">${it.variantLabel}</span>
+          <span style="font-size: 13px; color: #111; font-weight: normal;">${it.variantLabel}</span>
         </td>
-        <td style="padding: 3px 0; text-align: center; vertical-align: top; white-space: nowrap;">x${it.quantity}</td>
-        <td style="padding: 3px 0; text-align: right; vertical-align: top; white-space: nowrap; font-weight: bold;">${formatINR(it.price * it.quantity)}</td>
+        <td style="padding: 4px 0; text-align: center; vertical-align: top; white-space: nowrap; font-size: 15px; font-weight: bold;">x${it.quantity}</td>
+        <td style="padding: 4px 0; text-align: right; vertical-align: top; white-space: nowrap; font-size: 15px; font-weight: bold;">${formatINR(it.price * it.quantity)}</td>
       </tr>
     `,
     )
@@ -59,26 +59,28 @@ export function generateThermalReceiptHtml(order: Order): string {
       margin: 0 auto;
       padding: 6px 2px;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 12px;
-      line-height: 1.3;
+      font-size: 15px;
+      line-height: 1.4;
+      font-weight: 600;
       color: #000;
       background: #fff;
       -webkit-print-color-adjust: exact;
     }
     .center { text-align: center; }
-    .bold { font-weight: bold; }
-    .divider { border-top: 1px dashed #000; margin: 6px 0; }
-    .double-divider { border-top: 2px solid #000; margin: 6px 0; }
-    table { width: 100%; border-collapse: collapse; margin: 4px 0; font-size: 12px; font-family: 'Courier New', Courier, monospace; }
+    .bold { font-weight: 900; }
+    .divider { border-top: 1px dashed #000; margin: 8px 0; }
+    .double-divider { border-top: 2px solid #000; margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 15px; font-family: 'Courier New', Courier, monospace; }
     .flex-between { display: flex; justify-content: space-between; }
-    .title { font-size: 16px; font-weight: bold; }
-    .subtitle { font-size: 11px; }
+    .title { font-size: 20px; font-weight: 900; letter-spacing: 0.02em; }
+    .subtitle { font-size: 13px; font-weight: 600; }
     @media print {
       html, body {
         width: 80mm !important;
         max-width: 80mm !important;
         padding: 4mm 2mm !important;
         margin: 0 !important;
+        font-size: 15px !important;
       }
     }
   </style>
@@ -101,20 +103,20 @@ export function generateThermalReceiptHtml(order: Order): string {
   <div class="divider"></div>
 
   <div>
-    <div class="bold">CUSTOMER:</div>
-    <div>${order.customerName || "Customer"}</div>
+    <div class="bold" style="font-size: 16px;">CUSTOMER:</div>
+    <div style="font-size: 15px; font-weight: bold;">${order.customerName || "Customer"}</div>
     <div>Ph: ${order.customerPhone}</div>
-    ${order.customerEmail ? `<div style="font-size: 11px;">${order.customerEmail}</div>` : ""}
+    ${order.customerEmail ? `<div style="font-size: 13px;">${order.customerEmail}</div>` : ""}
   </div>
 
   <div class="divider"></div>
 
   <table>
     <thead>
-      <tr style="border-bottom: 1px dashed #000;">
-        <th style="text-align: left; padding-bottom: 4px;">ITEM</th>
-        <th style="text-align: center; padding-bottom: 4px; width: 35px;">QTY</th>
-        <th style="text-align: right; padding-bottom: 4px; width: 65px;">AMT</th>
+      <tr style="border-bottom: 1.5px dashed #000; font-size: 15px;">
+        <th style="text-align: left; padding-bottom: 6px; font-weight: 900;">ITEM</th>
+        <th style="text-align: center; padding-bottom: 6px; width: 40px; font-weight: 900;">QTY</th>
+        <th style="text-align: right; padding-bottom: 6px; width: 75px; font-weight: 900;">AMT</th>
       </tr>
     </thead>
     <tbody>
@@ -129,20 +131,20 @@ export function generateThermalReceiptHtml(order: Order): string {
     ${order.discount ? `<div class="flex-between"><span>Discount:</span><span>-${formatINR(order.discount)}</span></div>` : ""}
     <div class="flex-between"><span>Delivery Fee:</span><span>${order.shipping ? formatINR(order.shipping) : "FREE"}</span></div>
     <div class="divider"></div>
-    <div class="flex-between bold" style="font-size: 14px;"><span>TOTAL AMOUNT:</span><span>${formatINR(order.total)}</span></div>
+    <div class="flex-between bold" style="font-size: 18px;"><span>TOTAL AMOUNT:</span><span>${formatINR(order.total)}</span></div>
   </div>
 
   <div class="divider"></div>
 
   <div>
-    <div class="bold">DELIVERY ADDRESS:</div>
-    <div style="font-size: 11px;">${addressStr}</div>
-    ${order.notes ? `<div style="margin-top: 4px;"><strong>NOTE:</strong> ${order.notes}</div>` : ""}
+    <div class="bold" style="font-size: 16px;">DELIVERY ADDRESS:</div>
+    <div style="font-size: 13px; font-weight: 600;">${addressStr}</div>
+    ${order.notes ? `<div style="margin-top: 6px; font-size: 13px;"><strong>NOTE:</strong> ${order.notes}</div>` : ""}
   </div>
 
   <div class="double-divider"></div>
 
-  <div class="center subtitle" style="margin-top: 8px;">
+  <div class="center subtitle" style="margin-top: 10px; font-size: 13px; font-weight: bold;">
     THANK YOU FOR SHOPPING!<br/>
     www.bhaktanjaneyasweets.in
   </div>
