@@ -45,7 +45,7 @@ import {
   type ShippingSettings,
 } from "@/lib/shipping";
 import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
-import { formatINR, uid } from "@/lib/utils";
+import { formatINR, uid, normalizeIndianPhone, isValidEmail } from "@/lib/utils";
 import type { Offer, Order, PaymentMethod, ShippingAddress } from "@/lib/types";
 
 const fieldClass =
@@ -231,12 +231,17 @@ export default function CartPage() {
   }
 
   function validateCheckout(): string | null {
-    const digits = phone.replace(/\D/g, "");
     if (!name.trim()) return "Please enter your full name.";
-    if (digits.length < 10) return "Please enter a valid 10-digit phone number.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      return "Please enter a valid email address.";
+    
+    const phoneCheck = normalizeIndianPhone(phone);
+    if (!phoneCheck.valid) {
+      return "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g. 9876543210).";
     }
+
+    if (!isValidEmail(email)) {
+      return "Please enter a valid email address (e.g. name@example.com).";
+    }
+
     if (addressMode === "saved") {
       if (!isCompleteAddress(customer?.savedAddress)) {
         return "Your saved address is incomplete. Please choose a different address or update it in your account.";
@@ -261,11 +266,12 @@ export default function CartPage() {
     paymentStatus: Order["paymentStatus"],
     extras?: Partial<Order>,
   ): Order {
+    const phoneCheck = normalizeIndianPhone(phone);
     return {
       id: uid("ord"),
-      customerPhone: phone.replace(/\D/g, ""),
+      customerPhone: phoneCheck.normalized,
       customerName: name.trim(),
-      customerEmail: email.trim(),
+      customerEmail: email.trim().toLowerCase(),
       shippingAddress: getShippingAddress(),
       notes: notes.trim() || undefined,
       items: orderedItems.map((it) => ({
@@ -299,11 +305,11 @@ export default function CartPage() {
 
   async function saveCheckoutContactIfNeeded() {
     if (!customer) return;
-    const digits = phone.replace(/\D/g, "");
+    const phoneCheck = normalizeIndianPhone(phone);
     const patch: Partial<typeof customer> = {};
 
-    if (digits && digits !== customer.phone) {
-      patch.phone = digits;
+    if (phoneCheck.valid && phoneCheck.normalized !== customer.phone) {
+      patch.phone = phoneCheck.normalized;
     }
     if (name.trim() && name.trim() !== customer.name) {
       patch.name = name.trim();

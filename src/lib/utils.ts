@@ -42,7 +42,6 @@ export function betterSlugify(input: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-
 /** Discount percentage between mrp and price, rounded. 0 when no saving. */
 export function discountPct(price: number, mrp?: number): number {
   if (!mrp || mrp <= price) return 0;
@@ -62,4 +61,31 @@ export function formatDate(iso: string): string {
     month: "short",
     year: "numeric",
   }).format(d);
+}
+
+/**
+ * Clean & validate Indian mobile phone numbers.
+ * Handles +91 country prefix or leading 0 prefix.
+ * Valid Indian mobile numbers are 10 digits starting with 6, 7, 8, or 9.
+ */
+export function normalizeIndianPhone(phone: string): { normalized: string; valid: boolean } {
+  if (typeof phone !== "string") return { normalized: "", valid: false };
+  let digits = phone.replace(/\D/g, "");
+
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+
+  const valid = /^[6-9]\d{9}$/.test(digits);
+  return { normalized: digits, valid };
+}
+
+/** Validate standard email format. */
+export function isValidEmail(email: string): boolean {
+  if (typeof email !== "string") return false;
+  const trimmed = email.trim().toLowerCase();
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return regex.test(trimmed);
 }

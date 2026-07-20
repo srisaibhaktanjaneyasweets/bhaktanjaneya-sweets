@@ -171,6 +171,8 @@ export async function GET(req: Request) {
   return NextResponse.json((data ?? []).map((row) => orderFromRow(row)));
 }
 
+import { normalizeIndianPhone, isValidEmail } from "@/lib/utils";
+
 export async function POST(req: Request) {
   const body = await req.json();
   const order = body ?? {};
@@ -180,8 +182,20 @@ export async function POST(req: Request) {
   if (!order.customerName?.trim()) {
     return NextResponse.json({ error: "Customer name is required" }, { status: 400 });
   }
-  if (!order.customerEmail?.trim()) {
-    return NextResponse.json({ error: "Email is required" }, { status: 400 });
+
+  const phoneCheck = normalizeIndianPhone(String(order.customerPhone));
+  if (!phoneCheck.valid) {
+    return NextResponse.json(
+      { error: "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g. 9876543210)." },
+      { status: 400 },
+    );
+  }
+
+  if (!isValidEmail(String(order.customerEmail || ""))) {
+    return NextResponse.json(
+      { error: "Please enter a valid email address (e.g. name@example.com)." },
+      { status: 400 },
+    );
   }
   if (!isValidAddress(order.shippingAddress)) {
     return NextResponse.json({ error: "Valid delivery address is required" }, { status: 400 });
