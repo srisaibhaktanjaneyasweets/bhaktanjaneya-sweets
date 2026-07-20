@@ -1,0 +1,9 @@
+# Configuration for Supabase Edge Functions
+# Webhooks from Razorpay do not include Supabase Authorization headers,
+# so verify_jwt must be set to false for webhook endpoints.
+
+[functions.razorpay-webhook]
+verify_jwt = false
+
+[functions.razorpay-webhooks]
+verify_jwt = false
