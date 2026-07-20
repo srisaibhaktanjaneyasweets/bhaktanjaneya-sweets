@@ -31,12 +31,12 @@ export function generateThermalReceiptHtml(order: Order): string {
     .map(
       (it, idx) => `
       <tr>
-        <td style="padding: 4px 0; text-align: left; vertical-align: top; word-break: break-word;">
-          <strong>${idx + 1}. ${it.name}</strong><br/>
-          <span style="font-size: 13px; color: #111; font-weight: normal;">${it.variantLabel}</span>
+        <td style="padding: 5px 0; text-align: left; vertical-align: top; word-break: break-word; font-size: 18px;">
+          <strong style="font-size: 18px; font-weight: 900;">${idx + 1}. ${it.name}</strong><br/>
+          <span style="font-size: 15px; color: #000; font-weight: 600;">${it.variantLabel}</span>
         </td>
-        <td style="padding: 4px 0; text-align: center; vertical-align: top; white-space: nowrap; font-size: 15px; font-weight: bold;">x${it.quantity}</td>
-        <td style="padding: 4px 0; text-align: right; vertical-align: top; white-space: nowrap; font-size: 15px; font-weight: bold;">${formatINR(it.price * it.quantity)}</td>
+        <td style="padding: 5px 0; text-align: center; vertical-align: top; white-space: nowrap; font-size: 18px; font-weight: 900;">x${it.quantity}</td>
+        <td style="padding: 5px 0; text-align: right; vertical-align: top; white-space: nowrap; font-size: 18px; font-weight: 900;">${formatINR(it.price * it.quantity)}</td>
       </tr>
     `,
     )
@@ -54,33 +54,33 @@ export function generateThermalReceiptHtml(order: Order): string {
       margin: 0;
     }
     html, body {
-      width: 72mm;
-      max-width: 72mm;
+      width: 74mm;
+      max-width: 74mm;
       margin: 0 auto;
       padding: 6px 2px;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 15px;
+      font-size: 17px;
       line-height: 1.4;
-      font-weight: 600;
+      font-weight: 700;
       color: #000;
       background: #fff;
       -webkit-print-color-adjust: exact;
     }
     .center { text-align: center; }
     .bold { font-weight: 900; }
-    .divider { border-top: 1px dashed #000; margin: 8px 0; }
-    .double-divider { border-top: 2px solid #000; margin: 8px 0; }
-    table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 15px; font-family: 'Courier New', Courier, monospace; }
+    .divider { border-top: 1.5px dashed #000; margin: 8px 0; }
+    .double-divider { border-top: 2.5px solid #000; margin: 8px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 17px; font-family: 'Courier New', Courier, monospace; }
     .flex-between { display: flex; justify-content: space-between; }
-    .title { font-size: 20px; font-weight: 900; letter-spacing: 0.02em; }
-    .subtitle { font-size: 13px; font-weight: 600; }
+    .title { font-size: 24px; font-weight: 900; letter-spacing: 0.02em; }
+    .subtitle { font-size: 15px; font-weight: 700; }
     @media print {
       html, body {
         width: 80mm !important;
         max-width: 80mm !important;
         padding: 4mm 2mm !important;
         margin: 0 !important;
-        font-size: 15px !important;
+        font-size: 17px !important;
       }
     }
   </style>
@@ -95,7 +95,7 @@ export function generateThermalReceiptHtml(order: Order): string {
   <div class="double-divider"></div>
 
   <div>
-    <div class="flex-between"><span>ORDER #:</span><span class="bold">#${shortId}</span></div>
+    <div class="flex-between"><span>ORDER #:</span><span class="bold" style="font-size: 19px;">#${shortId}</span></div>
     <div class="flex-between"><span>DATE:</span><span>${dateStr}</span></div>
     <div class="flex-between"><span>PAYMENT:</span><span class="bold">${(order.paymentStatus || "").toUpperCase()} (${(order.paymentMethod || "").toUpperCase()})</span></div>
   </div>
@@ -103,20 +103,20 @@ export function generateThermalReceiptHtml(order: Order): string {
   <div class="divider"></div>
 
   <div>
-    <div class="bold" style="font-size: 16px;">CUSTOMER:</div>
-    <div style="font-size: 15px; font-weight: bold;">${order.customerName || "Customer"}</div>
-    <div>Ph: ${order.customerPhone}</div>
-    ${order.customerEmail ? `<div style="font-size: 13px;">${order.customerEmail}</div>` : ""}
+    <div class="bold" style="font-size: 18px;">CUSTOMER:</div>
+    <div style="font-size: 18px; font-weight: 900;">${order.customerName || "Customer"}</div>
+    <div style="font-size: 17px;">Ph: ${order.customerPhone}</div>
+    ${order.customerEmail ? `<div style="font-size: 15px;">${order.customerEmail}</div>` : ""}
   </div>
 
   <div class="divider"></div>
 
   <table>
     <thead>
-      <tr style="border-bottom: 1.5px dashed #000; font-size: 15px;">
+      <tr style="border-bottom: 2px dashed #000; font-size: 17px;">
         <th style="text-align: left; padding-bottom: 6px; font-weight: 900;">ITEM</th>
-        <th style="text-align: center; padding-bottom: 6px; width: 40px; font-weight: 900;">QTY</th>
-        <th style="text-align: right; padding-bottom: 6px; width: 75px; font-weight: 900;">AMT</th>
+        <th style="text-align: center; padding-bottom: 6px; width: 45px; font-weight: 900;">QTY</th>
+        <th style="text-align: right; padding-bottom: 6px; width: 85px; font-weight: 900;">AMT</th>
       </tr>
     </thead>
     <tbody>
@@ -131,20 +131,20 @@ export function generateThermalReceiptHtml(order: Order): string {
     ${order.discount ? `<div class="flex-between"><span>Discount:</span><span>-${formatINR(order.discount)}</span></div>` : ""}
     <div class="flex-between"><span>Delivery Fee:</span><span>${order.shipping ? formatINR(order.shipping) : "FREE"}</span></div>
     <div class="divider"></div>
-    <div class="flex-between bold" style="font-size: 18px;"><span>TOTAL AMOUNT:</span><span>${formatINR(order.total)}</span></div>
+    <div class="flex-between bold" style="font-size: 22px;"><span>TOTAL AMOUNT:</span><span>${formatINR(order.total)}</span></div>
   </div>
 
   <div class="divider"></div>
 
   <div>
-    <div class="bold" style="font-size: 16px;">DELIVERY ADDRESS:</div>
-    <div style="font-size: 13px; font-weight: 600;">${addressStr}</div>
-    ${order.notes ? `<div style="margin-top: 6px; font-size: 13px;"><strong>NOTE:</strong> ${order.notes}</div>` : ""}
+    <div class="bold" style="font-size: 18px;">DELIVERY ADDRESS:</div>
+    <div style="font-size: 15px; font-weight: 700; line-height: 1.4;">${addressStr}</div>
+    ${order.notes ? `<div style="margin-top: 6px; font-size: 15px;"><strong>NOTE:</strong> ${order.notes}</div>` : ""}
   </div>
 
   <div class="double-divider"></div>
 
-  <div class="center subtitle" style="margin-top: 10px; font-size: 13px; font-weight: bold;">
+  <div class="center subtitle" style="margin-top: 10px; font-size: 15px; font-weight: 900;">
     THANK YOU FOR SHOPPING!<br/>
     www.bhaktanjaneyasweets.in
   </div>
