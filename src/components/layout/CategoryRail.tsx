@@ -61,7 +61,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
 
   return (
     <div className="relative">
-      {/* Left edge: fade + arrow, shown only when more items exist to the left */}
+      {/* Left edge: fade + arrow */}
       {canLeft && (
         <>
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-cream-50 to-transparent" />
@@ -69,7 +69,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(-1)}
             aria-label="Scroll categories left"
-            className="absolute left-0 top-[48px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
+            className="absolute left-0 top-[48px] z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
           >
             <ChevronLeft size={20} />
           </button>
@@ -103,14 +103,14 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
                 <span className="absolute -right-3 bottom-3 h-7 w-7 rounded-full bg-white/15" />
               </div>
             </div>
-            <span className="mt-3 line-clamp-2 h-[2.2rem] text-center text-xs font-medium leading-snug tracking-tight text-maroon-900/90 transition-colors group-hover:text-maroon-700 sm:text-[13px]">
+            <span className="mt-3 line-clamp-2 h-[2.2rem] text-center text-xs font-bold leading-snug tracking-tight text-maroon-950 transition-colors group-hover:text-maroon-700 sm:text-[13px]">
               {category.name}
             </span>
           </Link>
         ))}
       </div>
 
-      {/* Right edge: fade + arrow, shown only when more items exist to the right */}
+      {/* Right edge: fade + arrow */}
       {canRight && (
         <>
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-cream-50 to-transparent" />
@@ -118,7 +118,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
             type="button"
             onClick={() => scrollByDir(1)}
             aria-label="Scroll categories right"
-            className="absolute right-0 top-[48px] z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
+            className="absolute right-0 top-[48px] z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-cream-300 bg-cream-50 text-maroon-800 shadow-sm transition hover:bg-maroon-800/5 sm:top-[58px]"
           >
             <ChevronRight size={20} />
           </button>
