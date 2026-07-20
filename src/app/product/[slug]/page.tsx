@@ -11,6 +11,8 @@ import { getProducts, getProductBySlug } from "@/lib/api/products";
 import { priceRange } from "@/lib/product";
 import { recommendForProduct } from "@/lib/recommend";
 
+import { config } from "@/lib/config";
+
 export async function generateStaticParams() {
   const products = await getProducts();
   return products.map((p) => ({ slug: p.slug }));
@@ -22,10 +24,33 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const p = await getProductBySlug(slug);
   if (!p) return { title: "Product" };
+  const url = `${config.siteUrl}/product/${p.slug}`;
+  const title = `${p.name} — Buy Pure Ghee ${p.name} Online`;
+  const desc = p.description || `Order fresh ${p.name} online from Bhaktanjaneya Sweets. Made with pure ghee & high quality ingredients. Delivered across India.`;
   return {
-    title: p.name,
-    description: p.description,
-    openGraph: { title: p.name, description: p.description, images: p.images },
+    title,
+    description: desc,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description: desc,
+      url,
+      images: p.images.map((img) => ({ url: img, alt: p.name })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: desc,
+      images: p.images,
+    },
+    keywords: [
+      p.name,
+      `buy ${p.name} online`,
+      p.categoryLabel ?? p.category,
+      "pure ghee sweets",
+      "traditional Indian sweets",
+      "Bhaktanjaneya Sweets",
+    ],
   };
 }
 
@@ -45,26 +70,40 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
   const related = recommendForProduct(product, await getProducts(), 8);
   const { min, max } = priceRange(product);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: product.images,
-    category: product.categoryLabel ?? product.category,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: product.rating,
-      reviewCount: product.reviewCount,
+  const productUrl = `${config.siteUrl}/product/${product.slug}`;
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: product.name,
+      description: product.description,
+      image: product.images,
+      category: product.categoryLabel ?? product.category,
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: product.rating,
+        reviewCount: product.reviewCount,
+      },
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: "INR",
+        lowPrice: min,
+        highPrice: max,
+        offerCount: product.variants.length,
+        availability: "https://schema.org/InStock",
+      },
     },
-    offers: {
-      "@type": "AggregateOffer",
-      priceCurrency: "INR",
-      lowPrice: min,
-      highPrice: max,
-      offerCount: product.variants.length,
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: config.siteUrl },
+        { "@type": "ListItem", position: 2, name: "Shop", item: `${config.siteUrl}/shop` },
+        { "@type": "ListItem", position: 3, name: product.name, item: productUrl },
+      ],
     },
-  };
+  ];
 
   return (
     <div className="pb-16 pt-8">

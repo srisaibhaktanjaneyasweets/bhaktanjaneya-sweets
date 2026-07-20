@@ -9,6 +9,8 @@ import { getProductsByCategory } from "@/lib/api/products";
 import { getCategoryImage } from "@/lib/images";
 import { sortProducts } from "@/lib/product";
 
+import { config } from "@/lib/config";
+
 export async function generateStaticParams() {
   const cats = await getCategories();
   return cats.map((c) => ({ slug: c.slug }));
@@ -20,9 +22,23 @@ export async function generateMetadata(
   const { slug } = await props.params;
   const c = await getCategory(slug);
   if (!c) return { title: "Collection" };
+  const url = `${config.siteUrl}/collections/${c.slug}`;
+  const desc = c.description ?? `Shop authentic ${c.name} online from Bhaktanjaneya Sweets. Fresh ingredients, pure ghee, nationwide delivery.`;
   return {
-    title: c.name,
-    description: c.description ?? `Shop ${c.name} from Bhaktanjaneya Sweets.`,
+    title: `${c.name} — Buy Traditional ${c.name} Online`,
+    description: desc,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${c.name} | ${config.businessName}`,
+      description: desc,
+      url,
+      images: [{ url: `${config.siteUrl}/images/logo.png` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${c.name} | ${config.businessName}`,
+      description: desc,
+    },
   };
 }
 
