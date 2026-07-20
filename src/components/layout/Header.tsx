@@ -268,7 +268,7 @@ export function Header() {
               type="button"
               onClick={() => setOpen(true)}
               aria-label="Open cart"
-              className="relative flex h-10 w-10 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5"
+              className="relative flex h-11 w-11 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5"
             >
               <ShoppingBag size={20} />
               {count > 0 && (

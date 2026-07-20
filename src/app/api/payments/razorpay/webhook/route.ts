@@ -78,7 +78,14 @@ export async function POST(req: Request) {
     sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf);
 
   if (!isVerified) {
-    return NextResponse.json({ error: "Invalid webhook signature" }, { status: 400 });
+    console.warn("Razorpay Webhook Warning: Invalid signature or secret mismatch.");
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Webhook received, but signature mismatch. Check RAZORPAY_WEBHOOK_SECRET environment variable.",
+      },
+      { status: 200 },
+    );
   }
 
   // 2. Parse event payload

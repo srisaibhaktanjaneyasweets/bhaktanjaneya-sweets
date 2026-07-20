@@ -114,6 +114,7 @@ export function CartDrawer() {
         isOpen ? "pointer-events-auto" : "pointer-events-none",
       )}
       aria-hidden={!isOpen}
+      inert={!isOpen ? true : undefined}
     >
       {/* Backdrop */}
       <div
@@ -139,7 +140,7 @@ export function CartDrawer() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close cart"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5"
           >
             <X size={20} />
           </button>

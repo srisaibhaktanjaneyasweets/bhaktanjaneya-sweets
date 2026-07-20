@@ -61,6 +61,10 @@ export default function RootLayout({
       lang="en"
       className={`${heading.variable} ${body.variable} h-full`}
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body className="flex min-h-full flex-col bg-cream-50 text-ink-900 antialiased">
         <Providers>
           <SiteChrome

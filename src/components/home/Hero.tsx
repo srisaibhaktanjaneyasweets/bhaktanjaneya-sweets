@@ -90,14 +90,14 @@ export function Hero() {
 
                 <Container className="relative">
                   <div className="max-w-xl">
-                    <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-saffron-300">
+                    <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-300">
                       <span className="inline-block h-1.5 w-1.5 rotate-45 bg-gold-400" />
                       {s.eyebrow}
                     </p>
-                    <h1 className="mt-3 font-serif text-3xl font-semibold leading-tight text-cream-50 drop-shadow-sm sm:text-4xl md:text-5xl">
+                    <h1 className="mt-3 font-serif text-3xl font-bold leading-tight text-cream-50 drop-shadow-sm sm:text-4xl md:text-5xl">
                       {s.title}
                     </h1>
-                    <p className="mt-4 max-w-md text-sm leading-relaxed text-cream-100/90 sm:text-base">
+                    <p className="mt-4 max-w-md text-sm font-medium leading-relaxed text-cream-50 sm:text-base">
                       {s.text}
                     </p>
                     <div className="mt-7 flex flex-wrap gap-3">

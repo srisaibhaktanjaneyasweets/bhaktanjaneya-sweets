@@ -1,6 +1,0 @@
-# Supabase CLI project configuration
-[functions.razorpay-webhook]
-verify_jwt = false
-
-[functions.razorpay-webhooks]
-verify_jwt = false
