@@ -1,15 +1,12 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Lock, Mail, ShieldCheck, UserPlus } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { useAuth } from "@/context/AuthContext";
 import { config } from "@/lib/config";
-
-const inputClass =
-  "h-12 w-full rounded-xl border border-cream-300 bg-white px-4 text-sm focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40";
 
 function GoogleLogo({ className }: { className?: string }) {
   return (
@@ -23,72 +20,13 @@ function GoogleLogo({ className }: { className?: string }) {
 }
 
 function LoginInner() {
-  const router = useRouter();
   const params = useSearchParams();
   const redirect = params.get("redirect") || "/account";
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle, loading } = useAuth();
+  const { signInWithGoogle, loading } = useAuth();
   const googleOAuthEnabled = config.googleOAuthEnabled;
 
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-
-  function switchMode(nextMode: "login" | "signup") {
-    setMode(nextMode);
-    setError("");
-    setNotice("");
-  }
-
-  async function submitCredentials(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setNotice("");
-
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-    if (mode === "signup" && !name.trim()) {
-      setError("Please enter your full name.");
-      return;
-    }
-    if (mode === "signup" && password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    try {
-      if (mode === "signup") {
-        const result = await signUpWithEmail({
-          name: name.trim(),
-          email: normalizedEmail,
-          password,
-        });
-        if (result.needsVerification) {
-          setNotice("Check your email and verify your account before signing in.");
-          setMode("login");
-          setPassword("");
-          setConfirmPassword("");
-          return;
-        }
-      } else {
-        await signInWithEmail(normalizedEmail, password);
-      }
-
-      router.push(redirect);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not sign in. Please try again.");
-    }
-  }
 
   async function handleGoogleSignIn() {
     setError("");
@@ -110,136 +48,40 @@ function LoginInner() {
   }
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-3xl border border-cream-200 bg-white p-5 shadow-soft sm:p-8">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-maroon-800 text-saffron-400">
-        {mode === "login" ? <ShieldCheck size={22} /> : <UserPlus size={22} />}
+    <div className="w-full min-w-0 overflow-hidden rounded-3xl border border-cream-200 bg-white p-6 text-center shadow-soft sm:p-10">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-maroon-800 text-saffron-400 shadow-sm">
+        <ShieldCheck size={28} />
       </span>
 
-      <h1 className="mt-5 font-serif text-2xl font-bold text-maroon-900">
-        {mode === "login" ? "Welcome back" : "Create your account"}
+      <h1 className="mt-5 font-serif text-2xl font-bold text-maroon-900 sm:text-3xl">
+        Sign in to {config.businessName}
       </h1>
-      <p className="mt-1 text-sm text-ink-500">
-        {mode === "login"
-          ? "Use your verified email and password, or continue with Google."
-          : "Create your account with a verified email address."}
+      <p className="mt-2 text-sm text-ink-600 max-w-sm mx-auto">
+        Sign in with your Google account to manage your profile, track your orders, and checkout quickly.
       </p>
 
-      <div className="mt-5">
+      <div className="mt-8">
         <button
           type="button"
           onClick={handleGoogleSignIn}
           disabled={loading || !googleOAuthEnabled}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-cream-300 bg-white text-sm font-semibold text-maroon-900 hover:bg-cream-50 disabled:opacity-60"
+          className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-cream-300 bg-white text-base font-semibold text-maroon-900 shadow-sm hover:bg-cream-50 transition-colors disabled:opacity-60"
         >
-          <GoogleLogo className="h-4.5 w-4.5" />
-          {googleOAuthEnabled ? "Continue with Google" : "Google sign-in unavailable"}
+          <GoogleLogo className="h-5 w-5" />
+          {loading ? "Redirecting to Google..." : googleOAuthEnabled ? "Continue with Google" : "Google sign-in unavailable"}
         </button>
       </div>
 
-      <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-ink-400">
-        <span className="h-px flex-1 bg-cream-200" />
-        <span>or</span>
-        <span className="h-px flex-1 bg-cream-200" />
-      </div>
+      {notice && <p className="mt-4 rounded-xl bg-leaf-600/10 p-3 text-sm font-medium text-leaf-700">{notice}</p>}
+      {error && <p className="mt-4 rounded-xl bg-maroon-800/10 p-3 text-sm font-medium text-maroon-800">{error}</p>}
 
-      <div className="grid min-w-0 grid-cols-2 rounded-full bg-cream-100 p-1 text-sm font-semibold">
-        <button
-          type="button"
-          onClick={() => switchMode("login")}
-          className={`h-10 rounded-full ${
-            mode === "login" ? "bg-white text-maroon-900 shadow-sm" : "text-ink-500"
-          }`}
-        >
-          Login
-        </button>
-        <button
-          type="button"
-          onClick={() => switchMode("signup")}
-          className={`h-10 rounded-full ${
-            mode === "signup" ? "bg-white text-maroon-900 shadow-sm" : "text-ink-500"
-          }`}
-        >
-          Sign up
-        </button>
-      </div>
-
-      <form onSubmit={submitCredentials} className="mt-5 space-y-4">
-        {mode === "signup" && (
-          <label className="block text-sm font-medium text-maroon-900">
-            Full name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your full name"
-              className={`${inputClass} mt-1.5`}
-            />
-          </label>
-        )}
-
-        <label className="block text-sm font-medium text-maroon-900">
-          Email address
-          <div className="mt-1.5 flex items-center rounded-xl border border-cream-300 bg-white focus-within:border-saffron-400 focus-within:ring-2 focus-within:ring-saffron-400/40">
-            <span className="pl-4 pr-2 text-ink-500">
-              <Mail size={16} />
-            </span>
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              inputMode="email"
-              placeholder="you@example.com"
-              className="h-12 min-w-0 flex-1 rounded-r-xl bg-transparent pr-4 text-sm focus:outline-none"
-            />
-          </div>
-        </label>
-
-        <label className="block text-sm font-medium text-maroon-900">
-          Password
-          <div className="mt-1.5 flex items-center rounded-xl border border-cream-300 bg-white focus-within:border-saffron-400 focus-within:ring-2 focus-within:ring-saffron-400/40">
-            <span className="pl-4 pr-2 text-ink-500">
-              <Lock size={16} />
-            </span>
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password"
-              placeholder="At least 8 characters"
-              className="h-12 min-w-0 flex-1 rounded-r-xl bg-transparent pr-4 text-sm focus:outline-none"
-            />
-          </div>
-        </label>
-
-        {mode === "signup" && (
-          <label className="block text-sm font-medium text-maroon-900">
-            Confirm password
-            <input
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              type="password"
-              placeholder="Repeat your password"
-              className={`${inputClass} mt-1.5`}
-            />
-          </label>
-        )}
-
-        {notice && <p className="rounded-lg bg-leaf-600/10 px-3 py-2 text-sm text-leaf-700">{notice}</p>}
-        {error && <p className="text-sm text-maroon-700">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-maroon-800 text-sm font-semibold text-cream-50 hover:bg-maroon-700 disabled:opacity-60"
-        >
-          {loading ? "Working..." : mode === "login" ? "Login" : "Create account"}
-          <ArrowRight size={18} />
-        </button>
-      </form>
-
-      <p className="mt-6 text-center text-xs text-ink-400">
+      <p className="mt-8 text-center text-xs text-ink-400">
         By continuing you agree to {config.businessName}&apos;s{" "}
-        <Link href="/policies/terms" className="underline">
+        <Link href="/policies/terms" className="underline hover:text-maroon-800">
           Terms
         </Link>{" "}
         &amp;{" "}
-        <Link href="/policies/privacy" className="underline">
+        <Link href="/policies/privacy" className="underline hover:text-maroon-800">
           Privacy Policy
         </Link>
         .
@@ -251,7 +93,7 @@ function LoginInner() {
 export default function LoginPage() {
   return (
     <Container>
-      <div className="mx-auto w-full min-w-0 max-w-md py-10 sm:py-20">
+      <div className="mx-auto w-full min-w-0 max-w-md py-12 sm:py-24">
         <Suspense fallback={null}>
           <LoginInner />
         </Suspense>
