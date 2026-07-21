@@ -15,15 +15,24 @@ import {
   CheckCircle2,
   FileText,
   RefreshCw,
+  Smartphone,
+  Share2,
+  Copy,
 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import { EmptyState, Modal, inputClass, AdminButton } from "@/components/admin/ui";
 import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
+import { toast } from "@/components/ui/toast";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatINR, formatDate } from "@/lib/utils";
 import { waLinkToPhone, buildAdminCustomerWhatsAppMessage } from "@/lib/whatsapp";
-import { printThermalReceipt, printFullInvoice } from "@/lib/thermal-receipt";
+import {
+  printThermalReceipt,
+  printFullInvoice,
+  generatePlainTextReceipt,
+  openRawBtPrintApp,
+} from "@/lib/thermal-receipt";
 import { downloadOrdersCSV, type ExportFilters } from "@/lib/export-orders";
 import type { Order, OrderStatus } from "@/lib/types";
 
@@ -49,6 +58,7 @@ export default function AdminOrdersPage() {
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewing, setViewing] = useState<Order | null>(null);
+  const [bluetoothReceiptModal, setBluetoothReceiptModal] = useState<Order | null>(null);
 
   const [deliveryCompany, setDeliveryCompany] = useState("");
   const [deliveryTrackingId, setDeliveryTrackingId] = useState("");
@@ -450,12 +460,12 @@ export default function AdminOrdersPage() {
                             <Eye size={15} />
                           </button>
 
-                          {/* Quick 3-inch thermal slip print */}
+                          {/* Quick Bluetooth thermal app print */}
                           <button
                             type="button"
-                            onClick={() => printThermalReceipt(o)}
-                            title="Print 3-inch thermal slip"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-cream-200 bg-white text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors"
+                            onClick={() => setBluetoothReceiptModal(o)}
+                            title="Bluetooth Thermal App Print (RawBT / App Share)"
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-saffron-300 bg-saffron-50 text-saffron-800 hover:bg-saffron-500 hover:text-white transition-colors"
                           >
                             <Printer size={15} />
                           </button>
@@ -685,31 +695,146 @@ export default function AdminOrdersPage() {
             </div>
 
             {/* Receipt Print & Messaging Options */}
-            <div className="grid gap-2.5 sm:grid-cols-3 pt-2">
+            <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+              <button
+                type="button"
+                onClick={() => setBluetoothReceiptModal(viewing)}
+                className="flex h-11 items-center justify-center gap-1.5 rounded-xl border border-saffron-500/60 bg-saffron-500/10 text-xs font-bold text-maroon-900 shadow-sm hover:bg-saffron-500/20 transition-colors"
+              >
+                <Smartphone size={16} className="text-saffron-600 shrink-0" /> Bluetooth Thermal App
+              </button>
+
               <button
                 type="button"
                 onClick={() => printThermalReceipt(viewing)}
-                className="flex h-11 items-center justify-center gap-2 rounded-xl border border-maroon-800/30 bg-white text-xs font-bold text-maroon-900 shadow-sm hover:bg-cream-100 transition-colors"
+                className="flex h-11 items-center justify-center gap-1.5 rounded-xl border border-maroon-800/30 bg-white text-xs font-bold text-maroon-900 shadow-sm hover:bg-cream-100 transition-colors"
               >
-                <Printer size={16} /> 3-Inch Thermal Slip
+                <Printer size={16} className="shrink-0" /> 3-Inch Slip (Browser)
               </button>
 
               <button
                 type="button"
                 onClick={() => printFullInvoice(viewing)}
-                className="flex h-11 items-center justify-center gap-2 rounded-xl border border-maroon-800/30 bg-white text-xs font-bold text-maroon-900 shadow-sm hover:bg-cream-100 transition-colors"
+                className="flex h-11 items-center justify-center gap-1.5 rounded-xl border border-maroon-800/30 bg-white text-xs font-bold text-maroon-900 shadow-sm hover:bg-cream-100 transition-colors"
               >
-                <FileText size={16} /> Full A4 Invoice (PDF)
+                <FileText size={16} className="shrink-0" /> Full A4 Invoice
               </button>
 
               <a
                 href={waLinkToPhone(viewing.customerPhone, buildAdminCustomerWhatsAppMessage(viewing))}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[#35B664] text-xs font-bold text-white shadow-sm hover:bg-[#2E9E57] transition-colors"
+                className="flex h-11 items-center justify-center gap-1.5 rounded-xl bg-[#35B664] text-xs font-bold text-white shadow-sm hover:bg-[#2E9E57] transition-colors"
               >
-                <MessageCircle size={16} /> WhatsApp Customer
+                <MessageCircle size={16} className="shrink-0" /> WhatsApp Customer
               </a>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal: Bluetooth Thermal Printer App Options */}
+      {bluetoothReceiptModal && (
+        <Modal
+          title="Bluetooth Thermal App Print"
+          onClose={() => setBluetoothReceiptModal(null)}
+          footer={
+            <button
+              type="button"
+              onClick={() => setBluetoothReceiptModal(null)}
+              className="inline-flex h-10 items-center rounded-full bg-cream-200 px-6 text-sm font-semibold text-ink-700 hover:bg-cream-300"
+            >
+              Close
+            </button>
+          }
+        >
+          <div className="space-y-4">
+            <p className="text-xs text-ink-600">
+              Choose how to send the receipt for Order #<strong>{bluetoothReceiptModal.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)}</strong> to your Bluetooth Thermal Printer App (RawBT, Bluetooth POS Printer, ESC/POS Service):
+            </p>
+
+            {/* Print Action Buttons */}
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const text = generatePlainTextReceipt(bluetoothReceiptModal);
+                  if (navigator.share) {
+                    navigator
+                      .share({
+                        title: `Receipt #${bluetoothReceiptModal.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)}`,
+                        text,
+                      })
+                      .catch(() => {});
+                  } else {
+                    toast({
+                      tone: "info",
+                      title: "Sharing Not Supported",
+                      message: "Use RawBT App Direct Print or Copy Text below.",
+                    });
+                  }
+                }}
+                className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-maroon-900 px-4 text-xs font-bold text-cream-50 hover:bg-maroon-800 shadow-md transition-colors"
+              >
+                <Share2 size={16} /> Share to Bluetooth Printer App
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openRawBtPrintApp(bluetoothReceiptModal)}
+                className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-saffron-500 bg-saffron-500/10 px-4 text-xs font-bold text-maroon-900 hover:bg-saffron-500/20 shadow-sm transition-colors"
+              >
+                <Smartphone size={16} className="text-saffron-600" /> Open RawBT App Direct
+              </button>
+            </div>
+
+            {/* Secondary Options: Copy Text & Download File */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  const text = generatePlainTextReceipt(bluetoothReceiptModal);
+                  navigator.clipboard.writeText(text);
+                  toast({
+                    tone: "success",
+                    title: "Receipt Copied!",
+                    message: "Receipt text copied to clipboard. You can paste it in any printer app.",
+                  });
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-cream-300 bg-white px-3.5 text-xs font-semibold text-ink-800 hover:bg-cream-100 transition-colors"
+              >
+                <Copy size={14} /> Copy Receipt Text
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const text = generatePlainTextReceipt(bluetoothReceiptModal);
+                  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `Receipt-${bluetoothReceiptModal.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)}.txt`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-cream-300 bg-white px-3.5 text-xs font-semibold text-ink-800 hover:bg-cream-100 transition-colors"
+              >
+                <Download size={14} /> Download .txt File
+              </button>
+            </div>
+
+            {/* Text Preview Box */}
+            <div className="space-y-1 pt-2">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-ink-500">
+                Thermal Receipt Text Preview
+              </label>
+              <textarea
+                readOnly
+                rows={10}
+                value={generatePlainTextReceipt(bluetoothReceiptModal)}
+                className="w-full rounded-2xl border border-cream-300 bg-cream-50/80 p-3.5 font-mono text-xs text-ink-900 focus:outline-none"
+              />
             </div>
           </div>
         </Modal>

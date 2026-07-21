@@ -334,3 +334,82 @@ export function printFullInvoice(order: Order) {
     printWindow.document.close();
   }
 }
+
+/**
+ * Generate formatted plain text receipt for Bluetooth thermal printer apps (RawBT, Bluetooth POS Printer, etc.).
+ */
+export function generatePlainTextReceipt(order: Order): string {
+  const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
+  const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const divider = "--------------------------------";
+  const doubleDivider = "================================";
+
+  const itemLines = order.items
+    .map((it, idx) => {
+      const name = `${idx + 1}. ${it.name}`;
+      const detail = `   ${it.variantLabel} x${it.quantity} = ₹${it.price * it.quantity}`;
+      return `${name}\n${detail}`;
+    })
+    .join("\n");
+
+  const addr = order.shippingAddress;
+  const addressStr = addr
+    ? [addr.line1, addr.line2, `${addr.city}, ${addr.state} ${addr.pincode}`]
+        .filter(Boolean)
+        .join(", ")
+    : "No address provided";
+
+  return [
+    config.businessName.toUpperCase(),
+    "Authentic Sweets & Savouries",
+    `Ph: ${config.contact.phone}`,
+    doubleDivider,
+    `ORDER #: #${shortId}`,
+    `DATE: ${dateStr}`,
+    `PAYMENT: ${(order.paymentStatus || "").toUpperCase()} (${(order.paymentMethod || "").toUpperCase()})`,
+    divider,
+    `CUSTOMER: ${order.customerName || "Customer"}`,
+    `PHONE: +91 ${order.customerPhone ? order.customerPhone.replace(/\D/g, "") : ""}`,
+    order.customerEmail ? `EMAIL: ${order.customerEmail}` : null,
+    divider,
+    "ITEMS:",
+    itemLines,
+    divider,
+    `Subtotal: ₹${order.subtotal}`,
+    order.discount ? `Discount: -₹${order.discount}` : null,
+    `Delivery: ${order.shipping ? `₹${order.shipping}` : "FREE"}`,
+    doubleDivider,
+    `TOTAL AMOUNT: ₹${order.total}`,
+    doubleDivider,
+    "DELIVERY ADDRESS:",
+    addressStr,
+    order.notes ? `NOTE: ${order.notes}` : null,
+    doubleDivider,
+    "THANK YOU FOR SHOPPING!",
+    "www.bhaktanjaneyasweets.in",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/** Open RawBT Android app directly for instant Bluetooth printing */
+export function openRawBtPrintApp(order: Order) {
+  const text = generatePlainTextReceipt(order);
+  try {
+    const b64 = btoa(unescape(encodeURIComponent(text)));
+    const rawbtUrl = `rawbt:data:text/plain;charset=utf-8;base64,${b64}`;
+    window.location.href = rawbtUrl;
+  } catch {
+    // Fallback if encoding fails
+    const rawbtUrl = `rawbt:data:text/plain;charset=utf-8,${encodeURIComponent(text)}`;
+    window.location.href = rawbtUrl;
+  }
+}

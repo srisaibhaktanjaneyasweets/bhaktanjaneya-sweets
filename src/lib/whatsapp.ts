@@ -2,16 +2,27 @@ import { config } from "./config";
 import type { CartItem, Order } from "./types";
 import { formatINR } from "./utils";
 
+/** Ensure phone number is in standard international 91XXXXXXXXXX format for WhatsApp API. */
+export function formatPhoneForWhatsApp(phone: string): string {
+  let cleaned = (phone || "").replace(/[^0-9]/g, "");
+  if (cleaned.length === 10) {
+    cleaned = `91${cleaned}`;
+  } else if (cleaned.length === 11 && cleaned.startsWith("0")) {
+    cleaned = `91${cleaned.slice(1)}`;
+  }
+  return cleaned;
+}
+
 /** Build an official WhatsApp deep link with a pre-filled message for store support. */
 export function waLink(message: string): string {
-  const num = config.whatsappNumber.replace(/[^0-9]/g, "");
+  const num = formatPhoneForWhatsApp(config.whatsappNumber);
   const normalized = message.normalize("NFC");
   return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(normalized)}`;
 }
 
 /** Build a WhatsApp deep link targeting a specific customer phone number. */
 export function waLinkToPhone(phone: string, message: string): string {
-  const num = phone.replace(/[^0-9]/g, "");
+  const num = formatPhoneForWhatsApp(phone);
   const normalized = message.normalize("NFC");
   return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(normalized)}`;
 }
