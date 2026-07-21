@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Info, XCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle2, Info, XCircle, AlertTriangle, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export type ToastTone = "success" | "error" | "info" | "warning";
@@ -16,11 +16,34 @@ type ToastInternal = ToastPayload & {
   id: string;
 };
 
-const TONE_META: Record<ToastTone, { Icon: typeof Info; className: string; iconClass: string }> = {
-  success: { Icon: CheckCircle2, className: "border-leaf-200 bg-leaf-50 text-leaf-900", iconClass: "text-leaf-600" },
-  error: { Icon: XCircle, className: "border-maroon-200 bg-maroon-50 text-maroon-900", iconClass: "text-maroon-600" },
-  info: { Icon: Info, className: "border-cream-300 bg-cream-50 text-ink-700", iconClass: "text-saffron-600" },
-  warning: { Icon: AlertTriangle, className: "border-saffron-300 bg-saffron-50 text-ink-800", iconClass: "text-saffron-600" },
+const TONE_META: Record<
+  ToastTone,
+  { Icon: typeof Info; className: string; iconClass: string; badge: string }
+> = {
+  success: {
+    Icon: CheckCircle2,
+    className: "border-leaf-600/60 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-leaf-600/30",
+    iconClass: "text-leaf-400",
+    badge: "Success",
+  },
+  error: {
+    Icon: XCircle,
+    className: "border-maroon-500/80 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-maroon-500/40",
+    iconClass: "text-red-400",
+    badge: "Error",
+  },
+  info: {
+    Icon: Info,
+    className: "border-gold-400/60 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-gold-400/30",
+    iconClass: "text-gold-300",
+    badge: "Notice",
+  },
+  warning: {
+    Icon: AlertTriangle,
+    className: "border-saffron-500/70 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-saffron-500/30",
+    iconClass: "text-saffron-400",
+    badge: "Warning",
+  },
 };
 
 let listeners: Array<(t: ToastInternal[]) => void> = [];
@@ -38,7 +61,7 @@ function dismiss(id: string) {
 
 export function toast(payload: Omit<ToastPayload, "tone"> & { tone: ToastTone }) {
   const id = `toast_${Date.now()}_${counter++}`;
-  const durationMs = payload.durationMs ?? 3500;
+  const durationMs = payload.durationMs ?? 4000;
 
   const next: ToastInternal = { ...payload, id, durationMs };
   state = [next, ...state].slice(0, 4);
@@ -61,37 +84,38 @@ export function ToastHost() {
     };
   }, []);
 
-
-
-
   const rendered = useMemo(() => toasts, [toasts]);
 
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-[90] flex w-[calc(100vw-2rem)] max-w-md flex-col gap-2 sm:right-6 sm:bottom-6">
+    <div className="pointer-events-none fixed right-4 bottom-4 z-[9999] flex w-[calc(100vw-2rem)] max-w-md flex-col gap-2.5 sm:right-6 sm:bottom-6">
       {rendered.map((t) => {
         const meta = TONE_META[t.tone];
         const Icon = meta.Icon;
         return (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-card opacity-100 ${meta.className}`}
-
+            className={`pointer-events-auto flex items-start gap-3 rounded-2xl border p-4 text-sm font-medium transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 ${meta.className}`}
             role="status"
-
             aria-live="polite"
           >
-            <Icon size={18} className={`mt-0.5 shrink-0 ${meta.iconClass}`} aria-hidden />
+            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10">
+              <Icon size={18} className={meta.iconClass} aria-hidden />
+            </span>
             <div className="min-w-0 flex-1">
-              {t.title ? <p className="font-semibold">{t.title}</p> : null}
-              <div className={t.title ? "mt-0.5 leading-relaxed" : "leading-relaxed"}>{t.message}</div>
+              <p className="font-serif text-sm font-bold tracking-tight text-cream-50">
+                {t.title || meta.badge}
+              </p>
+              <div className="mt-0.5 text-xs text-cream-100/90 leading-relaxed font-normal">
+                {t.message}
+              </div>
             </div>
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              aria-label="Dismiss"
-              className="ml-1 shrink-0 rounded-full px-1 text-lg leading-none opacity-70 hover:opacity-100"
+              aria-label="Close notification"
+              className="ml-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-cream-100/70 hover:bg-white/15 hover:text-cream-50 transition-colors"
             >
-              &times;
+              <X size={15} />
             </button>
           </div>
         );
@@ -99,4 +123,3 @@ export function ToastHost() {
     </div>
   );
 }
-

@@ -15,7 +15,7 @@ import { apiGet } from "@/lib/api/client";
 import { lookupPincode } from "@/lib/api/pincode";
 import type { PincodeLookup } from "@/lib/api/pincode";
 import {
-  SERVICEABLE_STATES,
+  getServiceableStates,
   citiesForState,
   isServiceableCity,
 } from "@/lib/constants/serviceable-areas";
@@ -60,10 +60,22 @@ export default function AccountPage() {
   const [addressMessage, setAddressMessage] = useState("");
   const [addressMessageTone, setAddressMessageTone] = useState<"error" | "success" | "info">("info");
   const [savingAddress, setSavingAddress] = useState(false);
+  const [areasMap, setAreasMap] = useState<Record<string, readonly string[]> | null>(null);
   const [pincodeDetails, setPincodeDetails] = useState<PincodeLookup | null>(null);
   const [lookingUpPincode, setLookingUpPincode] = useState(false);
   const lastLookupPincode = useRef("");
   const loadedOrdersCustomerId = useRef<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings/serviceable-areas")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data === "object" && Object.keys(data).length > 0) {
+          setAreasMap(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const districtOptions = useMemo(() => {
     const fromState = address.state ? (STATE_DISTRICTS[address.state] ?? []) : [];
@@ -132,6 +144,7 @@ export default function AccountPage() {
   }, [customer]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const nextPincode = address.pincode.trim();
     if (!/^\d{6}$/.test(nextPincode) || nextPincode === lastLookupPincode.current) {
@@ -139,6 +152,7 @@ export default function AccountPage() {
     }
     void findAddressByPincode();
   }, [address.pincode, findAddressByPincode]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!mounted) {
     return (
@@ -392,7 +406,7 @@ export default function AccountPage() {
                       className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
                     >
                       <option value="">Select state *</option>
-                      {SERVICEABLE_STATES.map((state) => (
+                      {getServiceableStates(areasMap).map((state) => (
                         <option key={state} value={state}>
                           {state}
                         </option>
@@ -401,7 +415,7 @@ export default function AccountPage() {
                     <Combobox
                       value={address.city}
                       onChange={(city) => setAddress((prev) => ({ ...prev, city }))}
-                      options={citiesForState(address.state)}
+                      options={citiesForState(address.state, areasMap)}
                       disabled={!address.state}
                       placeholder={address.state ? "Type or select your city" : "Select a state first"}
                       ariaLabel="City"

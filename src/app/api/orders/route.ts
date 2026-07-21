@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/server";
+import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
 import { offerFromRow, orderFromRow, orderToRow, productFromRow } from "@/lib/supabase/mappers";
 import { isServiceableCity } from "@/lib/constants/serviceable-areas";
@@ -200,11 +200,29 @@ export async function POST(req: Request) {
   if (!isValidAddress(order.shippingAddress)) {
     return NextResponse.json({ error: "Valid delivery address is required" }, { status: 400 });
   }
-  if (!isServiceableCity(order.shippingAddress.state, order.shippingAddress.city)) {
+  // Fetch active serviceable areas configured by admin
+  let activeAreas: Record<string, readonly string[]> | null = null;
+  if (isConfigured) {
+    try {
+      const { data: siteData } = await supabaseAdmin
+        .from("site_settings")
+        .select("value")
+        .eq("key", "serviceable_areas")
+        .maybeSingle();
+
+      if (siteData?.value && typeof siteData.value === "object") {
+        activeAreas = siteData.value as Record<string, readonly string[]>;
+      }
+    } catch {
+      // Fallback to defaults if lookup fails
+    }
+  }
+
+  if (!isServiceableCity(order.shippingAddress.state, order.shippingAddress.city, activeAreas)) {
     return NextResponse.json(
       {
         error:
-          "We currently deliver only to selected cities in Andhra Pradesh & Telangana. Please contact us for cargo delivery options.",
+          "We currently deliver only to selected serviceable cities. Please check delivery availability or contact us for help.",
       },
       { status: 400 },
     );

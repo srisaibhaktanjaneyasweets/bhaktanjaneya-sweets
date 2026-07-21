@@ -30,7 +30,7 @@ import type { ErrorDetails } from "@/lib/api/errors";
 import { formatAddressLines, isCompleteAddress } from "@/lib/address";
 import { config } from "@/lib/config";
 import {
-  SERVICEABLE_STATES,
+  getServiceableStates,
   citiesForState,
   isServiceableCity,
 } from "@/lib/constants/serviceable-areas";
@@ -90,12 +90,27 @@ export default function CartPage() {
   const [pincodeHint, setPincodeHint] = useState("");
   const lastLookupPincode = useRef("");
 
+  const [areasMap, setAreasMap] = useState<Record<string, readonly string[]> | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings/serviceable-areas")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data === "object" && Object.keys(data).length > 0) {
+          setAreasMap(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const availableStates = getServiceableStates(areasMap);
   const hasSavedAddress = isCompleteAddress(customer?.savedAddress);
   const savedAddressServiceable = isServiceableCity(
     customer?.savedAddress?.state,
     customer?.savedAddress?.city,
+    areasMap,
   );
-  const cityOptions = citiesForState(state);
+  const cityOptions = citiesForState(state, areasMap);
 
   function confirmDeliveryLocation(nextState: string, nextCity: string) {
     setState(nextState);
@@ -749,7 +764,7 @@ export default function CartPage() {
                       className={`${fieldClass} mt-1.5`}
                     >
                       <option value="">Select state</option>
-                      {SERVICEABLE_STATES.map((s) => (
+                      {availableStates.map((s) => (
                         <option key={s} value={s}>
                           {s}
                         </option>

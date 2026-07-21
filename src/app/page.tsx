@@ -118,28 +118,38 @@ export default async function HomePage() {
       <BlogTeasers />
       <NewsletterCTA />
 
-      {/* SEO: Organization + aggregate rating structured data (Google rich results). */}
+      {/* SEO: SweetShop + Organization + aggregate rating structured data (Google rich results & AI crawler brand mapping). */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Organization",
+            "@type": "SweetShop",
             name: config.businessName,
+            alternateName: [
+              "Sri Sai Bhaktanjaneya Sweets",
+              "Sri Sai Bhakthanjaneya Sweets",
+              "Srisai Bhaktanjaneya Sweets",
+              "Bhaktanjaneya Sweets Rajahmundry",
+              "Bhaktanjaneya Sweets Tapeswaram Kaja",
+            ],
             url: config.siteUrl,
             description: config.tagline,
             logo: `${config.siteUrl}/images/logo.png`,
+            image: `${config.siteUrl}/images/hero/hero-laddu.png`,
             telephone: config.contact.phone,
             email: config.contact.email,
             address: {
               "@type": "PostalAddress",
-              addressLocality: config.contact.address,
+              addressLocality: "Rajamahendravaram",
+              addressRegion: "Andhra Pradesh",
               addressCountry: "IN",
             },
             sameAs: [
               config.social.instagram,
               config.social.facebook,
               config.social.youtube,
+              config.googleReviewsUrl,
             ],
             aggregateRating: {
               "@type": "AggregateRating",

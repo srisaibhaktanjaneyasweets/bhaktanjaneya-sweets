@@ -10,7 +10,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import {
-  SERVICEABLE_STATES,
+  getServiceableStates,
   citiesForState,
 } from "@/lib/constants/serviceable-areas";
 import { Combobox } from "@/components/ui/Combobox";
@@ -43,6 +43,19 @@ export function DeliveryLocationGate({
   const [error, setError] = useState("");
   const [unavailable, setUnavailable] = useState(false);
 
+  const [areasMap, setAreasMap] = useState<Record<string, readonly string[]> | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings/serviceable-areas")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data === "object" && Object.keys(data).length > 0) {
+          setAreasMap(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   // Prefill from a serviceable saved address once the customer loads, but never
   // override what the user has started selecting themselves.
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -53,7 +66,8 @@ export function DeliveryLocationGate({
   }, [defaultState, defaultCity, touched, confirmed]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const cities = citiesForState(stateValue);
+  const availableStates = getServiceableStates(areasMap);
+  const cities = citiesForState(stateValue, areasMap);
 
   function handleContinue() {
     setError("");
@@ -130,7 +144,7 @@ export function DeliveryLocationGate({
             className={`${selectClass} mt-1.5`}
           >
             <option value="">Select state</option>
-            {SERVICEABLE_STATES.map((s) => (
+            {availableStates.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>

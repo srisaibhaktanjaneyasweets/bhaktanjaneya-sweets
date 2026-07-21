@@ -6,7 +6,11 @@ export const config = {
   whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999",
 
   /** Public site URL, used for SEO/Open Graph absolute URLs. */
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  siteUrl:
+    process.env.NEXT_PUBLIC_SITE_URL &&
+    !process.env.NEXT_PUBLIC_SITE_URL.includes("localhost")
+      ? process.env.NEXT_PUBLIC_SITE_URL
+      : "https://www.bhaktanjaneyasweets.in",
 
   /** Link to the business's Google reviews / Maps listing. */
   googleReviewsUrl:

@@ -33,23 +33,46 @@ export const metadata: Metadata = {
   // contact details look different on a real iPhone than in dev tools.
   formatDetection: { telephone: false, email: false, address: false },
   title: {
-    default: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
+    default: `${config.businessName} — Pure Ghee Sweets & Traditional Namkeen`,
     template: `%s | ${config.businessName}`,
   },
   description:
-    `${config.tagline} Order fresh traditional Indian sweets and namkeen online or instantly on WhatsApp.`,
+    `${config.tagline} Buy authentic Tapeswaram Kaja, Gottam Kaja, Madatha Kaja, Kaju Sweets, Ariselu, and Putharekulu online with pan-India delivery.`,
   keywords: [
-    "Indian sweets",
-    "namkeen",
+    "Bhaktanjaneya Sweets",
+    "Sri Sai Bhaktanjaneya Sweets",
+    "Sri Sai Bhakthanjaneya Sweets",
+    "bhaktanjaneyasweets.in",
+    "Tapeswaram Kaja",
+    "Gottam Kaja",
+    "Madatha Kaja",
     "pure ghee sweets",
-    "kaju patisa",
-    "Agra mixture",
-    config.businessName,
+    "Andhra sweets online",
+    "traditional Indian sweets",
+    "namkeen",
+    "buy sweets online India",
   ],
   openGraph: {
-    title: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
-    description: config.tagline,
+    title: `${config.businessName} — Pure Ghee Sweets & Traditional Namkeen`,
+    description: `${config.tagline} Buy authentic Tapeswaram Kaja, Gottam Kaja, Kaju Sweets, and Putharekulu online.`,
+    url: config.siteUrl,
+    siteName: config.businessName,
+    images: [
+      {
+        url: `${config.siteUrl}/images/og-logo.jpg`,
+        width: 500,
+        height: 500,
+        alt: config.businessName,
+        type: "image/jpeg",
+      },
+    ],
     type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: `${config.businessName} — Pure Ghee Sweets`,
+    description: config.tagline,
+    images: [`${config.siteUrl}/images/og-logo.jpg`],
   },
 };
 
@@ -61,6 +84,14 @@ export default function RootLayout({
       lang="en"
       className={`${heading.variable} ${body.variable} h-full`}
     >
+      <head>
+        <meta property="og:image" content={`${config.siteUrl}/images/og-logo.jpg`} />
+        <meta property="og:image:secure_url" content={`${config.siteUrl}/images/og-logo.jpg`} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="500" />
+        <meta property="og:image:height" content="500" />
+        <link rel="image_src" href={`${config.siteUrl}/images/og-logo.jpg`} />
+      </head>
       <body className="flex min-h-full flex-col bg-cream-50 text-ink-900 antialiased">
         <Providers>
           <SiteChrome
