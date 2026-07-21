@@ -7,7 +7,6 @@ import {
   Minus,
   Plus,
   Trash2,
-  CreditCard,
   Tag,
   ShoppingBag,
   Check,
@@ -45,7 +44,7 @@ import {
   type ShippingSettings,
 } from "@/lib/shipping";
 import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
-import { formatINR, uid, normalizeIndianPhone, isValidEmail } from "@/lib/utils";
+import { formatINR, uid, normalizeIndianPhone, isValidEmail, cn } from "@/lib/utils";
 import type { Offer, Order, PaymentMethod, ShippingAddress } from "@/lib/types";
 
 const fieldClass =
@@ -87,6 +86,7 @@ export default function CartPage() {
   const [placed, setPlaced] = useState<Order | null>(null);
   const [pincodeDetails, setPincodeDetails] = useState<PincodeLookup | null>(null);
   const [lookingUpPincode, setLookingUpPincode] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("razorpay");
   const [pincodeHint, setPincodeHint] = useState("");
   const lastLookupPincode = useRef("");
 
@@ -412,6 +412,30 @@ export default function CartPage() {
     }
   }
 
+  async function placeWhatsAppOrder() {
+    setCheckoutError(null);
+    const validationError = validateCheckout();
+    if (validationError) {
+      setCheckoutError({ title: "Check your details", message: validationError });
+      return;
+    }
+
+    setPlacing(true);
+    try {
+      await saveCheckoutContactIfNeeded();
+      await saveCheckoutAddressIfNeeded();
+      const newOrder = buildOrder("whatsapp", "pending");
+      const saved = await createOrder(newOrder, offer?.code);
+
+      clear();
+      setPlaced({ ...saved, paymentMethod: "whatsapp", paymentStatus: "pending" });
+    } catch (error) {
+      setCheckoutError(getErrorDetails(error, "Could not place order"));
+    } finally {
+      setPlacing(false);
+    }
+  }
+
   function handlePlaceOrder() {
     if (!minOrderCheck.satisfied) {
       setCheckoutError({
@@ -427,7 +451,11 @@ export default function CartPage() {
       });
       return;
     }
-    void placeRazorpayOrder();
+    if (paymentMethod === "whatsapp") {
+      void placeWhatsAppOrder();
+    } else {
+      void placeRazorpayOrder();
+    }
   }
 
 
@@ -467,10 +495,14 @@ export default function CartPage() {
 
           <div className="space-y-1.5">
             <h1 className="font-serif text-3xl font-bold text-maroon-900">
-              Order Placed &amp; Payment Completed!
+              {placed.paymentMethod === "whatsapp"
+                ? "Order Placed & Pending Confirmation!"
+                : "Order Placed & Payment Completed!"}
             </h1>
             <p className="text-sm text-ink-600 max-w-md mx-auto">
-              Your payment has been verified. We&apos;re preparing your fresh sweets and will dispatch your package shortly.
+              {placed.paymentMethod === "whatsapp"
+                ? "Your order has been recorded. Please check your WhatsApp to share order details and complete payment."
+                : "Your payment has been verified. We&apos;re preparing your fresh sweets and will dispatch your package shortly."}
             </p>
             <p className="text-sm font-semibold text-maroon-800">
               Order #{placed.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)}
@@ -961,25 +993,69 @@ export default function CartPage() {
 
             <div className="rounded-2xl border border-cream-200 bg-white p-5">
               <h2 className="font-serif text-lg font-bold text-maroon-900">
-                Payment
+                Choose Payment Method
               </h2>
-              <div className="mt-4">
-                <div className="flex items-start gap-3 rounded-xl border border-maroon-800 bg-maroon-800/5 p-4">
-                  <CreditCard size={20} className="mt-0.5 shrink-0 text-maroon-800" />
+              <div className="mt-4 space-y-3">
+                {/* Razorpay Card Option */}
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("razorpay")}
+                  className={cn(
+                    "flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-all",
+                    paymentMethod === "razorpay"
+                      ? "border-maroon-800 bg-maroon-800/5 ring-1 ring-maroon-800"
+                      : "border-cream-200 bg-white hover:bg-cream-50/50"
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    checked={paymentMethod === "razorpay"}
+                    onChange={() => setPaymentMethod("razorpay")}
+                    className="mt-1 accent-maroon-800"
+                  />
                   <span>
                     <span className="block font-semibold text-maroon-900">
-                      Pay online
+                      Pay online (Razorpay)
                     </span>
                     <span className="mt-0.5 block text-xs text-ink-500">
-                      Secure payment via UPI, cards &amp; net banking (Razorpay).
+                      Secure payment via UPI, Debit/Credit Cards &amp; NetBanking.
                     </span>
-                    {!config.razorpayEnabled ? (
+                    {!config.razorpayEnabled && paymentMethod === "razorpay" ? (
                       <span className="mt-1 block text-xs text-maroon-700">
-                        Online payment isn&apos;t configured on this server yet.
+                        Online payment is currently unavailable.
                       </span>
                     ) : null}
                   </span>
-                </div>
+                </button>
+
+                {/* WhatsApp Card Option */}
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("whatsapp")}
+                  className={cn(
+                    "flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-all",
+                    paymentMethod === "whatsapp"
+                      ? "border-[#35B664] bg-emerald-500/5 ring-1 ring-emerald-500"
+                      : "border-cream-200 bg-white hover:bg-cream-50/50"
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="payment_method"
+                    checked={paymentMethod === "whatsapp"}
+                    onChange={() => setPaymentMethod("whatsapp")}
+                    className="mt-1 accent-[#35B664]"
+                  />
+                  <span>
+                    <span className="block font-semibold text-[#2E9E57]">
+                      Order &amp; Pay via WhatsApp
+                    </span>
+                    <span className="mt-0.5 block text-xs text-ink-500">
+                      Send order receipt directly to WhatsApp and pay via dynamic UPI/bank link.
+                    </span>
+                  </span>
+                </button>
               </div>
 
               {checkoutError && (
@@ -1001,15 +1077,24 @@ export default function CartPage() {
                 type="button"
                 onClick={handlePlaceOrder}
                 disabled={placing || !deliveryConfirmed}
-                className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-maroon-800 text-sm font-semibold text-cream-50 hover:bg-maroon-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className={cn(
+                  "mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full text-sm font-semibold text-white shadow-md transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                  paymentMethod === "whatsapp"
+                    ? "bg-[#35B664] hover:bg-[#2E9E57]"
+                    : "bg-maroon-800 hover:bg-maroon-700"
+                )}
               >
                 {placing ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Processing…
+                    Processing Order…
+                  </>
+                ) : paymentMethod === "whatsapp" ? (
+                  <>
+                    <MessageCircle size={20} /> Place Order &amp; Chat on WhatsApp
                   </>
                 ) : (
-                  "Pay & place order"
+                  `Pay ${formatINR(total)} & place order`
                 )}
               </button>
             </div>

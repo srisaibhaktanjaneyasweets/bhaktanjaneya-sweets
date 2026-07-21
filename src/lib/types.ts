@@ -122,7 +122,7 @@ export interface DeliveryTracking {
   trackingId?: string;
 }
 
-export type PaymentMethod = "razorpay" | "cod";
+export type PaymentMethod = "razorpay" | "cod" | "whatsapp";
 export type OrderChannel = "online";
 export type PaymentStatus = "pending" | "paid" | "failed" | "cod" | "refunded";
 export type OrderStatus =

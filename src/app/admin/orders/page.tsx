@@ -50,6 +50,7 @@ const PAYMENT_TONE: Record<string, "leaf" | "saffron" | "maroon" | "muted"> = {
   pending: "saffron",
   failed: "maroon",
   cod: "muted",
+  whatsapp: "saffron",
 };
 
 export default function AdminOrdersPage() {
@@ -418,12 +419,14 @@ export default function AdminOrdersPage() {
 
                       {/* Payment */}
                       <td className="px-4 py-3.5">
-                        <Badge tone={PAYMENT_TONE[o.paymentStatus] ?? "muted"}>
+                        <Badge tone={o.paymentMethod === "whatsapp" ? "saffron" : (PAYMENT_TONE[o.paymentStatus] ?? "muted")}>
                           {o.paymentMethod === "cod"
                             ? "COD"
-                            : o.paymentStatus === "paid"
-                              ? "Paid online"
-                              : o.paymentStatus}
+                            : o.paymentMethod === "whatsapp"
+                              ? "WhatsApp (Pending)"
+                              : o.paymentStatus === "paid"
+                                ? "Paid online"
+                                : o.paymentStatus}
                         </Badge>
                       </td>
 
@@ -570,12 +573,14 @@ export default function AdminOrdersPage() {
                 <span className="text-xs font-semibold text-ink-400 uppercase tracking-wider">Order Status</span>
                 <p className="mt-1 text-xs text-ink-500">{formatDate(viewing.createdAt)}</p>
                 <div className="mt-1.5 flex justify-end gap-2">
-                  <Badge tone={PAYMENT_TONE[viewing.paymentStatus] ?? "muted"}>
+                  <Badge tone={viewing.paymentMethod === "whatsapp" ? "saffron" : (PAYMENT_TONE[viewing.paymentStatus] ?? "muted")}>
                     {viewing.paymentMethod === "cod"
                       ? "COD"
-                      : viewing.paymentStatus === "paid"
-                        ? "Paid online"
-                        : viewing.paymentStatus}
+                      : viewing.paymentMethod === "whatsapp"
+                        ? "WhatsApp (Pending)"
+                        : viewing.paymentStatus === "paid"
+                          ? "Paid online"
+                          : viewing.paymentStatus}
                   </Badge>
                 </div>
               </div>
@@ -793,12 +798,35 @@ export default function AdminOrdersPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const text = generatePlainTextReceipt(bluetoothReceiptModal);
-                  navigator.clipboard.writeText(text);
+                  const text = generatePlainTextReceipt(bluetoothReceiptModal, true);
+                  let success = false;
+
+                  try {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.top = "0";
+                    textArea.style.left = "0";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    success = document.execCommand("copy");
+                    document.body.removeChild(textArea);
+                  } catch {
+                    success = false;
+                  }
+
+                  if (!success && navigator.clipboard) {
+                    navigator.clipboard.writeText(text);
+                    success = true;
+                  }
+
                   toast({
-                    tone: "success",
-                    title: "Receipt Copied!",
-                    message: "Receipt text copied to clipboard. You can paste it in any printer app.",
+                    tone: success ? "success" : "info",
+                    title: success ? "Receipt Copied!" : "Copy failed",
+                    message: success
+                      ? "Receipt text copied to clipboard. You can paste it in any printer app."
+                      : "Could not copy automatically. You can copy the text from the preview box below.",
                   });
                 }}
                 className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-cream-300 bg-white px-3.5 text-xs font-semibold text-ink-800 hover:bg-cream-100 transition-colors"
@@ -809,7 +837,7 @@ export default function AdminOrdersPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const text = generatePlainTextReceipt(bluetoothReceiptModal);
+                  const text = generatePlainTextReceipt(bluetoothReceiptModal, true);
                   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
@@ -831,9 +859,9 @@ export default function AdminOrdersPage() {
               </label>
               <textarea
                 readOnly
-                rows={10}
-                value={generatePlainTextReceipt(bluetoothReceiptModal)}
-                className="w-full rounded-2xl border border-cream-300 bg-cream-50/80 p-3.5 font-mono text-xs text-ink-900 focus:outline-none"
+                rows={12}
+                value={generatePlainTextReceipt(bluetoothReceiptModal, true)}
+                className="w-full rounded-2xl border border-cream-300 bg-cream-50/80 p-3.5 font-mono text-[13px] font-bold text-ink-950 focus:outline-none"
               />
             </div>
           </div>

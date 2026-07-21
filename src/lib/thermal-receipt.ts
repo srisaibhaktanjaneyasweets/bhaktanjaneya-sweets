@@ -336,9 +336,9 @@ export function printFullInvoice(order: Order) {
 }
 
 /**
- * Generate formatted plain text receipt for Bluetooth thermal printer apps (RawBT, Bluetooth POS Printer, etc.).
+ * Generate formatted bold plain text receipt for Bluetooth thermal printer apps (RawBT, Bluetooth POS Printer, etc.).
  */
-export function generatePlainTextReceipt(order: Order): string {
+export function generatePlainTextReceipt(order: Order, clean = false): string {
   const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
   const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
     month: "short",
@@ -349,52 +349,58 @@ export function generatePlainTextReceipt(order: Order): string {
     hour12: true,
   });
 
-  const divider = "--------------------------------";
-  const doubleDivider = "================================";
+  const BOLD_ON = clean ? "" : "\x1B\x45\x01";
+  const BOLD_OFF = clean ? "" : "\x1B\x45\x00";
+  const LARGE_ON = clean ? "" : "\x1B\x21\x20";
+  const NORMAL_TXT = clean ? "" : "\x1B\x21\x00";
+
+  const dDivider = "================================";
+  const sDivider = "--------------------------------";
 
   const itemLines = order.items
     .map((it, idx) => {
-      const name = `${idx + 1}. ${it.name}`;
-      const detail = `   ${it.variantLabel} x${it.quantity} = ₹${it.price * it.quantity}`;
-      return `${name}\n${detail}`;
+      const nameLine = `${BOLD_ON}${idx + 1}. ${it.name.toUpperCase()}${BOLD_OFF}`;
+      const qtyLine = `   [ QTY: ${it.quantity} ] x ₹${it.price} = ${BOLD_ON}₹${it.price * it.quantity}${BOLD_OFF}`;
+      return `${nameLine}\n${qtyLine}`;
     })
-    .join("\n");
+    .join("\n\n");
 
   const addr = order.shippingAddress;
   const addressStr = addr
     ? [addr.line1, addr.line2, `${addr.city}, ${addr.state} ${addr.pincode}`]
         .filter(Boolean)
         .join(", ")
-    : "No address provided";
+        .toUpperCase()
+    : "NO ADDRESS PROVIDED";
 
   return [
-    config.businessName.toUpperCase(),
-    "Authentic Sweets & Savouries",
-    `Ph: ${config.contact.phone}`,
-    doubleDivider,
-    `ORDER #: #${shortId}`,
-    `DATE: ${dateStr}`,
-    `PAYMENT: ${(order.paymentStatus || "").toUpperCase()} (${(order.paymentMethod || "").toUpperCase()})`,
-    divider,
-    `CUSTOMER: ${order.customerName || "Customer"}`,
-    `PHONE: +91 ${order.customerPhone ? order.customerPhone.replace(/\D/g, "") : ""}`,
-    order.customerEmail ? `EMAIL: ${order.customerEmail}` : null,
-    divider,
-    "ITEMS:",
+    LARGE_ON + BOLD_ON + config.businessName.toUpperCase() + BOLD_OFF + NORMAL_TXT,
+    BOLD_ON + "TRADITIONAL SWEETS & SAVOURIES" + BOLD_OFF,
+    `PHONE: ${config.contact.phone}`,
+    dDivider,
+    `${BOLD_ON}ORDER ID : #${shortId}${BOLD_OFF}`,
+    `DATE     : ${dateStr.toUpperCase()}`,
+    `${BOLD_ON}PAYMENT  : ${(order.paymentStatus || "").toUpperCase()} (${(order.paymentMethod || "").toUpperCase()})${BOLD_OFF}`,
+    sDivider,
+    `${BOLD_ON}CUSTOMER : ${(order.customerName || "GUEST").toUpperCase()}${BOLD_OFF}`,
+    `${BOLD_ON}PHONE    : +91 ${order.customerPhone ? order.customerPhone.replace(/\D/g, "") : ""}${BOLD_OFF}`,
+    order.customerEmail ? `EMAIL    : ${order.customerEmail.toUpperCase()}` : null,
+    sDivider,
+    `${BOLD_ON}>>> ORDER ITEMS <<<${BOLD_OFF}`,
     itemLines,
-    divider,
-    `Subtotal: ₹${order.subtotal}`,
-    order.discount ? `Discount: -₹${order.discount}` : null,
-    `Delivery: ${order.shipping ? `₹${order.shipping}` : "FREE"}`,
-    doubleDivider,
-    `TOTAL AMOUNT: ₹${order.total}`,
-    doubleDivider,
-    "DELIVERY ADDRESS:",
+    dDivider,
+    `SUBTOTAL : ₹${order.subtotal}`,
+    order.discount ? `DISCOUNT : -₹${order.discount}` : null,
+    `DELIVERY : ${order.shipping ? `₹${order.shipping}` : "FREE"}`,
+    dDivider,
+    LARGE_ON + BOLD_ON + `TOTAL    : ₹${order.total}` + BOLD_OFF + NORMAL_TXT,
+    dDivider,
+    `${BOLD_ON}DELIVERY ADDRESS:${BOLD_OFF}`,
     addressStr,
-    order.notes ? `NOTE: ${order.notes}` : null,
-    doubleDivider,
-    "THANK YOU FOR SHOPPING!",
-    "www.bhaktanjaneyasweets.in",
+    order.notes ? `\n${BOLD_ON}SPECIAL INSTRUCTIONS:${BOLD_OFF}\n${order.notes.toUpperCase()}` : null,
+    dDivider,
+    BOLD_ON + "*** THANK YOU FOR SHOPPING! ***" + BOLD_OFF,
+    "WWW.BHAKTANJANEYASWEETS.IN",
   ]
     .filter(Boolean)
     .join("\n");

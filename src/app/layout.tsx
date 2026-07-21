@@ -83,6 +83,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${heading.variable} ${body.variable} h-full`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <meta property="og:image" content={`${config.siteUrl}/images/og-logo.jpg`} />
