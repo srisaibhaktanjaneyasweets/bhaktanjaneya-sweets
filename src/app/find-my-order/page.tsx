@@ -20,7 +20,6 @@ type PublicOrderLookupResponse = {
   paymentStatus: PaymentStatus;
   paymentMethod?: Order["paymentMethod"];
   deliveryCompany?: string;
-  // NOTE: UI should mask this when displaying.
   deliveryTrackingId?: string;
   total: number;
   items: Order["items"];
@@ -76,7 +75,7 @@ export default function FindMyOrderPage() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [order, setOrder] = useState<PublicOrderLookupResponse | null>(null);
+  const [searchResults, setSearchResults] = useState<PublicOrderLookupResponse[]>([]);
   const loadedOrdersCustomerId = useRef<string | null>(null);
 
   const parsedQuery = useMemo(() => parseLookupQuery(query), [query]);
@@ -89,20 +88,28 @@ export default function FindMyOrderPage() {
 
     setLoading(true);
     setError("");
-    setOrder(null);
+    setSearchResults([]);
 
     try {
-      const res =
-        parsed.kind === "phone"
-          ? await apiGet<PublicOrderLookupResponse>(
-              `/orders/lookup/phone/${encodeURIComponent(raw)}`,
-            )
-          : await apiGet<PublicOrderLookupResponse>(
-              `/orders/lookup/${encodeURIComponent(raw)}`,
-            );
-      setOrder(res);
+      if (parsed.kind === "phone") {
+        const res = await apiGet<PublicOrderLookupResponse[] | PublicOrderLookupResponse>(
+          `/orders/lookup/phone/${encodeURIComponent(raw)}`,
+        );
+        if (Array.isArray(res)) {
+          setSearchResults(res);
+        } else if (res) {
+          setSearchResults([res]);
+        }
+      } else {
+        const res = await apiGet<PublicOrderLookupResponse>(
+          `/orders/lookup/${encodeURIComponent(raw)}`,
+        );
+        if (res) {
+          setSearchResults([res]);
+        }
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not fetch order");
+      setError(e instanceof Error ? e.message : "Could not fetch orders");
     } finally {
       setLoading(false);
     }
@@ -229,82 +236,101 @@ export default function FindMyOrderPage() {
               <p className="text-sm text-ink-500">Enter your order id or phone number to view status and delivery details.</p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (isSearchable && !loading) void runLookup();
+              }}
+              className="flex items-center gap-2"
+            >
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Order id (ord_...) or phone number"
+                placeholder="Order id (ord_...) or phone number (e.g. 9876543210)"
                 className={inputClass + " flex-1"}
               />
               <button
-                type="button"
-                onClick={() => void runLookup()}
+                type="submit"
                 disabled={!isSearchable || loading}
-                className="inline-flex h-11 items-center justify-center rounded-full bg-maroon-800 px-5 text-sm font-semibold text-cream-50 hover:bg-maroon-700 disabled:opacity-60"
+                className="inline-flex h-11 items-center justify-center rounded-full bg-maroon-800 px-6 text-sm font-semibold text-cream-50 hover:bg-maroon-700 disabled:opacity-60 shrink-0"
               >
-                {loading ? "Searching..." : <Search size={16} />}
+                {loading ? "Searching…" : <Search size={16} />}
               </button>
-            </div>
+            </form>
 
             {error ? <Alert>{error}</Alert> : null}
 
-            {loading && !order ? null : order ? (
-              <div className="rounded-2xl border border-cream-200 bg-white p-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs text-ink-400">Order</p>
-                    <p className="font-mono text-sm font-semibold text-ink-700">
-                      {order.id.replace(/^ord_/, "").toUpperCase()}
-                    </p>
-                  </div>
-                  <Badge tone={PAYMENT_TONE[order.paymentStatus] ?? "muted"}>
-                    {order.paymentMethod === "cod"
-                      ? "COD"
-                      : order.paymentStatus === "paid"
-                        ? "Paid online"
-                        : order.paymentStatus}
-                  </Badge>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <p className="text-sm text-ink-500">Status:</p>
-                  <p className="capitalize text-sm font-semibold text-maroon-900">{order.status}</p>
-                </div>
-
-                <div className="mt-2 text-sm text-ink-500">Placed on {formatDate(order.createdAt)}</div>
-
-                {order.deliveryCompany || order.deliveryTrackingId ? (
-                  <div className="mt-3 rounded-xl bg-cream-50 p-3">
-                    <p className="text-xs font-medium text-maroon-900">Delivery</p>
-                    <p className="mt-1 text-sm text-ink-600">
-                      {order.deliveryCompany ? order.deliveryCompany : "Courier"}
-                      {order.deliveryTrackingId
-                        ? ` · Tracking #${maskTrackingId(order.deliveryTrackingId)}`
-                        : ""}
-                    </p>
-                  </div>
-                ) : null}
-
-                <div className="mt-4">
-                  <p className="text-xs font-medium text-ink-400">Items</p>
-                  <ul className="mt-2 divide-y divide-cream-200 rounded-xl border border-cream-200">
-                    {order.items.map((it, idx) => (
-                      <li key={idx} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                        <span className="text-ink-700">
-                          {it.name} <span className="text-ink-400">({it.variantLabel}) × {it.quantity}</span>
-                        </span>
-                        <span className="font-medium text-maroon-900">{formatINR(it.price * it.quantity)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between border-t border-cream-200 pt-3 text-base font-bold text-maroon-900">
-                  <span>Total</span>
-                  <span>{formatINR(order.total)}</span>
-                </div>
+            {loading ? (
+              <div className="rounded-2xl border border-cream-200 bg-white p-6 text-center text-sm text-ink-500">
+                Searching orders…
               </div>
-            ) : (
+            ) : searchResults.length > 0 ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs font-semibold text-ink-600 uppercase tracking-wider px-1">
+                  <span>Found {searchResults.length} {searchResults.length === 1 ? "order" : "orders"}</span>
+                </div>
+
+                {searchResults.map((order) => (
+                  <div key={order.id} className="rounded-2xl border border-cream-200 bg-white p-5 space-y-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-cream-200 pb-3">
+                      <div>
+                        <p className="text-xs text-ink-400">Order ID</p>
+                        <p className="font-mono text-sm font-bold text-maroon-900">
+                          #{order.id.replace(/^ord_/, "").toUpperCase()}
+                        </p>
+                      </div>
+                      <Badge tone={PAYMENT_TONE[order.paymentStatus] ?? "muted"}>
+                        {order.paymentMethod === "cod"
+                          ? "COD"
+                          : order.paymentStatus === "paid"
+                            ? "Paid online"
+                            : order.paymentStatus}
+                      </Badge>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-ink-500">Status:</span>
+                        <span className="capitalize font-semibold text-maroon-900">{order.status}</span>
+                      </div>
+                      <span className="text-xs text-ink-400">Placed on {formatDate(order.createdAt)}</span>
+                    </div>
+
+                    {order.deliveryCompany || order.deliveryTrackingId ? (
+                      <div className="rounded-xl bg-cream-50 p-3 text-sm text-ink-600">
+                        <p className="flex items-center gap-1.5 font-medium text-maroon-900">
+                          <Truck size={15} /> Delivery: {order.deliveryCompany || "Courier"}
+                        </p>
+                        {order.deliveryTrackingId ? (
+                          <p className="mt-1 text-xs">
+                            Tracking #: <span className="font-semibold text-ink-800">{maskTrackingId(order.deliveryTrackingId)}</span>
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : null}
+
+                    <div>
+                      <p className="text-xs font-medium text-ink-400 mb-1.5">Items ({order.items.length})</p>
+                      <ul className="divide-y divide-cream-200 rounded-xl border border-cream-200 bg-cream-50/50">
+                        {order.items.map((it, idx) => (
+                          <li key={idx} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                            <span className="text-ink-700 font-medium">
+                              {it.name} <span className="text-ink-400 font-normal">({it.variantLabel}) × {it.quantity}</span>
+                            </span>
+                            <span className="font-bold text-maroon-900">{formatINR(it.price * it.quantity)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-cream-200 pt-3 text-base font-bold text-maroon-900">
+                      <span>Total Amount</span>
+                      <span>{formatINR(order.total)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : !loading && !error && query.trim() ? null : (
               <EmptyState
                 icon={<Search size={26} />}
                 title="Search by order id or phone"
@@ -314,13 +340,13 @@ export default function FindMyOrderPage() {
 
             <div className="rounded-2xl border border-cream-200 bg-white p-5">
               <div className="flex items-start gap-3">
-                <span className="mt-1 flex h-12 w-12 items-center justify-center rounded-full bg-cream-100 text-maroon-800">
+                <span className="mt-1 flex h-12 w-12 items-center justify-center rounded-full bg-cream-100 text-maroon-800 shrink-0">
                   <User size={18} />
                 </span>
                 <div>
                   <p className="text-sm font-semibold text-maroon-900">Want to view your orders anytime?</p>
                   <p className="mt-1 text-sm text-ink-600">
-                    Log in to see all your orders under My Account.
+                    Log in to see all your orders automatically under My Account.
                   </p>
                   <div className="mt-3">
                     <Link
@@ -339,4 +365,3 @@ export default function FindMyOrderPage() {
     </Container>
   );
 }
-

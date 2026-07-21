@@ -87,7 +87,7 @@ export function ToastHost() {
   const rendered = useMemo(() => toasts, [toasts]);
 
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-[9999] flex w-[calc(100vw-2rem)] max-w-md flex-col gap-2.5 sm:right-6 sm:bottom-6">
+    <div className="pointer-events-none fixed bottom-4 right-4 left-4 z-[9999] flex max-w-md flex-col gap-2.5 sm:left-auto sm:right-6 sm:bottom-6">
       {rendered.map((t) => {
         const meta = TONE_META[t.tone];
         const Icon = meta.Icon;

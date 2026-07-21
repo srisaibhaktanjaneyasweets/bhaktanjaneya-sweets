@@ -269,8 +269,8 @@ export default function CartPage() {
     if (!line1.trim()) return "Please enter your street address.";
     if (!state) return "Please select your state.";
     if (!city.trim()) return "Please select your city.";
-    if (!isServiceableCity(state, city)) {
-      return "We currently deliver only to selected cities in Andhra Pradesh & Telangana.";
+    if (!deliveryConfirmed && !isServiceableCity(state, city, areasMap)) {
+      return "Please confirm your delivery location above to proceed.";
     }
     if (!/^\d{6}$/.test(pincode.trim())) return "Please enter a valid 6-digit PIN code.";
     return null;

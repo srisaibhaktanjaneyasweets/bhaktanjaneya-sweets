@@ -10,26 +10,36 @@ type PublicOrderLookupResponse = {
   paymentStatus: PaymentStatus;
   paymentMethod?: Order["paymentMethod"];
   deliveryCompany?: string;
-  // Intentionally returned for delivery updates, but UI will mask it.
   deliveryTrackingId?: string;
   total: number;
   items: Order["items"];
 };
 
-function normalizePhone(input: string): string {
-  // Keep digits only; allow + at start, but store as digits/normalized.
-  // In this repo, customer_phone is stored as a string.
-  const trimmed = input.trim();
-  if (!trimmed) return "";
+function normalizePhoneVariants(input: string): string[] {
+  const digitsOnly = input.trim().replace(/\D/g, "");
+  if (!digitsOnly) return [];
 
-  // Convert things like +91-98765 43210 => 919876543210 or 9876543210.
-  const digitsOnly = trimmed.replace(/\D/g, "");
-  return digitsOnly;
-}
+  const variants = new Set<string>();
+  variants.add(digitsOnly);
+  variants.add(`+${digitsOnly}`);
 
-function isValidPhone(phoneDigits: string): boolean {
-  // Basic E.164-ish range without depending on country.
-  return /^\d{8,15}$/.test(phoneDigits);
+  if (digitsOnly.length === 10) {
+    variants.add(`91${digitsOnly}`);
+    variants.add(`+91${digitsOnly}`);
+    variants.add(`0${digitsOnly}`);
+  } else if (digitsOnly.length === 12 && digitsOnly.startsWith("91")) {
+    const raw10 = digitsOnly.slice(2);
+    variants.add(raw10);
+    variants.add(`+91${raw10}`);
+    variants.add(`0${raw10}`);
+  } else if (digitsOnly.length === 11 && digitsOnly.startsWith("0")) {
+    const raw10 = digitsOnly.slice(1);
+    variants.add(raw10);
+    variants.add(`91${raw10}`);
+    variants.add(`+91${raw10}`);
+  }
+
+  return Array.from(variants);
 }
 
 export async function GET(
@@ -37,44 +47,42 @@ export async function GET(
   { params }: { params: Promise<{ phone: string }> | { phone: string } },
 ) {
   const { phone } = await params;
-  const normalized = normalizePhone(phone);
+  const variants = normalizePhoneVariants(phone);
 
-  if (!normalized || !isValidPhone(normalized)) {
+  if (variants.length === 0) {
     return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
   }
 
-  // Return the most recent order for this phone.
-  // NOTE: This endpoint is meant to be public, so it must not leak customer PII.
+  // Fetch ALL matching orders for this phone number (up to 50, sorted newest first)
   const { data, error } = await supabaseAdmin
     .from("orders")
     .select("*")
-    .eq("customer_phone", normalized)
+    .in("customer_phone", variants)
     .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(50);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  if (!data) {
-    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: "No orders found for this phone number" }, { status: 404 });
   }
 
-  const order = orderFromRow(data as Record<string, unknown>);
+  const publicOrders: PublicOrderLookupResponse[] = data.map((row) => {
+    const order = orderFromRow(row as Record<string, unknown>);
+    return {
+      id: order.id,
+      status: order.status,
+      createdAt: order.createdAt,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      deliveryCompany: order.deliveryCompany,
+      deliveryTrackingId: order.deliveryTrackingId,
+      total: order.total,
+      items: order.items,
+    };
+  });
 
-  const publicOrder: PublicOrderLookupResponse = {
-    id: order.id,
-    status: order.status,
-    createdAt: order.createdAt,
-    paymentStatus: order.paymentStatus,
-    paymentMethod: order.paymentMethod,
-    deliveryCompany: order.deliveryCompany,
-    deliveryTrackingId: order.deliveryTrackingId,
-    total: order.total,
-    items: order.items,
-  };
-
-  return NextResponse.json(publicOrder);
+  return NextResponse.json(publicOrders);
 }
-

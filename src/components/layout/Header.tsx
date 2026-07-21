@@ -355,7 +355,7 @@ export function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-50 w-screen overflow-hidden lg:hidden">
+        <div className="fixed inset-0 z-50 w-full overflow-hidden lg:hidden">
           <div
             className="absolute inset-0 bg-ink-900/65"
             onClick={closeMenu}

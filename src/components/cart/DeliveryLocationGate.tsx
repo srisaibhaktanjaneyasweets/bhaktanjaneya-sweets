@@ -6,16 +6,17 @@ import {
   Check,
   Pencil,
   AlertTriangle,
+  Truck,
+  Bus,
   Phone,
-  MessageCircle,
 } from "lucide-react";
 import {
   getServiceableStates,
   citiesForState,
 } from "@/lib/constants/serviceable-areas";
 import { Combobox } from "@/components/ui/Combobox";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { config } from "@/lib/config";
-import { waLink } from "@/lib/whatsapp";
 
 const selectClass =
   "h-11 w-full rounded-xl border border-cream-300 bg-white px-4 text-sm focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40 disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70";
@@ -42,6 +43,7 @@ export function DeliveryLocationGate({
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState("");
   const [unavailable, setUnavailable] = useState(false);
+  const [showCargoModal, setShowCargoModal] = useState(false);
 
   const [areasMap, setAreasMap] = useState<Record<string, readonly string[]> | null>(null);
 
@@ -56,8 +58,6 @@ export function DeliveryLocationGate({
       .catch(() => {});
   }, []);
 
-  // Prefill from a serviceable saved address once the customer loads, but never
-  // override what the user has started selecting themselves.
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (touched || confirmed) return;
@@ -79,8 +79,22 @@ export function DeliveryLocationGate({
       setError("Please select your city.");
       return;
     }
+
+    const isListed = cities.some((c) => c.toLowerCase() === cityValue.trim().toLowerCase());
+    if (!isListed) {
+      setUnavailable(true);
+      setShowCargoModal(true);
+      return;
+    }
+
     setUnavailable(false);
     onConfirm(stateValue, cityValue);
+  }
+
+  function confirmBusCargoLocation() {
+    setShowCargoModal(false);
+    setUnavailable(false);
+    onConfirm(stateValue || "Andhra Pradesh", cityValue);
   }
 
   if (confirmed) {
@@ -113,23 +127,23 @@ export function DeliveryLocationGate({
   }
 
   return (
-    <section className="rounded-2xl border border-cream-200 bg-white p-5">
+    <section className="rounded-2xl border border-cream-200 bg-white p-5 space-y-4">
       <div className="flex items-center gap-2">
         <MapPin size={18} className="shrink-0 text-saffron-600" />
         <h2 className="font-serif text-lg font-bold text-maroon-900">
           Select delivery location
         </h2>
       </div>
-      <p className="mt-2 text-sm text-ink-600">
+      <p className="text-sm text-ink-600">
         We deliver across{" "}
         <span className="font-medium text-maroon-900">
           Andhra Pradesh &amp; Telangana
         </span>
         . If courier service is unavailable in your area, we&apos;ll arrange
-        delivery through APSRTC / TGSRTC Cargo and inform you accordingly.
+        delivery through APSRTC / TGSRTC Cargo to your nearest bus station.
       </p>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-sm font-medium text-maroon-900">
           State *
           <select
@@ -177,11 +191,11 @@ export function DeliveryLocationGate({
       </div>
 
       {error ? (
-        <p className="mt-2 text-sm font-medium text-maroon-700">{error}</p>
+        <p className="text-sm font-medium text-maroon-700">{error}</p>
       ) : null}
 
       {!unavailable ? (
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
           <button
             type="button"
             onClick={handleContinue}
@@ -201,41 +215,43 @@ export function DeliveryLocationGate({
           </button>
         </div>
       ) : (
-        <div className="mt-4 space-y-3">
+        <div className="space-y-3 pt-1">
           <div className="flex items-start gap-2 rounded-xl border border-saffron-400/50 bg-saffron-500/10 px-4 py-3 text-sm text-maroon-900">
             <AlertTriangle size={18} className="mt-0.5 shrink-0 text-saffron-600" />
             <span>Online courier delivery is not available for this city.</span>
           </div>
-          <div className="rounded-xl border border-leaf-600/30 bg-leaf-600/5 p-4">
-            <p className="font-semibold text-leaf-600">Good news! 😃</p>
-            <p className="mt-1 text-sm text-ink-700">
-              Even if courier delivery is unavailable in your city, we may still
-              be able to deliver your order through{" "}
-              <span className="font-medium text-maroon-900">
+
+          <div className="rounded-2xl border border-leaf-600/30 bg-leaf-600/5 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-leaf-700 font-bold">
+              <Bus size={18} />
+              <span>Good news! 😃</span>
+            </div>
+            <p className="text-sm text-ink-700 leading-relaxed">
+              Even if door courier delivery is unavailable in your city, we can still deliver your order through{" "}
+              <strong className="text-maroon-900">
                 APSRTC / TGSRTC Cargo
-              </span>{" "}
-              services. Our team will contact you to confirm the best delivery
-              option.
+              </strong>{" "}
+              services to your nearest bus station.
             </p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+
+            <div className="flex flex-col gap-2.5 sm:flex-row pt-1">
+              <button
+                type="button"
+                onClick={() => setShowCargoModal(true)}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-maroon-800 px-6 text-sm font-bold text-cream-50 shadow-md hover:bg-maroon-700 sm:flex-1 transition-colors"
+              >
+                <Truck size={18} /> Continue to Checkout (Bus Cargo)
+              </button>
+
               <a
                 href={`tel:${config.contact.phone.replace(/\s/g, "")}`}
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-maroon-800 text-sm font-semibold text-cream-50 hover:bg-maroon-700 sm:flex-1"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-maroon-800/30 bg-white px-5 text-sm font-bold text-maroon-900 shadow-sm hover:bg-cream-100 sm:w-auto transition-colors"
               >
-                <Phone size={16} /> Call now
-              </a>
-              <a
-                href={waLink(
-                  `Hello ${config.businessName}! I'd like to check delivery to my city.`,
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#35B664] text-sm font-semibold text-white hover:bg-[#2E9E57] sm:flex-1"
-              >
-                <MessageCircle size={16} /> WhatsApp us
+                <Phone size={16} className="text-maroon-800 shrink-0" /> Call now
               </a>
             </div>
           </div>
+
           <button
             type="button"
             onClick={() => {
@@ -248,6 +264,18 @@ export function DeliveryLocationGate({
           </button>
         </div>
       )}
+
+      {/* Confirmation Popup Modal for Bus Cargo Delivery */}
+      <ConfirmDialog
+        open={showCargoModal}
+        title="Bus Cargo Delivery Notice (APSRTC / TGSRTC)"
+        description={`Standard door courier delivery is unavailable for ${cityValue || "your city"}${stateValue ? `, ${stateValue}` : ""}. Your order will be sent via APSRTC or TGSRTC Bus Cargo to your nearest bus station/counter. Is this okay to continue?`}
+        confirmLabel="Yes, Continue Order"
+        cancelLabel="Check Different City"
+        tone="primary"
+        onCancel={() => setShowCargoModal(false)}
+        onConfirm={confirmBusCargoLocation}
+      />
     </section>
   );
 }
