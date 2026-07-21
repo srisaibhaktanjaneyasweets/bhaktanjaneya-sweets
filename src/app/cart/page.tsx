@@ -439,11 +439,17 @@ export default function CartPage() {
     if (document.documentElement) document.documentElement.scrollTop = 0;
 
     const waMessage = buildFormattedWhatsAppOrderMessage(placed);
-    const waUrl = waLink(waMessage);
+    const isMobile = typeof window !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const num = (config.whatsappNumber || "").replace(/\D/g, "");
+    
+    // Use whatsapp:// deep link scheme on mobile to launch the WhatsApp app directly
+    const waUrl = isMobile
+      ? `whatsapp://send?phone=${num.length === 10 ? `91${num}` : num}&text=${encodeURIComponent(waMessage)}`
+      : waLink(waMessage);
 
     const timer = setTimeout(() => {
       window.location.href = waUrl;
-    }, 1200);
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [placed]);
@@ -838,16 +844,6 @@ export default function CartPage() {
                       className={`${fieldClass} mt-1.5`}
                     />
                   )}
-                </label>
-                <label className="block text-sm font-medium text-maroon-900">
-                  Delivery instructions
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Preferred time, gate code, alternate contact..."
-                    rows={2}
-                    className={`${fieldClass} mt-1.5 h-auto resize-none py-3`}
-                  />
                 </label>
                 {customer && (
                   <label className="flex items-start gap-2 rounded-xl bg-cream-50 px-3 py-2 text-sm text-ink-600">

@@ -17,14 +17,14 @@ export function formatPhoneForWhatsApp(phone: string): string {
 export function waLink(message: string): string {
   const num = formatPhoneForWhatsApp(config.whatsappNumber);
   const normalized = message.normalize("NFC");
-  return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(normalized)}`;
+  return `https://wa.me/${num}?text=${encodeURIComponent(normalized)}`;
 }
 
 /** Build a WhatsApp deep link targeting a specific customer phone number. */
 export function waLinkToPhone(phone: string, message: string): string {
   const num = formatPhoneForWhatsApp(phone);
   const normalized = message.normalize("NFC");
-  return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(normalized)}`;
+  return `https://wa.me/${num}?text=${encodeURIComponent(normalized)}`;
 }
 
 /** Message for ordering a single product/variant from a product page. */
