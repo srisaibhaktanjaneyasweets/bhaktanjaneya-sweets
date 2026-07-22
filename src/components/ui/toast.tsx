@@ -16,35 +16,83 @@ type ToastInternal = ToastPayload & {
   id: string;
 };
 
-const TONE_META: Record<
-  ToastTone,
-  { Icon: typeof Info; className: string; iconClass: string; badge: string }
-> = {
+export const TONE_META = {
   success: {
     Icon: CheckCircle2,
-    className: "border-leaf-600/60 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-leaf-600/30",
-    iconClass: "text-leaf-400",
+    iconClass: "text-[#2f7d4f]",
+    border: "#2f7d4f",
     badge: "Success",
   },
   error: {
     Icon: XCircle,
-    className: "border-maroon-500/80 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-maroon-500/40",
-    iconClass: "text-red-400",
+    iconClass: "text-[#793b13]",
+    border: "#793b13",
     badge: "Error",
   },
   info: {
     Icon: Info,
-    className: "border-gold-400/60 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-gold-400/30",
-    iconClass: "text-gold-300",
+    iconClass: "text-[#c9961e]",
+    border: "#c9961e",
     badge: "Notice",
   },
   warning: {
     Icon: AlertTriangle,
-    className: "border-saffron-500/70 bg-maroon-950 text-cream-50 shadow-xl ring-1 ring-saffron-500/30",
-    iconClass: "text-saffron-400",
+    iconClass: "text-[#ec8f1e]",
+    border: "#ec8f1e",
     badge: "Warning",
   },
 };
+
+export function ToastCard({
+  tone,
+  title,
+  message,
+  onDismiss,
+}: {
+  tone: ToastTone;
+  title?: string;
+  message: React.ReactNode;
+  onDismiss: () => void;
+}) {
+  const meta = TONE_META[tone];
+  const Icon = meta.Icon;
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#fffdf7", // cream-50 (page background)
+        opacity: 1,
+        borderColor: meta.border,
+        borderWidth: "2px",
+        borderStyle: "solid",
+        boxShadow: "0 10px 25px -5px rgba(46, 36, 23, 0.15), 0 8px 10px -6px rgba(46, 36, 23, 0.15)",
+      }}
+      className="flex w-full items-start gap-3 rounded-2xl p-4 text-sm font-medium transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 text-[#2a1810]"
+    >
+      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#fbf5e9]">
+        <Icon size={18} className={meta.iconClass} aria-hidden />
+      </span>
+      <div className="min-w-0 flex-1">
+        {title || meta.badge ? (
+          <p className="font-sans text-sm font-extrabold tracking-wide text-[#55290c]">
+            {title || meta.badge}
+          </p>
+        ) : null}
+        <div className="mt-0.5 text-xs text-[#6f5848] leading-relaxed font-normal">
+          {message}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Close"
+        className="ml-1 shrink-0 rounded-full p-1 text-[#8a7565] hover:bg-[#f2e9d6] hover:text-[#55290c] transition-colors"
+      >
+        <X size={15} />
+      </button>
+    </div>
+  );
+}
 
 let listeners: Array<(t: ToastInternal[]) => void> = [];
 let state: ToastInternal[] = [];
@@ -87,39 +135,17 @@ export function ToastHost() {
   const rendered = useMemo(() => toasts, [toasts]);
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 left-4 z-[9999] flex max-w-md flex-col gap-2.5 sm:left-auto sm:right-6 sm:bottom-6">
-      {rendered.map((t) => {
-        const meta = TONE_META[t.tone];
-        const Icon = meta.Icon;
-        return (
-          <div
-            key={t.id}
-            className={`pointer-events-auto flex items-start gap-3 rounded-2xl border p-4 text-sm font-medium transition-all duration-300 animate-in fade-in slide-in-from-bottom-3 ${meta.className}`}
-            role="status"
-            aria-live="polite"
-          >
-            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10">
-              <Icon size={18} className={meta.iconClass} aria-hidden />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="font-serif text-sm font-bold tracking-tight text-cream-50">
-                {t.title || meta.badge}
-              </p>
-              <div className="mt-0.5 text-xs text-cream-100/90 leading-relaxed font-normal">
-                {t.message}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => dismiss(t.id)}
-              aria-label="Close notification"
-              className="ml-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-cream-100/70 hover:bg-white/15 hover:text-cream-50 transition-colors"
-            >
-              <X size={15} />
-            </button>
-          </div>
-        );
-      })}
+    <div className="pointer-events-none fixed bottom-4 right-4 z-[9999] flex flex-col items-end gap-2.5 max-w-[calc(100%-2rem)] sm:right-6 sm:bottom-6">
+      {rendered.map((t) => (
+        <div key={t.id} className="pointer-events-auto w-[320px] max-w-full sm:w-[380px]">
+          <ToastCard
+            tone={t.tone}
+            title={t.title}
+            message={t.message}
+            onDismiss={() => dismiss(t.id)}
+          />
+        </div>
+      ))}
     </div>
   );
 }

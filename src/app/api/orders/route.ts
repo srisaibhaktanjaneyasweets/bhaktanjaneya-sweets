@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
 import { offerFromRow, orderFromRow, orderToRow, productFromRow } from "@/lib/supabase/mappers";
-import { isServiceableCity } from "@/lib/constants/serviceable-areas";
 import { variantLabel } from "@/lib/product";
 import {
   DEFAULT_SHIPPING_SETTINGS,
@@ -200,34 +199,22 @@ export async function POST(req: Request) {
   if (!isValidAddress(order.shippingAddress)) {
     return NextResponse.json({ error: "Valid delivery address is required" }, { status: 400 });
   }
-  // Fetch active serviceable areas configured by admin
-  let activeAreas: Record<string, readonly string[]> | null = null;
-  if (isConfigured) {
-    try {
-      const { data: siteData } = await supabaseAdmin
-        .from("site_settings")
-        .select("value")
-        .eq("key", "serviceable_areas")
-        .maybeSingle();
+  // Verify state-level serviceability (permitting Bus Cargo delivery for unlisted cities in AP & Telangana)
+  const isStateOk =
+    order.shippingAddress.state &&
+    (order.shippingAddress.state.trim().toLowerCase() === "andhra pradesh" ||
+      order.shippingAddress.state.trim().toLowerCase() === "telangana");
 
-      if (siteData?.value && typeof siteData.value === "object") {
-        activeAreas = siteData.value as Record<string, readonly string[]>;
-      }
-    } catch {
-      // Fallback to defaults if lookup fails
-    }
-  }
-
-  if (!isServiceableCity(order.shippingAddress.state, order.shippingAddress.city, activeAreas)) {
+  if (!isStateOk) {
     return NextResponse.json(
       {
-        error:
-          "We currently deliver only to selected serviceable cities. Please check delivery availability or contact us for help.",
+        error: "We currently deliver only to Andhra Pradesh & Telangana.",
       },
       { status: 400 },
     );
   }
-  if (!order.paymentMethod || !["razorpay", "cod"].includes(order.paymentMethod)) {
+
+  if (!order.paymentMethod || !["razorpay", "cod", "whatsapp"].includes(order.paymentMethod)) {
     return NextResponse.json({ error: "Payment method is required" }, { status: 400 });
   }
 

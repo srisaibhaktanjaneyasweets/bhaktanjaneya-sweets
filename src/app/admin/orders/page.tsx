@@ -588,16 +588,14 @@ export default function AdminOrdersPage() {
 
             {/* Delivery Address */}
             {viewing.shippingAddress && (
-              <div className="rounded-xl border border-cream-200 bg-white p-4 text-sm">
-                <p className="font-bold text-maroon-900">Delivery Address</p>
-                <p className="mt-1 text-ink-700">
-                  {viewing.shippingAddress.line1}
-                  {viewing.shippingAddress.line2 ? `, ${viewing.shippingAddress.line2}` : ""}
-                </p>
-                <p className="text-ink-600">
-                  {viewing.shippingAddress.district ? `${viewing.shippingAddress.district}, ` : ""}
-                  {viewing.shippingAddress.city}, {viewing.shippingAddress.state} {viewing.shippingAddress.pincode}
-                </p>
+              <div className="rounded-xl border border-cream-200 bg-white p-4 text-sm space-y-1">
+                <p className="font-bold text-maroon-900 mb-1.5">Delivery Address</p>
+                <p className="text-ink-700 font-semibold">STREET: {viewing.shippingAddress.line1.toUpperCase()}</p>
+                {viewing.shippingAddress.line2 && (
+                  <p className="text-ink-700 font-semibold">AREA: {viewing.shippingAddress.line2.toUpperCase()}</p>
+                )}
+                <p className="text-ink-700 font-semibold">CITY: {viewing.shippingAddress.city.toUpperCase()}</p>
+                <p className="text-ink-700 font-semibold">STATE: {viewing.shippingAddress.state.toUpperCase()} - {viewing.shippingAddress.pincode}</p>
                 {viewing.notes && (
                   <div className="mt-2.5 rounded-lg bg-saffron-50 p-2.5 text-xs text-maroon-900 border border-saffron-200">
                     <strong>Customer Note:</strong> {viewing.notes}

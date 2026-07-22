@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Alert } from "@/components/ui/Alert";
+import { toast } from "@/components/ui/toast";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { getActiveOffers } from "@/lib/api/offers";
@@ -25,7 +26,6 @@ import type { PincodeLookup } from "@/lib/api/pincode";
 import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/api/payments";
 import { createOrder } from "@/lib/api/orders";
 import { getErrorDetails, getErrorMessage } from "@/lib/api/errors";
-import type { ErrorDetails } from "@/lib/api/errors";
 import { formatAddressLines, isCompleteAddress } from "@/lib/address";
 import { config } from "@/lib/config";
 import {
@@ -80,8 +80,6 @@ export default function CartPage() {
   const [saveAddress, setSaveAddress] = useState(true);
   const [addressMode, setAddressMode] = useState<"saved" | "new">("new");
   const [deliveryConfirmed, setDeliveryConfirmed] = useState(false);
-
-  const [checkoutError, setCheckoutError] = useState<ErrorDetails | null>(null);
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState<Order | null>(null);
   const [pincodeDetails, setPincodeDetails] = useState<PincodeLookup | null>(null);
@@ -116,7 +114,6 @@ export default function CartPage() {
     setState(nextState);
     setCity(nextCity);
     setDeliveryConfirmed(true);
-    setCheckoutError(null);
   }
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -261,8 +258,11 @@ export default function CartPage() {
       if (!isCompleteAddress(customer?.savedAddress)) {
         return "Your saved address is incomplete. Please choose a different address or update it in your account.";
       }
-      if (!isServiceableCity(customer?.savedAddress?.state, customer?.savedAddress?.city)) {
-        return "Your saved address is in a city we don't deliver to yet. Choose \"Deliver to a different address\" and pick a serviceable city.";
+      const hasSavedState = customer?.savedAddress?.state &&
+        (customer.savedAddress.state.trim().toLowerCase() === "andhra pradesh" ||
+         customer.savedAddress.state.trim().toLowerCase() === "telangana");
+      if (!hasSavedState) {
+        return "We currently deliver only to Andhra Pradesh & Telangana.";
       }
       return null;
     }
@@ -341,17 +341,17 @@ export default function CartPage() {
 
   async function placeRazorpayOrder() {
     if (!config.razorpayEnabled) {
-      setCheckoutError({
+      toast({
+        tone: "error",
         title: "Online payments unavailable",
         message:
           "Online payment is not configured on the server yet. Please contact us on WhatsApp to complete your order.",
       });
       return;
     }
-    setCheckoutError(null);
     const validationError = validateCheckout();
     if (validationError) {
-      setCheckoutError({ title: "Check your details", message: validationError });
+      toast({ tone: "error", title: "Check your details", message: validationError });
       return;
     }
 
@@ -393,9 +393,12 @@ export default function CartPage() {
             clear();
             setPlaced({ ...saved, paymentStatus: "paid" });
           } catch (error) {
-            setCheckoutError(
-              getErrorDetails(error, "Payment succeeded but order could not be saved"),
-            );
+            const details = getErrorDetails(error, "Payment succeeded but order could not be saved");
+            toast({
+              tone: "error",
+              title: details.title,
+              message: details.message,
+            });
           } finally {
             setPlacing(false);
           }
@@ -405,18 +408,20 @@ export default function CartPage() {
         },
       });
     } catch (error) {
-      setCheckoutError(
-        getErrorDetails(error, "Online payment unavailable"),
-      );
+      const details = getErrorDetails(error, "Online payment unavailable");
+      toast({
+        tone: "error",
+        title: details.title,
+        message: details.message,
+      });
       setPlacing(false);
     }
   }
 
   async function placeWhatsAppOrder() {
-    setCheckoutError(null);
     const validationError = validateCheckout();
     if (validationError) {
-      setCheckoutError({ title: "Check your details", message: validationError });
+      toast({ tone: "error", title: "Check your details", message: validationError });
       return;
     }
 
@@ -430,7 +435,12 @@ export default function CartPage() {
       clear();
       setPlaced({ ...saved, paymentMethod: "whatsapp", paymentStatus: "pending" });
     } catch (error) {
-      setCheckoutError(getErrorDetails(error, "Could not place order"));
+      const details = getErrorDetails(error, "Could not place order");
+      toast({
+        tone: "error",
+        title: details.title,
+        message: details.message,
+      });
     } finally {
       setPlacing(false);
     }
@@ -438,14 +448,16 @@ export default function CartPage() {
 
   function handlePlaceOrder() {
     if (!minOrderCheck.satisfied) {
-      setCheckoutError({
+      toast({
+        tone: "error",
         title: "Minimum order requirement",
         message: `Minimum order value is ${formatINR(shippingSettings.minOrderValue)}. Add ${formatINR(minOrderCheck.remaining)} more to place your order.`,
       });
       return;
     }
     if (!deliveryConfirmed) {
-      setCheckoutError({
+      toast({
+        tone: "error",
         title: "Confirm delivery location",
         message: "Please check delivery availability for your city before placing the order.",
       });
@@ -1058,14 +1070,7 @@ export default function CartPage() {
                 </button>
               </div>
 
-              {checkoutError && (
-                <Alert title={checkoutError.title} className="mt-4">
-                  {checkoutError.message}
-                  {checkoutError.hint ? (
-                    <p className="mt-1 text-xs opacity-90">{checkoutError.hint}</p>
-                  ) : null}
-                </Alert>
-              )}
+
 
               {!deliveryConfirmed ? (
                 <p className="mt-4 rounded-xl bg-cream-100 px-3 py-2 text-center text-xs font-medium text-maroon-800">

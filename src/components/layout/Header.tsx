@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import {
@@ -37,6 +37,8 @@ const trailingLinks = [
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isShopPage = pathname === "/shop";
   const { count, setOpen } = useCart();
   const { customer, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -175,21 +177,25 @@ export function Header() {
 
 
           {/* Desktop search */}
-          <div className="ml-6 hidden flex-1 lg:block">
-            <HeaderSearch variant="desktop" onNavigate={closeMenu} />
-          </div>
+          {!isShopPage && (
+            <div className="ml-6 hidden flex-1 lg:block">
+              <HeaderSearch variant="desktop" onNavigate={closeMenu} />
+            </div>
+          )}
 
           {/* Actions */}
           <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-            {/* Mobile search icon â€” grouped with the other actions on the right */}
-            <button
-              type="button"
-              onClick={() => setMobileSearchOpen(true)}
-              aria-label="Search"
-              className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5 lg:hidden"
-            >
-              <Search size={20} />
-            </button>
+            {/* Mobile search icon */}
+            {!isShopPage && (
+              <button
+                type="button"
+                onClick={() => setMobileSearchOpen(true)}
+                aria-label="Search"
+                className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-maroon-800 hover:bg-maroon-800/5 lg:hidden"
+              >
+                <Search size={20} />
+              </button>
+            )}
 
             <a
               href={`tel:${config.contact.phone.replace(/\s/g, "")}`}

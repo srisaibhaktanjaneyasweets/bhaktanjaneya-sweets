@@ -19,13 +19,15 @@ export function generateThermalReceiptHtml(order: Order): string {
   const addr = order.shippingAddress;
   const addressStr = addr
     ? [
-        addr.line1,
-        addr.line2,
-        `${addr.city}, ${addr.state} ${addr.pincode}`,
+        `STREET: ${addr.line1}`,
+        addr.line2 ? `AREA  : ${addr.line2}` : null,
+        `CITY  : ${addr.city}`,
+        `STATE : ${addr.state} - ${addr.pincode}`,
       ]
         .filter(Boolean)
         .join("<br/>")
-    : "No address provided";
+        .toUpperCase()
+    : "NO ADDRESS PROVIDED";
 
   const itemsRows = order.items
     .map(
@@ -181,8 +183,16 @@ export function generateFullInvoiceHtml(order: Order): string {
 
   const addr = order.shippingAddress;
   const addressStr = addr
-    ? [addr.line1, addr.line2, `${addr.city}, ${addr.state} - ${addr.pincode}`, "India"].filter(Boolean).join("<br/>")
-    : "No shipping address specified";
+    ? [
+        `STREET: ${addr.line1}`,
+        addr.line2 ? `AREA  : ${addr.line2}` : null,
+        `CITY  : ${addr.city}`,
+        `STATE : ${addr.state} - ${addr.pincode}`,
+      ]
+        .filter(Boolean)
+        .join("<br/>")
+        .toUpperCase()
+    : "NO ADDRESS PROVIDED";
 
   const itemsTable = order.items
     .map(
@@ -367,9 +377,14 @@ export function generatePlainTextReceipt(order: Order, clean = false): string {
 
   const addr = order.shippingAddress;
   const addressStr = addr
-    ? [addr.line1, addr.line2, `${addr.city}, ${addr.state} ${addr.pincode}`]
+    ? [
+        `STREET: ${addr.line1}`,
+        addr.line2 ? `AREA  : ${addr.line2}` : null,
+        `CITY  : ${addr.city}`,
+        `STATE : ${addr.state} - ${addr.pincode}`,
+      ]
         .filter(Boolean)
-        .join(", ")
+        .join("\n")
         .toUpperCase()
     : "NO ADDRESS PROVIDED";
 

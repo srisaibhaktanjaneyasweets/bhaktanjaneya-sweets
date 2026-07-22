@@ -105,16 +105,22 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
     .join("\n");
 
   const addr = order.shippingAddress;
-  const addressLines = [
-    order.customerName,
-    addr?.line1,
-    addr?.line2,
-    addr?.city,
-    addr?.state,
-    addr?.pincode,
-    "IN",
-    order.customerEmail,
-    order.customerPhone ? `+91${order.customerPhone.replace(/\D/g, "")}` : "",
+  const addressLines = addr
+    ? [
+        `STREET ADDRESS : ${addr.line1}`,
+        addr.line2 ? `AREA           : ${addr.line2}` : null,
+        `CITY           : ${addr.city}`,
+        `STATE          : ${addr.state}`,
+        `PINCODE        : ${addr.pincode}`,
+      ]
+        .filter(Boolean)
+        .join("\n")
+    : "NO ADDRESS PROVIDED";
+
+  const customerDetails = [
+    `NAME  : ${order.customerName || "GUEST"}`,
+    `PHONE : +91 ${order.customerPhone ? order.customerPhone.replace(/\D/g, "") : ""}`,
+    order.customerEmail ? `EMAIL : ${order.customerEmail}` : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -154,9 +160,15 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
     "",
     divider,
     "",
-    "📋 Billing address:",
+    "📋 CUSTOMER DETAILS:",
     "",
-    addressLines || "No address provided",
+    customerDetails,
+    "",
+    divider,
+    "",
+    "📋 DELIVERY ADDRESS:",
+    "",
+    addressLines,
   ];
 
   return parts.join("\n");
