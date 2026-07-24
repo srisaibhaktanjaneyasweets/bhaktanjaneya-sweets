@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { getCategoryImage } from "@/lib/images";
+import { cn } from "@/lib/utils";
 
 import type { Category } from "@/lib/types";
 
@@ -85,22 +88,28 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
           <Link
             key={category.id}
             href={`/shop?category=${encodeURIComponent(category.slug)}`}
-            className="group flex w-[80px] shrink-0 snap-start flex-col items-center sm:w-[100px]"
+            className="group flex w-20 shrink-0 snap-start flex-col items-center sm:w-24"
           >
             <div
-              className="rounded-full p-[2px] shadow-sm transition duration-200 group-hover:scale-[1.04] group-hover:shadow-card"
+              className="h-20 w-20 rounded-full p-[2px] shadow-sm transition duration-200 group-hover:scale-[1.04] group-hover:shadow-card sm:h-24 sm:w-24"
               style={{ backgroundColor: categoryPalette(category.slug).ring }}
             >
               <div
-                className="relative flex h-[80px] w-[80px] items-center justify-center overflow-hidden rounded-full border-2 border-white px-2 text-center font-serif text-xs font-semibold leading-tight shadow-inner sm:h-[100px] sm:w-[100px] sm:px-3 sm:text-sm"
+                className="relative h-full w-full overflow-hidden rounded-full border-2 border-white shadow-inner"
                 style={{
                   background: categoryPalette(category.slug).background,
-                  color: categoryPalette(category.slug).text,
                 }}
               >
-                <span className="relative z-10 line-clamp-3">{category.name}</span>
-                <span className="absolute -left-4 top-5 h-10 w-10 rounded-full bg-white/20" />
-                <span className="absolute -right-3 bottom-3 h-7 w-7 rounded-full bg-white/15" />
+                <Image
+                  src={getCategoryImage(category)}
+                  alt={category.name}
+                  width={96}
+                  height={96}
+                  className={cn(
+                    "absolute inset-0 h-full w-full transition-transform duration-300 group-hover:scale-105",
+                    getCategoryImage(category).endsWith(".svg") ? "object-contain p-4" : "object-cover"
+                  )}
+                />
               </div>
             </div>
             <span className="mt-3 line-clamp-2 h-[2.2rem] text-center text-xs font-bold leading-snug tracking-tight text-maroon-950 transition-colors group-hover:text-maroon-700 sm:text-[13px]">

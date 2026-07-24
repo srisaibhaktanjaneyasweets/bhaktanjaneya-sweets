@@ -199,7 +199,13 @@ export default function CartPage() {
 
   const discount = useMemo(() => discountFor(offer, subtotal), [offer, subtotal]);
   const shipping = useMemo(
-    () => calculateShippingFee(subtotal, shippingSettings, offer?.type === "free_shipping"),
+    () =>
+      calculateShippingFee(
+        subtotal,
+        shippingSettings,
+        offer?.type === "free_shipping" &&
+          (!offer.minSubtotal || subtotal >= offer.minSubtotal),
+      ),
     [subtotal, shippingSettings, offer],
   );
   const minOrderCheck = useMemo(
@@ -207,6 +213,18 @@ export default function CartPage() {
     [subtotal, shippingSettings],
   );
   const total = Math.max(0, subtotal - discount + shipping);
+
+  useEffect(() => {
+    if (offer && offer.minSubtotal && subtotal < offer.minSubtotal) {
+      /* eslint-disable-next-line react-hooks/set-state-in-effect */
+      setOffer(null);
+      toast({
+        tone: "warning",
+        title: "Coupon removed",
+        message: `Promo code ${offer.code} was removed because your subtotal dropped below ${formatINR(offer.minSubtotal)}.`,
+      });
+    }
+  }, [subtotal, offer]);
 
   function applyCode() {
     setCodeError("");
