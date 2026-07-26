@@ -12,8 +12,7 @@ import { recommendForProduct } from "@/lib/recommend";
 
 import { config } from "@/lib/config";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 10;
 
 export async function generateStaticParams() {
   const products = await getProducts();

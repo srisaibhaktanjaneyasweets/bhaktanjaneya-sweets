@@ -12,11 +12,10 @@ import { getLiveGoogleReviews } from "@/lib/google-reviews";
 import { getManagedInstagramReels } from "@/lib/managed-instagram-reels";
 import { config } from "@/lib/config";
 import { Analytics } from "@vercel/analytics/next"
+import { getOfferBannerSettingsServer } from "@/lib/api/offer-banner";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
-
-export const revalidate = 0;
+export const revalidate = 10;
 
 export const metadata: Metadata = {
   title: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
@@ -32,11 +31,12 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [products, featuredTags, liveReviewsData, reels] = await Promise.all([
+  const [products, featuredTags, liveReviewsData, reels, offerBannerSettings] = await Promise.all([
     getProducts(),
     getFeaturedTags(),
     getLiveGoogleReviews(),
     getManagedInstagramReels(),
+    getOfferBannerSettingsServer(),
   ]);
 
   // Build a carousel for each admin-featured tag, keeping only those that
@@ -94,7 +94,7 @@ export default async function HomePage() {
                 />
               )}
               {/* Slot the offer banner in after the sweets rail. */}
-              <OfferBanner />
+              <OfferBanner settings={offerBannerSettings} />
             </div>
           );
         }

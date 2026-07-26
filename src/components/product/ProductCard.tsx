@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { ShoppingBag, MessageCircle, Check } from "lucide-react";
+import { ShoppingBag, Check } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/context/CartContext";
 import {
@@ -14,7 +14,6 @@ import {
   prettifyTag,
 } from "@/lib/product";
 import { getProductImage } from "@/lib/images";
-import { waLink, productEnquiryMessage } from "@/lib/whatsapp";
 import { formatINR, cn } from "@/lib/utils";
 
 export function ProductCard({
@@ -148,22 +147,6 @@ export function ProductCard({
               </>
             )}
           </button>
-
-          <a
-            href={waLink(
-              productEnquiryMessage(
-                product.name,
-                variantLabel(activeVariant),
-                activeVariant.price,
-              ),
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Order ${product.name} on WhatsApp`}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#35B664] text-white shadow-soft transition-colors hover:bg-[#2E9E57]"
-          >
-            <MessageCircle size={17} />
-          </a>
         </div>
       </div>
     </div>
