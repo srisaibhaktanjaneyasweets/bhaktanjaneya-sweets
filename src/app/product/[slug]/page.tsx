@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, Truck, Sparkles, MessageCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { Rating } from "@/components/ui/Rating";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { ProductCarousel } from "@/components/product/ProductCarousel";
@@ -12,6 +11,9 @@ import { priceRange } from "@/lib/product";
 import { recommendForProduct } from "@/lib/recommend";
 
 import { config } from "@/lib/config";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -80,11 +82,6 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
       description: product.description,
       image: product.images,
       category: product.categoryLabel ?? product.category,
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: product.rating,
-        reviewCount: product.reviewCount,
-      },
       offers: {
         "@type": "AggregateOffer",
         priceCurrency: "INR",
@@ -139,9 +136,6 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
             <h1 className="mt-1 font-serif text-3xl font-bold text-maroon-900 sm:text-4xl">
               {product.name}
             </h1>
-            <div className="mt-3">
-              <Rating value={product.rating} count={product.reviewCount} />
-            </div>
             <p className="mt-4 leading-relaxed text-ink-700">
               {product.description}
             </p>

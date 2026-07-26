@@ -7,6 +7,9 @@ import { getCategories } from "@/lib/api/categories";
 import { getTags } from "@/lib/api/tags";
 import { sortProducts, prettifyTag } from "@/lib/product";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Shop All Sweets & Namkeen",
   description:

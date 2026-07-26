@@ -92,14 +92,11 @@ export function sortProducts(items: Product[], sort: string): Product[] {
       return arr.sort((a, b) => availability(a) - availability(b) || priceRange(a).min - priceRange(b).min || byName(a, b));
     case "price-desc":
       return arr.sort((a, b) => availability(a) - availability(b) || priceRange(b).min - priceRange(a).min || byName(a, b));
-    case "rating":
-      return arr.sort((a, b) => availability(a) - availability(b) || b.rating - a.rating || byName(a, b));
     default:
       return arr.sort(
         (a, b) =>
           availability(a) - availability(b) ||
           featuredScore(b) - featuredScore(a) ||
-          b.rating - a.rating ||
           byName(a, b),
       );
   }

@@ -25,7 +25,7 @@ function blankProduct(category: string): Draft {
     images: [""],
     variants: [{ id: uid("var"), label: "", price: 0, stock: 0 }],
     tags: [],
-    rating: 4.7,
+    rating: 0,
     reviewCount: 0,
     active: true,
     badges: [],
@@ -48,7 +48,6 @@ function suggestedVariants(base: Variant) {
         : `${quantity} pcs`;
       return {
         id: uid("var"), label, price: Math.round(base.price * factor), stock: base.stock,
-        ...(base.mrp ? { mrp: Math.round(base.mrp * factor) } : {}),
         ...(base.pieces ? { pieces: Math.max(1, Math.round(base.pieces * factor)) } : {}),
       };
     })
@@ -151,8 +150,8 @@ export function ProductEditor({
       categoryLabel: primary?.name,
       images: images.length ? images : [defaultProductImage(primarySlug)],
       variants,
-      rating: Number(draft.rating) || 0,
-      reviewCount: Number(draft.reviewCount) || 0,
+      rating: 0,
+      reviewCount: 0,
       badges: (draft.badges ?? []).map((b) => b.trim()).filter(Boolean),
     });
   }
@@ -272,8 +271,8 @@ export function ProductEditor({
                 className="rounded-xl border border-cream-200 p-3 sm:flex sm:flex-wrap sm:items-center sm:gap-2 sm:border-0 sm:p-0"
               >
                 <label className="mb-2 block sm:mb-0 sm:min-w-0 sm:flex-1 sm:basis-32">
-                  <span className="mb-1 block text-[11px] font-medium text-ink-400 sm:hidden">
-                    Size / label
+                  <span className="mb-1 block text-xs font-semibold text-ink-600">
+                    Size / Label
                   </span>
                   <input
                     className={`${inputClass} w-full`}
@@ -285,8 +284,8 @@ export function ProductEditor({
 
                 <div className="grid grid-cols-2 gap-2 sm:contents">
                   <label className="block sm:basis-20">
-                    <span className="mb-1 block text-[11px] font-medium text-ink-400 sm:hidden">
-                      Pieces
+                    <span className="mb-1 block text-xs font-semibold text-ink-600">
+                      Pieces (Optional)
                     </span>
                     <input
                       className={`${inputClass} w-full`}
@@ -304,7 +303,7 @@ export function ProductEditor({
                     />
                   </label>
                   <label className="block sm:basis-24">
-                    <span className="mb-1 block text-[11px] font-medium text-ink-400 sm:hidden">
+                    <span className="mb-1 block text-xs font-semibold text-ink-600">
                       Price (₹)
                     </span>
                     <input
@@ -318,26 +317,9 @@ export function ProductEditor({
                       placeholder="₹ price"
                     />
                   </label>
-                  <label className="block sm:basis-24">
-                    <span className="mb-1 block text-[11px] font-medium text-ink-400 sm:hidden">
-                      MRP (₹)
-                    </span>
-                    <input
-                      className={`${inputClass} w-full`}
-                      type="number"
-                      min={0}
-                      value={v.mrp ?? ""}
-                      onChange={(e) =>
-                        setVariant(i, {
-                          mrp: e.target.value ? Number(e.target.value) : undefined,
-                        })
-                      }
-                      placeholder="MRP"
-                    />
-                  </label>
                   <label className="block sm:basis-20">
-                    <span className="mb-1 block text-[11px] font-medium text-ink-400 sm:hidden">
-                      Stock
+                    <span className="mb-1 block text-xs font-semibold text-ink-600">
+                      Stock Qty
                     </span>
                     <input
                       className={`${inputClass} w-full`}
@@ -455,28 +437,6 @@ export function ProductEditor({
           </Field>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Rating (0–5)">
-            <input
-              className={inputClass}
-              type="number"
-              min={0}
-              max={5}
-              step={0.1}
-              value={draft.rating}
-              onChange={(e) => set("rating", Number(e.target.value))}
-            />
-          </Field>
-          <Field label="Review count">
-            <input
-              className={inputClass}
-              type="number"
-              min={0}
-              value={draft.reviewCount}
-              onChange={(e) => set("reviewCount", Number(e.target.value))}
-            />
-          </Field>
-        </div>
 
         {error && <p className="text-sm text-maroon-700">{error}</p>}
       </div>

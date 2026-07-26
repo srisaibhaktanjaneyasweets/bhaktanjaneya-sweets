@@ -14,10 +14,9 @@ import { config } from "@/lib/config";
 import { Analytics } from "@vercel/analytics/next"
 import type { Metadata } from "next";
 
-// ISR: serve a cached home page and rebuild it at most once a minute. Repeat
-// visits are instant instead of re-running every Supabase query + third-party
-// call on each request. Admin catalog edits appear within ~60s.
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,

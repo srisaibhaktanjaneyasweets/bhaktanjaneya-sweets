@@ -13,7 +13,8 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const { add, setOpen } = useCart();
   const variants = Array.isArray(product.variants) ? product.variants : [];
   const sorted = [...variants].sort((a, b) => a.price - b.price);
-  const [variantId, setVariantId] = useState(sorted[0]?.id ?? "");
+  const firstInStock = sorted.find((v) => v.stock > 0) || sorted[0];
+  const [variantId, setVariantId] = useState(firstInStock?.id ?? "");
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);

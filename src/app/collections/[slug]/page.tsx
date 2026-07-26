@@ -11,6 +11,9 @@ import { sortProducts } from "@/lib/product";
 
 import { config } from "@/lib/config";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function generateStaticParams() {
   const cats = await getCategories();
   return cats.map((c) => ({ slug: c.slug }));

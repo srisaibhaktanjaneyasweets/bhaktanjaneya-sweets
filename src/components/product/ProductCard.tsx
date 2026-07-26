@@ -5,12 +5,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { ShoppingBag, MessageCircle, Check } from "lucide-react";
 import type { Product } from "@/lib/types";
-import { Rating } from "@/components/ui/Rating";
 import { useCart } from "@/context/CartContext";
 import {
   defaultVariant,
   inStock,
-  bestDiscountPct,
   toCartItem,
   variantLabel,
   prettifyTag,
@@ -28,8 +26,9 @@ export function ProductCard({
 }) {
   const { add } = useCart();
   const [added, setAdded] = useState(false);
+  const firstInStockVariant = product.variants.find((v) => v.stock > 0) || product.variants[0];
   const [selectedVariantId, setSelectedVariantId] = useState(
-    product.variants[0]?.id || ""
+    firstInStockVariant?.id || ""
   );
 
   const activeVariant =
@@ -37,7 +36,6 @@ export function ProductCard({
     defaultVariant(product);
 
   const available = inStock(product);
-  const discount = bestDiscountPct(product);
   const featureTag = (product.tags ?? [])[0];
   const href = `/product/${product.slug}`;
 
@@ -63,18 +61,13 @@ export function ProductCard({
           className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
         />
 
-        <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col gap-1">
-          {discount > 0 && (
-            <span className="rounded-md bg-maroon-800 px-2 py-0.5 text-[11px] font-bold text-cream-50 shadow-sm">
-              {discount}% OFF
-            </span>
-          )}
-          {featureTag && (
+        {featureTag && (
+          <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col gap-1">
             <span className="rounded-md bg-gold-500 px-2 py-0.5 text-[11px] font-semibold text-maroon-900 shadow-sm">
               {prettifyTag(featureTag)}
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         {!available && (
           <div className="absolute inset-0 flex items-center justify-center bg-cream-50/70">
@@ -95,27 +88,15 @@ export function ProductCard({
           </Link>
         </h3>
 
-        <div className="mt-1">
-          <Rating value={product.rating} count={product.reviewCount} />
-        </div>
-
         <div className="mt-1 flex flex-wrap items-baseline gap-x-2">
           <span className="text-[15px] font-semibold text-maroon-900 sm:text-base">
             {formatINR(activeVariant.price)}
           </span>
-          {activeVariant.mrp && activeVariant.mrp > activeVariant.price && (
-            <span className="text-xs text-ink-400 line-through">
-              {formatINR(activeVariant.mrp)}
-            </span>
-          )}
         </div>
 
-        {/* Weight variants (real weights from product data). The row always
-            reserves its height — even for single-variant products — so cards
-            never render shorter than their neighbours. */}
-        <div className="mt-2 flex min-h-[1.625rem] flex-wrap gap-1">
+        <div className="no-scrollbar mt-2 flex min-h-[1.625rem] flex-nowrap gap-1 overflow-x-auto pb-0.5">
           {product.variants.length === 1 && (
-            <span className="rounded-full border border-cream-300 bg-cream-50 px-2.5 py-0.5 text-[11px] font-medium text-ink-600">
+            <span className="rounded-full border border-cream-300 bg-cream-50 px-2.5 py-0.5 text-[11px] font-medium text-ink-600 shrink-0">
               {variantLabel(activeVariant)}
             </span>
           )}
@@ -126,10 +107,14 @@ export function ProductCard({
                 type="button"
                 onClick={() => setSelectedVariantId(v.id)}
                 className={cn(
-                  "rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition-colors cursor-pointer",
+                  "rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition-colors cursor-pointer shrink-0",
                   v.id === selectedVariantId
-                    ? "border-maroon-800 bg-maroon-800 text-cream-50"
-                    : "border-cream-300 bg-white text-ink-600 hover:border-maroon-800/40 hover:text-maroon-900"
+                    ? (v.stock <= 0
+                        ? "border-ink-400 bg-ink-400 text-cream-200 line-through"
+                        : "border-maroon-800 bg-maroon-800 text-cream-50")
+                    : (v.stock <= 0
+                        ? "border-cream-200 bg-cream-50/40 text-ink-300 line-through hover:border-ink-300"
+                        : "border-cream-300 bg-white text-ink-600 hover:border-maroon-800/40 hover:text-maroon-900")
                 )}
               >
                 {variantLabel(v)}
@@ -141,18 +126,22 @@ export function ProductCard({
           <button
             type="button"
             onClick={quickAdd}
-            disabled={!available}
+            disabled={activeVariant.stock <= 0}
             className={cn(
               "inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold whitespace-nowrap shadow-soft transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer",
               added
                 ? "bg-leaf-600 text-white"
-                : "bg-maroon-800 text-cream-50 hover:bg-maroon-700",
+                : activeVariant.stock <= 0
+                  ? "bg-ink-100 text-ink-400 border border-cream-200"
+                  : "bg-maroon-800 text-cream-50 hover:bg-maroon-700",
             )}
           >
             {added ? (
               <>
                 <Check size={15} /> Added
               </>
+            ) : activeVariant.stock <= 0 ? (
+              "Out of stock"
             ) : (
               <>
                 <ShoppingBag size={15} /> Add to cart
