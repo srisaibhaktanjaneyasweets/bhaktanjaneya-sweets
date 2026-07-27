@@ -587,10 +587,17 @@ export default function AccountPage() {
                         Payment: {o.paymentStatus}
                       </span>
                       <div className="flex items-center gap-3">
-                        {o.paymentStatus === "pending" && o.status !== "cancelled" ? (
+                        <Link
+                          href={`/order/${o.id}`}
+                          className="text-xs font-semibold uppercase tracking-wider text-maroon-800 hover:text-maroon-900 bg-maroon-50 border border-maroon-200 px-3 py-1.5 rounded-full hover:bg-maroon-100 transition-colors"
+                        >
+                          Track Status
+                        </Link>
+
+                        {o.paymentStatus === "pending" && o.status !== "cancelled" && o.paymentMethod !== "cod" ? (
                           <Link
                             href={`/pay/${o.id}`}
-                            className="text-xs font-semibold uppercase tracking-wider text-emerald-600 hover:text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full hover:bg-emerald-100 transition-colors"
+                            className="text-xs font-semibold uppercase tracking-wider text-emerald-600 hover:text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full hover:bg-emerald-100 transition-colors"
                           >
                             Pay Online
                           </Link>

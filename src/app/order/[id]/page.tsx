@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Search, MessageCircle, CheckCircle2, ShoppingBag, Home } from "lucide-react";
+import { Search, MessageCircle, CheckCircle2, ShoppingBag, Home, CreditCard, ArrowRight, Truck } from "lucide-react";
 
 import { EmptyState, inputClass } from "@/components/admin/ui";
 import { Alert } from "@/components/ui/Alert";
@@ -11,7 +11,6 @@ import { formatINR, formatDate } from "@/lib/utils";
 import type { Order, OrderStatus, PaymentStatus } from "@/lib/types";
 import { apiGet } from "@/lib/api/client";
 import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
-
 
 type PublicOrderLookupResponse = {
   id: string;
@@ -43,6 +42,16 @@ const STATUS_DESCRIPTION: Record<OrderStatus, string> = {
   shipped: "Your package is on its way to you!",
   delivered: "Your sweets have been delivered. Enjoy!",
   cancelled: "This order has been cancelled.",
+};
+
+const STEPS: OrderStatus[] = ["new", "confirmed", "packed", "shipped", "delivered"];
+const STEP_LABELS: Record<OrderStatus, string> = {
+  new: "Placed",
+  confirmed: "Confirmed",
+  packed: "Packed",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
 export default function PublicOrderLookupPage() {
@@ -152,19 +161,19 @@ export default function PublicOrderLookupPage() {
       {/* 5. ORDER DETAILS */}
       {!loading && order && (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
-          <div className="rounded-2xl border border-cream-150 bg-white p-5 shadow-soft">
+          <div className="rounded-2xl border border-cream-200 bg-white p-6 shadow-soft">
             {/* Header info row */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-cream-100 pb-4">
               <div>
                 <p className="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Order ID</p>
                 <p className="font-mono text-base font-bold text-ink-800">
-                  {order.id.replace(/^ord_/, "").toUpperCase()}
+                  #{order.id.replace(/^ord_/, "").toUpperCase()}
                 </p>
               </div>
               <div className="flex items-center gap-2 self-start sm:self-center">
                 <Badge tone={PAYMENT_TONE[order.paymentStatus] ?? "muted"} className="px-3 py-1 text-xs">
                   {order.paymentMethod === "cod"
-                    ? "Cash on Delivery"
+                    ? "COD"
                     : order.paymentStatus === "paid"
                       ? "Paid Online"
                       : `Payment: ${order.paymentStatus}`}
@@ -180,47 +189,135 @@ export default function PublicOrderLookupPage() {
               )}
             </div>
 
-            {/* Status Summary */}
-            <div className="mt-4 rounded-xl bg-maroon-50/40 border border-maroon-100/40 p-3.5">
-              <div className="flex items-baseline gap-2">
-                <span className="text-xs text-ink-400 font-medium">Order Status:</span>
-                <span className="text-sm font-bold capitalize text-maroon-900">{order.status}</span>
+            {/* Order Progress Tracker */}
+            {order.status !== "cancelled" && (
+              <div className="mt-6 border-t border-cream-100 pt-6">
+                <p className="text-xs font-bold text-ink-400 uppercase tracking-wider mb-4">Order Progress</p>
+                <div className="relative flex items-center justify-between px-2 pb-2">
+                  {/* Background Line */}
+                  <div className="absolute left-6 right-6 top-[14px] h-[3px] -translate-y-1/2 bg-cream-100 rounded-full" />
+                  {/* Active Fill Line */}
+                  <div
+                    className="absolute left-6 top-[14px] h-[3px] -translate-y-1/2 bg-leaf-500 rounded-full transition-all duration-500"
+                    style={{
+                      width: `${(STEPS.indexOf(order.status) / (STEPS.length - 1)) * 88}%`,
+                    }}
+                  />
+                  {/* Step Dots */}
+                  {STEPS.map((step, idx) => {
+                    const activeIndex = STEPS.indexOf(order.status);
+                    const isCompleted = idx <= activeIndex;
+                    const isCurrent = idx === activeIndex;
+                    return (
+                      <div key={step} className="relative z-10 flex flex-col items-center">
+                        <span
+                          className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all duration-300 ${
+                            isCompleted
+                              ? "bg-leaf-500 text-white ring-4 ring-leaf-100"
+                              : "bg-cream-100 text-ink-400 ring-4 ring-white"
+                          }`}
+                        >
+                          {idx + 1}
+                        </span>
+                        <span
+                          className={`mt-2 text-[9px] font-bold tracking-wider uppercase whitespace-nowrap ${
+                            isCurrent ? "text-maroon-800" : isCompleted ? "text-leaf-600" : "text-ink-400"
+                          }`}
+                        >
+                          {STEP_LABELS[step]}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <p className="mt-1 text-xs text-ink-600">
-                {STATUS_DESCRIPTION[order.status] || "We'll notify you as soon as your order updates."}
-              </p>
+            )}
+
+            {/* Pay Online Callout for pending payments */}
+            {order.paymentStatus === "pending" && order.status !== "cancelled" && order.paymentMethod !== "cod" && (
+              <div className="mt-6 rounded-2xl bg-amber-50/70 border border-amber-200 p-5 text-center space-y-3">
+                <div className="mx-auto h-11 w-11 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+                  <CreditCard size={20} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-amber-800 text-sm">Payment Action Required</h3>
+                  <p className="text-xs text-amber-750 max-w-xs mx-auto leading-relaxed">
+                    Complete your payment online securely to confirm your order and start preparation.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/pay/${order.id}`)}
+                  className="w-full flex h-11 items-center justify-center gap-2 rounded-full bg-emerald-600 text-sm font-bold text-white shadow-md hover:bg-emerald-700 transition-all cursor-pointer active:scale-[0.98]"
+                >
+                  Pay {formatINR(order.total)} Online <ArrowRight size={15} />
+                </button>
+              </div>
+            )}
+
+            {/* Status Summary */}
+            <div className="mt-6 border-t border-cream-100 pt-5">
+              <div className="rounded-xl bg-maroon-50/40 border border-maroon-100/40 p-3.5">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xs text-ink-400 font-medium">Status details:</span>
+                  <span className="text-xs font-bold capitalize text-maroon-900">{order.status}</span>
+                </div>
+                <p className="mt-1 text-xs text-ink-600">
+                  {STATUS_DESCRIPTION[order.status] || "We'll notify you as soon as your order updates."}
+                </p>
+              </div>
             </div>
 
             {/* Delivery Tracking */}
-            {order.deliveryCompany || order.deliveryTrackingId ? (
-              <div className="mt-4 rounded-xl bg-cream-50/50 border border-cream-200/50 p-3.5">
-                <p className="text-xs font-bold text-maroon-900 uppercase tracking-wider">Shipment Details</p>
-                <p className="mt-1.5 text-sm text-ink-700">
-                  <span className="font-medium">{order.deliveryCompany ? order.deliveryCompany : "Courier Partner"}</span>
-                  {order.deliveryTrackingId ? (
-                    <>
-                      <br />
-                      <span className="text-xs text-ink-500">Tracking Number: </span>
-                      <span className="font-mono font-semibold text-ink-800">{order.deliveryTrackingId}</span>
-                    </>
-                  ) : null}
-                </p>
+            {(order.deliveryCompany || order.deliveryTrackingId) && (
+              <div className="mt-5 border-t border-cream-100 pt-5">
+                <div className="rounded-xl bg-cream-50/50 border border-cream-200/50 p-3.5">
+                  <p className="text-xs font-bold text-maroon-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <Truck size={14} /> Shipment Details
+                  </p>
+                  <p className="mt-1.5 text-xs text-ink-755 leading-relaxed">
+                    <span className="font-semibold text-ink-800">{order.deliveryCompany ? order.deliveryCompany : "Courier Partner"}</span>
+                    {order.deliveryTrackingId ? (
+                      <>
+                        <br />
+                        <span className="text-[10px] text-ink-400 uppercase font-bold">Tracking ID: </span>
+                        <span className="font-mono font-bold text-ink-800 bg-white border border-cream-200 px-1.5 py-0.5 rounded text-[11px]">{order.deliveryTrackingId}</span>
+                      </>
+                    ) : null}
+                  </p>
+                </div>
               </div>
-            ) : null}
+            )}
+
+            {/* Delivery Address */}
+            {order.shippingAddress && (
+              <div className="mt-6 border-t border-cream-100 pt-5">
+                <p className="text-xs font-bold text-ink-400 uppercase tracking-wider mb-2.5">Delivery Address</p>
+                <div className="rounded-xl border border-cream-100 bg-cream-50/10 p-3.5 text-xs text-ink-700 space-y-0.5">
+                  <p className="font-bold text-ink-800">{order.customerName}</p>
+                  <p>{order.shippingAddress.line1}</p>
+                  {order.shippingAddress.line2 && <p>{order.shippingAddress.line2}</p>}
+                  <p>
+                    {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                  </p>
+                  {order.customerPhone && <p className="text-ink-400 mt-1.5 font-medium">Phone: +91 {order.customerPhone}</p>}
+                </div>
+              </div>
+            )}
 
             {/* Items Ordered */}
-            <div className="mt-6">
+            <div className="mt-6 border-t border-cream-100 pt-5">
               <p className="text-xs font-bold text-ink-400 uppercase tracking-wider mb-2.5">Items Ordered</p>
               <ul className="divide-y divide-cream-100 rounded-xl border border-cream-100 overflow-hidden bg-cream-50/10">
                 {order.items.map((it, idx) => (
-                  <li key={idx} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+                  <li key={idx} className="flex items-center justify-between gap-4 px-4 py-3 text-xs">
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-ink-800 truncate">{it.name}</p>
-                      <p className="text-xs text-ink-400 mt-0.5">
+                      <p className="font-semibold text-ink-800 truncate">{it.name}</p>
+                      <p className="text-[10px] text-ink-400 mt-0.5">
                         Size: {it.variantLabel} <span className="mx-1.5">·</span> Qty: {it.quantity}
                       </p>
                     </div>
-                    <span className="font-semibold text-maroon-900 shrink-0">
+                    <span className="font-bold text-maroon-900 shrink-0">
                       {formatINR(it.price * it.quantity)}
                     </span>
                   </li>
@@ -228,10 +325,20 @@ export default function PublicOrderLookupPage() {
               </ul>
             </div>
 
-            {/* Subtotal / Total */}
-            <div className="mt-5 flex items-center justify-between border-t border-cream-100 pt-4 text-base font-bold text-maroon-900">
-              <span>Total Amount</span>
-              <span className="text-lg">{formatINR(order.total)}</span>
+            {/* Price Summary Breakdown */}
+            <div className="mt-6 border-t border-cream-100 pt-5 space-y-1.5 text-xs text-ink-650">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>{formatINR(order.total)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Delivery</span>
+                <span className="text-leaf-600 font-bold">FREE</span>
+              </div>
+              <div className="flex justify-between border-t border-cream-100 pt-3.5 text-sm font-bold text-maroon-900">
+                <span>Total Amount</span>
+                <span className="text-base">{formatINR(order.total)}</span>
+              </div>
             </div>
           </div>
 

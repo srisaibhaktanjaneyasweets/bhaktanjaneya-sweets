@@ -222,7 +222,23 @@ export default function FindMyOrderPage() {
 
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-cream-200 pt-3 text-sm">
                       <span className="text-ink-500">Payment: {o.paymentStatus}</span>
-                      <span className="font-bold text-maroon-900">{formatINR(o.total)}</span>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/order/${o.id}`}
+                          className="text-xs font-semibold uppercase tracking-wider text-maroon-800 hover:text-maroon-900 bg-maroon-50 border border-maroon-200 px-3 py-1.5 rounded-full hover:bg-maroon-100 transition-colors"
+                        >
+                          Track Status
+                        </Link>
+                        {o.paymentStatus === "pending" && o.status !== "cancelled" && o.paymentMethod !== "cod" ? (
+                          <Link
+                            href={`/pay/${o.id}`}
+                            className="text-xs font-semibold uppercase tracking-wider text-emerald-600 hover:text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full hover:bg-emerald-100 transition-colors"
+                          >
+                            Pay Online
+                          </Link>
+                        ) : null}
+                        <span className="font-bold text-maroon-900 ml-2">{formatINR(o.total)}</span>
+                      </div>
                     </div>
                   </li>
                 ))}
@@ -323,9 +339,24 @@ export default function FindMyOrderPage() {
                       </ul>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-cream-200 pt-3 text-base font-bold text-maroon-900">
-                      <span>Total Amount</span>
-                      <span>{formatINR(order.total)}</span>
+                    <div className="flex flex-wrap items-center justify-between border-t border-cream-200 pt-3 text-sm gap-2">
+                      <span className="text-base font-bold text-maroon-900">{formatINR(order.total)}</span>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/order/${order.id}`}
+                          className="text-xs font-semibold uppercase tracking-wider text-maroon-800 hover:text-maroon-900 bg-maroon-50 border border-maroon-200 px-3 py-1.5 rounded-full hover:bg-maroon-100 transition-colors"
+                        >
+                          Track Status
+                        </Link>
+                        {order.paymentStatus === "pending" && order.status !== "cancelled" && order.paymentMethod !== "cod" && (
+                          <Link
+                            href={`/pay/${order.id}`}
+                            className="text-xs font-semibold uppercase tracking-wider text-emerald-600 hover:text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full hover:bg-emerald-100 transition-colors"
+                          >
+                            Pay Online
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}

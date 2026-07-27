@@ -32,6 +32,17 @@ export const metadata: Metadata = {
   // restyles them (different colour, underline), which makes the footer and
   // contact details look different on a real iPhone than in dev tools.
   formatDetection: { telephone: false, email: false, address: false },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/site.webmanifest",
   title: {
     default: `${config.businessName} — Pure Ghee Sweets & Traditional Namkeen`,
     template: `%s | ${config.businessName}`,
