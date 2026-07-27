@@ -8,13 +8,14 @@ import { formatINR } from "./utils";
 export function generateThermalReceiptHtml(order: Order): string {
   const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
   const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-  });
+  }) + " IST";
 
   const addr = order.shippingAddress;
   const addressStr = addr
@@ -174,12 +175,14 @@ export function generateThermalReceiptHtml(order: Order): string {
 export function generateFullInvoiceHtml(order: Order): string {
   const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
   const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
     month: "long",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  });
+    hour12: true,
+  }) + " IST";
 
   const addr = order.shippingAddress;
   const addressStr = addr
@@ -351,13 +354,14 @@ export function printFullInvoice(order: Order) {
 export function generatePlainTextReceipt(order: Order, clean = false): string {
   const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
   const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-  });
+  }) + " IST";
 
   const BOLD_ON = clean ? "" : "\x1B\x45\x01";
   const BOLD_OFF = clean ? "" : "\x1B\x45\x00";
@@ -369,7 +373,7 @@ export function generatePlainTextReceipt(order: Order, clean = false): string {
 
   const itemLines = order.items
     .map((it, idx) => {
-      const nameLine = `${BOLD_ON}${idx + 1}. ${it.name.toUpperCase()}${BOLD_OFF}`;
+      const nameLine = `${BOLD_ON}${idx + 1}. ${it.name.toUpperCase()} (${it.variantLabel.toUpperCase()})${BOLD_OFF}`;
       const qtyLine = `   [ QTY: ${it.quantity} ] x ₹${it.price} = ${BOLD_ON}₹${it.price * it.quantity}${BOLD_OFF}`;
       return `${nameLine}\n${qtyLine}`;
     })

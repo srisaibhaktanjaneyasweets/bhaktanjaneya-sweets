@@ -587,6 +587,15 @@ export default function AccountPage() {
                         Payment: {o.paymentStatus}
                       </span>
                       <div className="flex items-center gap-3">
+                        {o.paymentStatus === "pending" && o.status !== "cancelled" ? (
+                          <Link
+                            href={`/pay/${o.id}`}
+                            className="text-xs font-semibold uppercase tracking-wider text-emerald-600 hover:text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full hover:bg-emerald-100 transition-colors"
+                          >
+                            Pay Online
+                          </Link>
+                        ) : null}
+
                         {o.status === "new" ? (
                           <button
                             type="button"

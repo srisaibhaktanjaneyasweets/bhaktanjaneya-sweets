@@ -69,6 +69,7 @@ export async function POST(req: Request) {
     .from("orders")
     .update({
       payment_status: "paid",
+      payment_method: "razorpay",
       razorpay_order_id,
       razorpay_payment_id,
     })

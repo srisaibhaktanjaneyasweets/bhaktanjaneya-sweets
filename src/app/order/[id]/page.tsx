@@ -12,6 +12,7 @@ import type { Order, OrderStatus, PaymentStatus } from "@/lib/types";
 import { apiGet } from "@/lib/api/client";
 import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
 
+
 type PublicOrderLookupResponse = {
   id: string;
   status: OrderStatus;
@@ -22,6 +23,10 @@ type PublicOrderLookupResponse = {
   deliveryTrackingId?: string;
   total: number;
   items: Order["items"];
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  shippingAddress?: Order["shippingAddress"];
 };
 
 const PAYMENT_TONE: Record<string, "leaf" | "saffron" | "maroon" | "muted"> = {
@@ -70,6 +75,8 @@ export default function PublicOrderLookupPage() {
       setLoading(false);
     }
   }, [orderId]);
+
+
 
   // Auto-lookup if redirected with an ID in route
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -227,6 +234,8 @@ export default function PublicOrderLookupPage() {
               <span className="text-lg">{formatINR(order.total)}</span>
             </div>
           </div>
+
+
 
           {/* 6. WHATSAPP ACTION BUTTON */}
           <div className="space-y-3 pt-2">

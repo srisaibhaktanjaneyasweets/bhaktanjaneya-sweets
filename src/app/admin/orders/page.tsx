@@ -18,6 +18,7 @@ import {
   Smartphone,
   Share2,
   Copy,
+  CreditCard,
 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import { EmptyState, Modal, inputClass, AdminButton } from "@/components/admin/ui";
@@ -25,8 +26,8 @@ import { Alert } from "@/components/ui/Alert";
 import { Badge } from "@/components/ui/Badge";
 import { toast } from "@/components/ui/toast";
 import { getErrorMessage } from "@/lib/api/errors";
-import { formatINR, formatDate } from "@/lib/utils";
-import { waLinkToPhone, buildAdminCustomerWhatsAppMessage } from "@/lib/whatsapp";
+import { formatINR } from "@/lib/utils";
+import { waLinkToPhone, buildAdminCustomerWhatsAppMessage, buildAdminCustomerPaymentLinkMessage } from "@/lib/whatsapp";
 import {
   printThermalReceipt,
   printFullInvoice,
@@ -51,6 +52,38 @@ const PAYMENT_TONE: Record<string, "leaf" | "saffron" | "maroon" | "muted"> = {
   failed: "maroon",
   cod: "muted",
   whatsapp: "saffron",
+};
+
+const formatOrderDateTime = (dateStr: string) => {
+  return new Date(dateStr).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }) + " IST";
+};
+
+const getStatusSelectClass = (status: OrderStatus) => {
+  const base = "h-8 rounded-full border pl-3 pr-7 text-xs font-bold capitalize focus:outline-none transition-all cursor-pointer shadow-xs appearance-none bg-[right_8px_center] bg-no-repeat bg-[length:12px] ";
+  switch (status) {
+    case "new":
+      return base + "bg-blue-50 text-blue-700 border-blue-200 focus:border-blue-500 hover:bg-blue-100/70 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%231d4ed8%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')]";
+    case "confirmed":
+      return base + "bg-indigo-50 text-indigo-700 border-indigo-200 focus:border-indigo-500 hover:bg-indigo-100/70 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%234338ca%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')]";
+    case "packed":
+      return base + "bg-purple-50 text-purple-700 border-purple-200 focus:border-purple-500 hover:bg-purple-100/70 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%237e22ce%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')]";
+    case "shipped":
+      return base + "bg-amber-50 text-amber-700 border-amber-200 focus:border-amber-500 hover:bg-amber-100/70 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23b45309%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')]";
+    case "delivered":
+      return base + "bg-emerald-50 text-emerald-700 border-emerald-200 focus:border-emerald-500 hover:bg-emerald-100/70 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23047857%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')]";
+    case "cancelled":
+      return base + "bg-rose-50 text-rose-700 border-rose-200 focus:border-rose-500 hover:bg-rose-100/70 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23be123c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')]";
+    default:
+      return base + "bg-white text-ink-800 border-cream-300 focus:border-maroon-800 hover:bg-cream-50 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23475569%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')]";
+  }
 };
 
 export default function AdminOrdersPage() {
@@ -150,6 +183,27 @@ export default function AdminOrdersPage() {
     }
   }
 
+  async function handleMarkPaid(order: Order) {
+    if (typeof window === "undefined" || !window.confirm("Are you sure you want to manually mark this order as paid?")) return;
+    try {
+      await updateOrder(order.id, { paymentStatus: "paid" });
+      toast({
+        tone: "success",
+        title: "Payment updated",
+        message: "Order marked as paid successfully.",
+      });
+      if (viewing && viewing.id === order.id) {
+        setViewing((prev) => prev ? { ...prev, paymentStatus: "paid" } : null);
+      }
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Update failed",
+        message: getErrorMessage(error, "Could not update payment status."),
+      });
+    }
+  }
+
   async function confirmShipped() {
     if (!shippingPrompt) return;
     const company = promptCompany.trim();
@@ -219,48 +273,56 @@ export default function AdminOrdersPage() {
 
       {/* KPI Overview Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-cream-200 bg-white p-5 shadow-soft">
+        {/* Total Revenue */}
+        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-leaf-600/5 blur-lg group-hover:scale-150 transition-all duration-500" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-400">Total Revenue</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-leaf-600/10 text-leaf-600">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">Total Revenue</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-leaf-600/10 text-leaf-600 group-hover:scale-110 transition-transform duration-300">
               <IndianRupee size={20} />
             </span>
           </div>
-          <p className="mt-3 font-serif text-2xl font-bold text-maroon-900">{formatINR(metrics.totalRevenue)}</p>
-          <p className="mt-1 text-xs text-ink-500">From paid &amp; delivered orders</p>
+          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{formatINR(metrics.totalRevenue)}</p>
+          <p className="mt-1 text-xs text-ink-500 font-medium">From paid &amp; delivered orders</p>
         </div>
 
-        <div className="rounded-2xl border border-cream-200 bg-white p-5 shadow-soft">
+        {/* Pending Orders */}
+        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-saffron-500/5 blur-lg group-hover:scale-150 transition-all duration-500" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-400">Pending Orders</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-saffron-500/10 text-saffron-600">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">Pending Orders</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-saffron-500/10 text-saffron-600 group-hover:scale-110 transition-transform duration-300">
               <Clock size={20} />
             </span>
           </div>
-          <p className="mt-3 font-serif text-2xl font-bold text-maroon-900">{metrics.pendingOrders}</p>
-          <p className="mt-1 text-xs text-ink-500">Require packing or confirmation</p>
+          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{metrics.pendingOrders}</p>
+          <p className="mt-1 text-xs text-ink-500 font-medium">Require packing or confirmation</p>
         </div>
 
-        <div className="rounded-2xl border border-cream-200 bg-white p-5 shadow-soft">
+        {/* In Transit */}
+        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-blue-500/5 blur-lg group-hover:scale-150 transition-all duration-500" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-400">In Transit</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">In Transit</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300">
               <Truck size={20} />
             </span>
           </div>
-          <p className="mt-3 font-serif text-2xl font-bold text-maroon-900">{metrics.shippedOrders}</p>
-          <p className="mt-1 text-xs text-ink-500">Currently out for delivery</p>
+          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{metrics.shippedOrders}</p>
+          <p className="mt-1 text-xs text-ink-500 font-medium">Currently out for delivery</p>
         </div>
 
-        <div className="rounded-2xl border border-cream-200 bg-white p-5 shadow-soft">
+        {/* Delivered */}
+        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-emerald-500/5 blur-lg group-hover:scale-150 transition-all duration-500" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-400">Delivered</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">Delivered</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:scale-110 transition-transform duration-300">
               <CheckCircle2 size={20} />
             </span>
           </div>
-          <p className="mt-3 font-serif text-2xl font-bold text-maroon-900">{metrics.deliveredOrders}</p>
-          <p className="mt-1 text-xs text-ink-500">Successfully completed</p>
+          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{metrics.deliveredOrders}</p>
+          <p className="mt-1 text-xs text-ink-500 font-medium">Successfully completed</p>
         </div>
       </div>
 
@@ -362,144 +424,266 @@ export default function AdminOrdersPage() {
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-cream-200 bg-white shadow-soft">
-          <div className="overflow-x-auto">
-            <table className="admin-table w-full text-sm">
-              <thead>
-                <tr className="border-b border-cream-200 bg-cream-50/70 text-left text-xs uppercase tracking-wide text-ink-500">
-                  <th className="px-4 py-3.5 font-bold">Order ID</th>
-                  <th className="px-4 py-3.5 font-bold">Customer</th>
-                  <th className="px-4 py-3.5 font-bold">Date</th>
-                  <th className="px-4 py-3.5 font-bold">Items</th>
-                  <th className="px-4 py-3.5 font-bold">Payment</th>
-                  <th className="px-4 py-3.5 font-bold">Total</th>
-                  <th className="px-4 py-3.5 font-bold">Status</th>
-                  <th className="px-4 py-3.5 text-center font-bold">Quick Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-cream-200">
-                {filtered.map((o) => {
-                  const shortId = o.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
-                  const firstItemName = o.items?.[0]?.name || "Item";
-                  const extraCount = (o.items?.length ?? 0) - 1;
-                  const itemSummary = extraCount > 0 ? `${firstItemName} + ${extraCount} more` : firstItemName;
-                  const customerInitial = (o.customerName || "C").charAt(0).toUpperCase();
+        <div className="space-y-4 animate-in fade-in duration-300">
+          {/* DESKTOP TABLE VIEW */}
+          <div className="hidden md:block overflow-hidden rounded-2xl border border-cream-200 bg-white shadow-soft">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm text-ink-700">
+                <thead className="border-b border-cream-200 bg-cream-50/70 text-left text-xs uppercase tracking-wide text-ink-500">
+                  <tr>
+                    <th className="px-4 py-3.5 font-bold">Order ID</th>
+                    <th className="px-4 py-3.5 font-bold">Customer</th>
+                    <th className="px-4 py-3.5 font-bold">Date</th>
+                    <th className="px-4 py-3.5 font-bold">Payment</th>
+                    <th className="px-4 py-3.5 font-bold">Total</th>
+                    <th className="px-4 py-3.5 font-bold">Status</th>
+                    <th className="px-4 py-3.5 text-center font-bold">Quick Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-cream-200 bg-white">
+                  {filtered.map((o) => {
+                    const shortId = o.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
+                    const customerInitial = (o.customerName || "C").charAt(0).toUpperCase();
 
-                  return (
-                    <tr key={o.id} className="hover:bg-cream-50/70 transition-colors">
-                      {/* Order ID */}
-                      <td className="px-4 py-3.5 font-mono text-xs font-semibold text-maroon-900">
-                        #{shortId}
-                      </td>
+                    return (
+                      <tr key={o.id} className="hover:bg-cream-50/70 transition-colors">
+                        {/* Order ID */}
+                        <td className="px-4 py-3.5 font-mono text-xs font-semibold text-maroon-900">
+                          #{shortId}
+                        </td>
 
-                      {/* Customer */}
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2.5">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-maroon-800/10 font-bold text-maroon-800 text-xs">
-                            {customerInitial}
-                          </span>
-                          <div>
-                            <p className="font-semibold text-maroon-900">{o.customerName || "Customer"}</p>
-                            <p className="text-xs text-ink-500">{o.customerPhone}</p>
+                        {/* Customer */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-2.5">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-maroon-800/10 font-bold text-maroon-800 text-xs">
+                              {customerInitial}
+                            </span>
+                            <div>
+                              <p className="font-semibold text-maroon-900">{o.customerName || "Customer"}</p>
+                              <p className="text-xs text-ink-500">{o.customerPhone}</p>
+                            </div>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Date */}
-                      <td className="px-4 py-3.5 text-xs text-ink-500 whitespace-nowrap">
-                        {formatDate(o.createdAt)}
-                      </td>
+                        {/* Date */}
+                        <td className="px-4 py-3.5 text-xs text-ink-500 whitespace-nowrap">
+                          {formatOrderDateTime(o.createdAt)}
+                        </td>
 
-                      {/* Items summary */}
-                      <td className="px-4 py-3.5 max-w-[200px]">
-                        <p className="truncate text-xs font-medium text-ink-700" title={itemSummary}>
-                          {itemSummary}
-                        </p>
-                      </td>
+                        {/* Payment */}
+                        <td className="px-4 py-3.5">
+                          <Badge tone={o.paymentMethod === "whatsapp" ? "saffron" : (PAYMENT_TONE[o.paymentStatus] ?? "muted")}>
+                            {o.paymentMethod === "cod"
+                              ? "COD"
+                              : o.paymentMethod === "whatsapp"
+                                ? "WhatsApp (Pending)"
+                                : o.paymentStatus === "paid"
+                                  ? "Paid online"
+                                  : o.paymentStatus}
+                          </Badge>
+                        </td>
 
-                      {/* Payment */}
-                      <td className="px-4 py-3.5">
-                        <Badge tone={o.paymentMethod === "whatsapp" ? "saffron" : (PAYMENT_TONE[o.paymentStatus] ?? "muted")}>
-                          {o.paymentMethod === "cod"
-                            ? "COD"
-                            : o.paymentMethod === "whatsapp"
-                              ? "WhatsApp (Pending)"
-                              : o.paymentStatus === "paid"
-                                ? "Paid online"
-                                : o.paymentStatus}
-                        </Badge>
-                      </td>
+                        {/* Total */}
+                        <td className="px-4 py-3.5 font-bold text-maroon-900 whitespace-nowrap">
+                          {formatINR(o.total)}
+                        </td>
 
-                      {/* Total */}
-                      <td className="px-4 py-3.5 font-bold text-maroon-900 whitespace-nowrap">
-                        {formatINR(o.total)}
-                      </td>
-
-                      {/* Status Dropdown */}
-                      <td className="px-4 py-3.5">
-                        <select
-                          value={o.status}
-                          onChange={(e) => void handleStatusChange(o, e.target.value as OrderStatus)}
-                          className="h-8 rounded-lg border border-cream-300 bg-white px-2 text-xs font-semibold capitalize text-ink-800 focus:border-maroon-800 focus:outline-none"
-                        >
-                          {STATUSES.map((s) => (
-                            <option key={s} value={s} className="capitalize">
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-
-                      {/* Quick Action Icons */}
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center justify-center gap-1.5">
-                          {/* View details */}
-                          <button
-                            type="button"
-                            onClick={() => setViewing(o)}
-                            title="View order details"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-cream-200 bg-white text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors"
+                        {/* Status Dropdown */}
+                        <td className="px-4 py-3.5">
+                          <select
+                            value={o.status}
+                            onChange={(e) => void handleStatusChange(o, e.target.value as OrderStatus)}
+                            className={getStatusSelectClass(o.status)}
                           >
-                            <Eye size={15} />
-                          </button>
+                            {STATUSES.map((s) => (
+                              <option key={s} value={s} className="capitalize">
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
 
-                          {/* Quick Bluetooth thermal app print */}
-                          <button
-                            type="button"
-                            onClick={() => setBluetoothReceiptModal(o)}
-                            title="Bluetooth Thermal App Print (RawBT / App Share)"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-saffron-300 bg-saffron-50 text-saffron-800 hover:bg-saffron-500 hover:text-white transition-colors"
-                          >
-                            <Printer size={15} />
-                          </button>
+                        {/* Quick Action Icons */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center justify-center gap-1.5 min-w-[180px] flex-nowrap">
+                            {/* View details */}
+                            <button
+                              type="button"
+                              onClick={() => setViewing(o)}
+                              title="View order details"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-cream-200 bg-white text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors cursor-pointer"
+                            >
+                              <Eye size={15} />
+                            </button>
 
-                          {/* Quick A4 Full Page Invoice print */}
-                          <button
-                            type="button"
-                            onClick={() => printFullInvoice(o)}
-                            title="Print/Download A4 Invoice"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-cream-200 bg-white text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors"
-                          >
-                            <FileText size={15} />
-                          </button>
+                            {/* Quick Bluetooth thermal app print */}
+                            <button
+                              type="button"
+                              onClick={() => setBluetoothReceiptModal(o)}
+                              title="Bluetooth Thermal App Print (RawBT / App Share)"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-saffron-300 bg-saffron-50 text-saffron-800 hover:bg-saffron-500 hover:text-white transition-colors cursor-pointer"
+                            >
+                              <Printer size={15} />
+                            </button>
 
-                          {/* Quick WhatsApp message */}
-                          <a
-                            href={waLinkToPhone(o.customerPhone, buildAdminCustomerWhatsAppMessage(o))}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="Message customer via WhatsApp"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-colors"
-                          >
-                            <MessageCircle size={15} />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                            {/* Quick A4 Full Page Invoice print */}
+                            <button
+                              type="button"
+                              onClick={() => printFullInvoice(o)}
+                              title="Print/Download A4 Invoice"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-cream-200 bg-white text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors cursor-pointer"
+                            >
+                              <FileText size={15} />
+                            </button>
+
+                            {/* Quick WhatsApp message */}
+                            <a
+                              href={waLinkToPhone(o.customerPhone, buildAdminCustomerWhatsAppMessage(o))}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Message customer via WhatsApp"
+                              className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-colors"
+                            >
+                              <MessageCircle size={15} />
+                            </a>
+
+                            {/* WhatsApp Payment Link */}
+                            {o.paymentStatus === "pending" && o.status !== "cancelled" && (
+                              <a
+                                href={waLinkToPhone(o.customerPhone, buildAdminCustomerPaymentLinkMessage(o))}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Send Payment Link via WhatsApp"
+                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white transition-colors"
+                              >
+                                <CreditCard size={15} />
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* MOBILE CARDS VIEW */}
+          <div className="block md:hidden space-y-4">
+            {filtered.map((o) => {
+              const shortId = o.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
+              const firstItemName = o.items?.[0]?.name || "Item";
+              const extraCount = (o.items?.length ?? 0) - 1;
+              const itemSummary = extraCount > 0 ? `${firstItemName} + ${extraCount} more` : firstItemName;
+
+              return (
+                <div key={o.id} className="rounded-2xl border border-cream-200 bg-white p-4.5 shadow-soft space-y-3.5">
+                  {/* Card Header: Order ID & Date */}
+                  <div className="flex items-center justify-between border-b border-cream-100 pb-2.5">
+                    <span className="font-mono text-xs font-bold text-maroon-900 bg-maroon-50 px-2 py-0.5 rounded">
+                      #{shortId}
+                    </span>
+                    <span className="text-[10px] text-ink-500 font-medium">
+                      {formatOrderDateTime(o.createdAt)}
+                    </span>
+                  </div>
+
+                  {/* Customer Info row */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-bold text-ink-800">{o.customerName || "Customer"}</p>
+                      <p className="text-xs text-ink-500 font-medium">{o.customerPhone}</p>
+                    </div>
+                    {/* Direct WhatsApp Message Link */}
+                    <a
+                      href={waLinkToPhone(o.customerPhone, buildAdminCustomerWhatsAppMessage(o))}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-7 px-2.5 items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 text-[10px] font-bold text-emerald-700 hover:bg-emerald-100 transition-colors"
+                    >
+                      <MessageCircle size={12} /> Chat
+                    </a>
+                  </div>
+
+                  {/* Order Items summary box */}
+                  <div className="rounded-xl bg-cream-50/50 border border-cream-100/50 p-2.5 text-xs text-ink-750 font-medium">
+                    <p className="text-[10px] uppercase font-bold text-ink-400 tracking-wider mb-1">Items</p>
+                    <p>{itemSummary}</p>
+                  </div>
+
+                  {/* Pricing, Payment & Status line */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-cream-50/30 p-2 rounded-xl border border-cream-100">
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] uppercase font-bold text-ink-400 tracking-wider">Total Amount</p>
+                      <p className="text-base font-black text-maroon-900">{formatINR(o.total)}</p>
+                    </div>
+                    
+                    <div className="flex flex-col items-end gap-1.5">
+                      <Badge tone={o.paymentMethod === "whatsapp" ? "saffron" : (PAYMENT_TONE[o.paymentStatus] ?? "muted")} className="text-[10px]">
+                        {o.paymentMethod === "cod"
+                          ? "COD"
+                          : o.paymentMethod === "whatsapp"
+                            ? "WhatsApp (Pending)"
+                            : o.paymentStatus === "paid"
+                              ? "Paid online"
+                              : o.paymentStatus}
+                      </Badge>
+                      
+                      <select
+                        value={o.status}
+                        onChange={(e) => void handleStatusChange(o, e.target.value as OrderStatus)}
+                        className={getStatusSelectClass(o.status)}
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Quick Action Buttons Row */}
+                  <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-cream-100">
+                    <button
+                      type="button"
+                      onClick={() => setViewing(o)}
+                      className="flex h-8 items-center gap-1.5 px-3 rounded-lg border border-cream-200 bg-white text-xs font-bold text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors cursor-pointer"
+                    >
+                      <Eye size={14} /> View
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setBluetoothReceiptModal(o)}
+                      className="flex h-8 items-center gap-1.5 px-3 rounded-lg border border-saffron-300 bg-saffron-50 text-xs font-bold text-saffron-800 hover:bg-saffron-500 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <Printer size={14} /> Slip
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => printFullInvoice(o)}
+                      className="flex h-8 items-center gap-1.5 px-3 rounded-lg border border-cream-200 bg-white text-xs font-bold text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors cursor-pointer"
+                    >
+                      <FileText size={14} /> A4
+                    </button>
+
+                    {o.paymentStatus === "pending" && o.status !== "cancelled" && (
+                      <a
+                        href={waLinkToPhone(o.customerPhone, buildAdminCustomerPaymentLinkMessage(o))}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex h-8 items-center gap-1.5 px-3 rounded-lg border border-amber-300 bg-amber-50 text-xs font-bold text-amber-700 hover:bg-amber-600 hover:text-white transition-colors"
+                      >
+                        <CreditCard size={14} /> Pay Link
+                      </a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -571,8 +755,8 @@ export default function AdminOrdersPage() {
               </div>
               <div className="text-right">
                 <span className="text-xs font-semibold text-ink-400 uppercase tracking-wider">Order Status</span>
-                <p className="mt-1 text-xs text-ink-500">{formatDate(viewing.createdAt)}</p>
-                <div className="mt-1.5 flex justify-end gap-2">
+                <p className="mt-1 text-xs text-ink-500">{formatOrderDateTime(viewing.createdAt)}</p>
+                <div className="mt-1.5 flex items-center justify-end gap-2 flex-wrap">
                   <Badge tone={viewing.paymentMethod === "whatsapp" ? "saffron" : (PAYMENT_TONE[viewing.paymentStatus] ?? "muted")}>
                     {viewing.paymentMethod === "cod"
                       ? "COD"
@@ -582,6 +766,15 @@ export default function AdminOrdersPage() {
                           ? "Paid online"
                           : viewing.paymentStatus}
                   </Badge>
+                  {viewing.paymentStatus === "pending" && viewing.status !== "cancelled" && (
+                    <button
+                      type="button"
+                      onClick={() => void handleMarkPaid(viewing)}
+                      className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-emerald-700 transition-colors shadow-xs cursor-pointer"
+                    >
+                      Mark Paid
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -731,6 +924,17 @@ export default function AdminOrdersPage() {
               >
                 <MessageCircle size={16} className="shrink-0" /> WhatsApp Customer
               </a>
+
+              {viewing.paymentStatus === "pending" && viewing.status !== "cancelled" && (
+                <a
+                  href={waLinkToPhone(viewing.customerPhone, buildAdminCustomerPaymentLinkMessage(viewing))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-11 items-center justify-center gap-1.5 rounded-xl bg-amber-600 text-xs font-bold text-white shadow-sm hover:bg-amber-700 transition-colors"
+                >
+                  <CreditCard size={16} className="shrink-0" /> Share Payment Link
+                </a>
+              )}
             </div>
           </div>
         </Modal>

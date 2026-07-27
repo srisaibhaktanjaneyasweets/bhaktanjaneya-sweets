@@ -84,11 +84,15 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
   const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
 
   const dateObj = order.createdAt ? new Date(order.createdAt) : new Date();
-  const dateStr = dateObj.toLocaleDateString("en-US", {
-    month: "long",
+  const dateStr = dateObj.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    month: "short",
     day: "numeric",
     year: "numeric",
-  });
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }) + " IST";
 
   const statusStr =
     order.paymentStatus === "paid"
@@ -179,4 +183,23 @@ export function buildAdminCustomerWhatsAppMessage(order: Partial<Order>): string
   const baseMessage = buildFormattedWhatsAppOrderMessage(order);
   const divider = "--------------------------------";
   return `${baseMessage}\n\n${divider}\n\nPlease confirm the above order details.`;
+}
+
+/** Build WhatsApp message containing payment link to share with customer. */
+export function buildAdminCustomerPaymentLinkMessage(order: Partial<Order>): string {
+  const rawId = order.id ?? "";
+  const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
+  const total = order.total ?? 0;
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : config.siteUrl;
+  const paymentLink = `${siteUrl}/pay/${rawId}`;
+
+  return [
+    `Hello! Your order #${shortId} is confirmed with ${config.businessName}.`,
+    "",
+    `Total Amount: ₹${total}`,
+    `Please complete your online payment securely using this link:`,
+    paymentLink,
+    "",
+    "Thank you!",
+  ].join("\n");
 }
