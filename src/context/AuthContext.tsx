@@ -168,6 +168,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     if (updateError) throw updateError;
 
+    // Sync changes to the customers table in public database schema
+    try {
+      const { data: sessionData } = await supabasePublic.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (token) {
+        await fetch("/api/auth/profile", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(patch),
+        });
+      }
+    } catch (e) {
+      console.error("Failed to sync customer profile to DB:", e);
+    }
+
     const nextCustomer = updated.user ? customerFromUser(updated.user) : customerFromUser(data.user);
     setCustomer(nextCustomer);
     return nextCustomer;

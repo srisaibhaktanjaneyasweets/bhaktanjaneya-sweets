@@ -48,7 +48,7 @@ export const config = {
   social: {
     instagram: "https://www.instagram.com/bhaktanjaneyasweets.in/",
     facebook: "https://www.facebook.com/BhakthanjaneyaSweets/",
-    youtube: "https://www.youtube.com/@bhaktanjaneyasweets9949",
+    youtube: "https://youtube.com/@srisaibakthanjaneyasweets2061",
   },
 
   /** Customer-support hours, shown on the Contact page. */

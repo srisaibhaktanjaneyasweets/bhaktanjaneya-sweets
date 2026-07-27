@@ -6,7 +6,7 @@ import Link from "next/link";
 import { CheckCircle2, ShieldCheck, ShoppingBag, ArrowRight } from "lucide-react";
 import { apiGet } from "@/lib/api/client";
 import { loadRazorpayScript, openRazorpayCheckout } from "@/lib/razorpay";
-import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/api/payments";
+import { createRazorpayOrder, verifyRazorpayPayment, type RazorpayOrder } from "@/lib/api/payments";
 import { formatINR } from "@/lib/utils";
 import { config } from "@/lib/config";
 import { toast } from "@/components/ui/toast";
@@ -33,6 +33,7 @@ export default function DedicatedPaymentPage() {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<PublicOrderLookupResponse | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [razorpayOrder, setRazorpayOrder] = useState<RazorpayOrder | null>(null);
 
   const fetchOrder = useCallback(async () => {
     if (!id) return;
@@ -51,8 +52,25 @@ export default function DedicatedPaymentPage() {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void fetchOrder();
+    void loadRazorpayScript(); // Preload Razorpay SDK immediately on mount
   }, [fetchOrder]);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Pre-create Razorpay order in background to make payment modal trigger instantly on click
+  useEffect(() => {
+    if (!order || order.paymentStatus === "paid") return;
+    let active = true;
+    createRazorpayOrder(order.total)
+      .then((rzOrder) => {
+        if (active) setRazorpayOrder(rzOrder);
+      })
+      .catch((err) => {
+        console.error("Failed to pre-create Razorpay order in background:", err);
+      });
+    return () => {
+      active = false;
+    };
+  }, [order]);
 
   const handlePayment = async () => {
     if (!order) return;
@@ -61,7 +79,11 @@ export default function DedicatedPaymentPage() {
       const loaded = await loadRazorpayScript();
       if (!loaded) throw new Error("Could not load payment gateway. Please try again.");
 
-      const rzOrder = await createRazorpayOrder(order.total);
+      let rzOrder = razorpayOrder;
+      if (!rzOrder) {
+        rzOrder = await createRazorpayOrder(order.total);
+        setRazorpayOrder(rzOrder);
+      }
 
       openRazorpayCheckout({
         key: rzOrder.keyId,
@@ -123,9 +145,42 @@ export default function DedicatedPaymentPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center space-y-4">
-        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-maroon-800 border-t-transparent" />
-        <p className="text-sm font-semibold text-maroon-900">Loading payment details...</p>
+      <div className="mx-auto max-w-md px-4 py-8 sm:py-12">
+        <div className="overflow-hidden rounded-3xl border border-cream-200 bg-white shadow-xl">
+          {/* Header Skeleton */}
+          <div className="bg-gradient-to-br from-maroon-800/10 to-maroon-950/10 p-6 text-center space-y-2 animate-pulse">
+            <div className="mx-auto h-5 w-40 rounded-md bg-maroon-800/20" />
+            <div className="mx-auto h-3.5 w-24 rounded-md bg-maroon-800/10" />
+          </div>
+
+          <div className="p-6 space-y-6 animate-pulse">
+            {/* Order Summary Skeleton */}
+            <div className="text-center space-y-3">
+              <div className="mx-auto h-3 w-28 rounded bg-cream-200" />
+              <div className="mx-auto h-10 w-36 rounded-lg bg-cream-200" />
+              <div className="mx-auto h-3.5 w-32 rounded bg-cream-200" />
+            </div>
+
+            {/* Pay Button Skeleton */}
+            <div className="h-12 w-full rounded-full bg-cream-200" />
+
+            {/* Cart Items Skeleton */}
+            <div className="border-t border-cream-100 pt-5 space-y-3">
+              <div className="h-4 w-28 rounded bg-cream-200" />
+              <div className="space-y-2.5">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex justify-between items-center px-4 py-3 rounded-2xl border border-cream-100/50 bg-cream-50/10">
+                    <div className="space-y-1.5 flex-1">
+                      <div className="h-3.5 w-2/3 rounded bg-cream-200" />
+                      <div className="h-2.5 w-1/3 rounded bg-cream-200" />
+                    </div>
+                    <div className="h-4 w-12 rounded bg-cream-200 shrink-0" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

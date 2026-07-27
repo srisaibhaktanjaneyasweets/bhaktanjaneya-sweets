@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, useMemo } from "react";
 
 import {
   Menu,
@@ -47,6 +47,15 @@ export function Header() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const categoriesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const resolvedLeadingLinks = useMemo(() => {
+    return leadingLinks.map((link) => {
+      if (link.href === "/find-my-order" && customer) {
+        return { ...link, label: "My Orders" };
+      }
+      return link;
+    });
+  }, [customer]);
 
   function handleCategoriesEnter() {
     if (categoriesTimeoutRef.current) {
@@ -286,9 +295,8 @@ export function Header() {
           </div>
         </div>
 
-        {/* Desktop nav */}
         <nav className="hidden h-12 items-center justify-center gap-7 border-t border-cream-300/50 text-sm font-medium text-maroon-800 lg:flex">
-          {leadingLinks.map((l) => (
+          {resolvedLeadingLinks.map((l) => (
             <Link
               key={l.href + l.label}
               href={l.href}
@@ -385,7 +393,7 @@ export function Header() {
 
 
             <nav className="flex-1 overflow-y-auto p-2">
-              {leadingLinks.map((l) => (
+              {resolvedLeadingLinks.map((l) => (
                 <Link
                   key={l.href + l.label}
                   href={l.href}

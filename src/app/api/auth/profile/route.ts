@@ -38,15 +38,60 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unauthorized" }, { status: 401 });
   }
 
-  const { data, error } = await supabaseAdmin
+  // 1. Try to find by auth user ID (payload.sub)
+  const { data: initialData, error } = await supabaseAdmin
     .from("customers")
     .select("*")
-    .eq("phone", payload.phone ?? payload.sub)
+    .eq("id", payload.sub)
     .limit(1)
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!data) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
+  let data = initialData;
+
+  // 2. If not found by ID, but they have a phone number, see if there is an existing customer row by phone.
+  if (!data && payload.phone) {
+    const { data: byPhone, error: phoneError } = await supabaseAdmin
+      .from("customers")
+      .select("*")
+      .eq("phone", payload.phone)
+      .limit(1)
+      .maybeSingle();
+
+    if (phoneError) return NextResponse.json({ error: phoneError.message }, { status: 500 });
+
+    if (byPhone) {
+      // Connect this existing customer row to their auth ID!
+      const { data: updated, error: linkError } = await supabaseAdmin
+        .from("customers")
+        .update({ id: payload.sub })
+        .eq("phone", payload.phone)
+        .select("*")
+        .single();
+
+      if (linkError) return NextResponse.json({ error: linkError.message }, { status: 500 });
+      data = updated;
+    }
+  }
+
+  // 3. If still not found, auto-create their customer row using their auth details
+  if (!data) {
+    const { data: created, error: createError } = await supabaseAdmin
+      .from("customers")
+      .insert({
+        id: payload.sub,
+        email: payload.email || null,
+        name: payload.name || null,
+        phone: payload.phone || null,
+        created_at: new Date().toISOString(),
+      })
+      .select("*")
+      .single();
+
+    if (createError) return NextResponse.json({ error: createError.message }, { status: 500 });
+    data = created;
+  }
+
   return NextResponse.json(customerFromRow(data as Record<string, unknown>));
 }
 
@@ -76,10 +121,36 @@ export async function PATCH(req: Request) {
     patch.savedAddress = cleanAddress(body.savedAddress);
   }
 
+  // Ensure customer row exists before updating (auto-creates if missing)
+  const { data: check, error: checkError } = await supabaseAdmin
+    .from("customers")
+    .select("id")
+    .eq("id", payload.sub)
+    .limit(1)
+    .maybeSingle();
+
+  if (checkError) return NextResponse.json({ error: checkError.message }, { status: 500 });
+
+  if (!check) {
+    // If not in database, insert it first
+    const { error: createError } = await supabaseAdmin
+      .from("customers")
+      .insert({
+        id: payload.sub,
+        email: payload.email || null,
+        name: payload.name || null,
+        phone: payload.phone || null,
+        created_at: new Date().toISOString(),
+      });
+
+    if (createError) return NextResponse.json({ error: createError.message }, { status: 500 });
+  }
+
+  // Perform update
   const { data, error } = await supabaseAdmin
     .from("customers")
     .update(customerToRow(patch))
-    .eq("phone", payload.phone ?? payload.sub)
+    .eq("id", payload.sub)
     .select("*")
     .single();
 
