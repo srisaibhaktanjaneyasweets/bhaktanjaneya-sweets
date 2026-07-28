@@ -53,13 +53,6 @@ function formatRow(resource: Resource, row: Record<string, unknown>) {
 }
 
 function validateOrderPatch(resource: Resource, body: Record<string, unknown>) {
-  if (resource === "orders" && body.status === "shipped") {
-    const company = typeof body.deliveryCompany === "string" ? body.deliveryCompany.trim() : "";
-    const tracking = typeof body.deliveryTrackingId === "string" ? body.deliveryTrackingId.trim() : "";
-    if (!company || !tracking) {
-      return "Delivery company and tracking ID are required when marking an order as shipped.";
-    }
-  }
   return null;
 }
 

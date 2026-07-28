@@ -13,7 +13,7 @@ export async function cancelOrder(orderId: string): Promise<Order> {
 export async function updateOrderStatus(
   orderId: string,
   status: OrderStatus,
-  deliveryDetails?: { deliveryCompany: string; deliveryTrackingId: string }
+  deliveryDetails?: { deliveryCompany?: string; deliveryTrackingId?: string }
 ): Promise<Order> {
   return apiPatch<Order>(`/admin/orders/${orderId}`, {
     status,

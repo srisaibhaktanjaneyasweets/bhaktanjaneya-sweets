@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Search, MessageCircle, CheckCircle2, ShoppingBag, Home, CreditCard, ArrowRight, Truck } from "lucide-react";
+import { Search, MessageCircle, CheckCircle2, ShoppingBag, Home, CreditCard, ArrowRight, Truck, Clock, XCircle } from "lucide-react";
 
 import { EmptyState, inputClass } from "@/components/admin/ui";
 import { Alert } from "@/components/ui/Alert";
@@ -189,6 +189,56 @@ export default function PublicOrderLookupPage() {
               )}
             </div>
 
+            {/* Prominent Status Callout */}
+            <div className={`mt-5 rounded-2xl border p-5 flex items-start gap-4 ${
+              order.status === "cancelled"
+                ? "bg-red-50/50 border-red-200"
+                : order.status === "delivered"
+                  ? "bg-emerald-50/50 border-emerald-200"
+                  : order.status === "shipped"
+                    ? "bg-blue-50/50 border-blue-200"
+                    : "bg-amber-50/50 border-amber-200"
+            }`}>
+              <div className={`rounded-xl p-2.5 shrink-0 ${
+                order.status === "cancelled"
+                  ? "bg-red-100 text-red-750"
+                  : order.status === "delivered"
+                    ? "bg-emerald-100 text-emerald-755"
+                    : order.status === "shipped"
+                      ? "bg-blue-100 text-blue-755"
+                      : "bg-amber-100 text-amber-755"
+              }`}>
+                {order.status === "cancelled" ? (
+                  <XCircle size={22} />
+                ) : order.status === "delivered" ? (
+                  <CheckCircle2 size={22} />
+                ) : order.status === "shipped" ? (
+                  <Truck size={22} />
+                ) : (
+                  <Clock size={22} />
+                )}
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Order Status</span>
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    order.status === "cancelled"
+                      ? "bg-red-100 text-red-800"
+                      : order.status === "delivered"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : order.status === "shipped"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-amber-100 text-amber-800"
+                  }`}>
+                    {order.status === "new" ? "Received" : order.status}
+                  </span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-ink-900 leading-snug">
+                  {STATUS_DESCRIPTION[order.status] || "Your order is updated."}
+                </h3>
+              </div>
+            </div>
+
             {/* Order Progress Tracker */}
             {order.status !== "cancelled" && (
               <div className="mt-6 border-t border-cream-100 pt-6">
@@ -255,18 +305,6 @@ export default function PublicOrderLookupPage() {
               </div>
             )}
 
-            {/* Status Summary */}
-            <div className="mt-6 border-t border-cream-100 pt-5">
-              <div className="rounded-xl bg-maroon-50/40 border border-maroon-100/40 p-3.5">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xs text-ink-400 font-medium">Status details:</span>
-                  <span className="text-xs font-bold capitalize text-maroon-900">{order.status}</span>
-                </div>
-                <p className="mt-1 text-xs text-ink-600">
-                  {STATUS_DESCRIPTION[order.status] || "We'll notify you as soon as your order updates."}
-                </p>
-              </div>
-            </div>
 
             {/* Delivery Tracking */}
             {(order.deliveryCompany || order.deliveryTrackingId) && (

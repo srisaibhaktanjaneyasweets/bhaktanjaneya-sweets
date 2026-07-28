@@ -67,7 +67,7 @@ interface AdminContextValue {
   updateOrderStatus: (
     id: string,
     status: OrderStatus,
-    deliveryDetails?: { deliveryCompany: string; deliveryTrackingId: string },
+    deliveryDetails?: { deliveryCompany?: string; deliveryTrackingId?: string },
   ) => Promise<Order>;
   updateOrder: (id: string, patch: Partial<Order>) => Promise<Order>;
   refreshData: () => void;
@@ -256,7 +256,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     async (
       id: string,
       status: OrderStatus,
-      deliveryDetails?: { deliveryCompany: string; deliveryTrackingId: string },
+      deliveryDetails?: { deliveryCompany?: string; deliveryTrackingId?: string },
     ) => {
       const next = await apiPatch<Order>(`/admin/orders/${id}`, {
         status,

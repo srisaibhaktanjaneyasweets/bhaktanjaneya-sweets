@@ -218,17 +218,13 @@ export default function AdminOrdersPage() {
     if (!shippingPrompt) return;
     const company = promptCompany.trim();
     const tracking = promptTracking.trim();
-    if (!company || !tracking) {
-      setPromptError("Enter both the delivery company and tracking ID.");
-      return;
-    }
 
     setPromptSaving(true);
     setPromptError("");
     try {
       await updateOrderStatus(shippingPrompt.id, "shipped", {
-        deliveryCompany: company,
-        deliveryTrackingId: tracking,
+        deliveryCompany: company || undefined,
+        deliveryTrackingId: tracking || undefined,
       });
       setShippingPrompt(null);
     } catch (error) {
@@ -240,11 +236,6 @@ export default function AdminOrdersPage() {
 
   async function saveDeliveryDetails() {
     if (!viewing) return;
-
-    if (modalStatus === "shipped" && (!deliveryCompany.trim() || !deliveryTrackingId.trim())) {
-      setPromptError("Delivery company and tracking ID are required for shipped orders.");
-      return;
-    }
 
     setSavingDelivery(true);
     setPromptError("");
@@ -701,7 +692,7 @@ export default function AdminOrdersPage() {
       {/* Modal: Shipping prompt when marking shipped */}
       {shippingPrompt && (
         <Modal
-          title="Shipping Details Required"
+          title="Enter Shipping Details (Optional)"
           onClose={() => setShippingPrompt(null)}
           footer={
             <>
@@ -725,7 +716,7 @@ export default function AdminOrdersPage() {
         >
           <p className="text-sm text-ink-600">
             Enter courier and tracking details for order #
-            {shippingPrompt.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)}.
+            {shippingPrompt.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)} (optional, you can leave these blank and proceed).
           </p>
           <div className="mt-4 space-y-3">
             <input
