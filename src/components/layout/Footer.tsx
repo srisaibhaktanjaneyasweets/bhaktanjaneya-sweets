@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Globe } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import {
@@ -9,6 +11,7 @@ import {
   YoutubeIcon,
 } from "@/components/icons/BrandIcons";
 import { config } from "@/lib/config";
+import { useBusinessConfig } from "@/context/BusinessConfigContext";
 
 const companyLinks = [
   { href: "/about", label: "Our Story" },
@@ -23,11 +26,7 @@ const policyLinks = [
   { href: "/policies/terms", label: "Terms of Service" },
 ];
 
-const socials = [
-  { href: config.social.instagram, label: "Instagram", icon: InstagramIcon },
-  { href: config.social.facebook, label: "Facebook", icon: FacebookIcon },
-  { href: config.social.youtube, label: "YouTube", icon: YoutubeIcon },
-];
+
 
 function FooterColumn({
   title,
@@ -55,6 +54,24 @@ function FooterColumn({
 }
 
 export function Footer() {
+  const { config: businessConfig } = useBusinessConfig();
+
+  const iconMap: Record<string, React.ComponentType<{ size: number }>> = {
+    instagram: InstagramIcon,
+    facebook: FacebookIcon,
+    youtube: YoutubeIcon,
+  };
+
+  const socials = businessConfig.socials.map((s) => {
+    const nameLow = s.name.toLowerCase();
+    const Icon = iconMap[nameLow] || Globe;
+    return {
+      href: s.url,
+      label: s.name,
+      icon: Icon,
+    };
+  });
+
   return (
     <footer className="mt-8 bg-maroon-900 text-cream-50 sm:mt-10">
       <Container>
@@ -111,18 +128,18 @@ export function Footer() {
             <ul className="mt-5 flex flex-col items-center space-y-2.5 text-sm text-cream-100/80 lg:items-start">
               <li className="flex items-start gap-2">
                 <MapPin size={16} className="mt-0.5 shrink-0 text-saffron-400" />
-                <span className="min-w-0">{config.contact.address}</span>
+                <span className="min-w-0">{businessConfig.address}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone size={16} className="shrink-0 text-saffron-400" />
-                <a href={`tel:${config.contact.phone.replace(/\s/g, "")}`} className="hover:text-saffron-300">
-                  {config.contact.phone}
+                <a href={`tel:${businessConfig.phone.replace(/\s/g, "")}`} className="hover:text-saffron-300">
+                  {businessConfig.phone}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={16} className="shrink-0 text-saffron-400" />
-                <a href={`mailto:${config.contact.email}`} className="min-w-0 break-all hover:text-saffron-300">
-                  {config.contact.email}
+                <a href={`mailto:${businessConfig.email}`} className="min-w-0 break-all hover:text-saffron-300">
+                  {businessConfig.email}
                 </a>
               </li>
             </ul>

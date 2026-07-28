@@ -6,6 +6,7 @@ import { getProducts } from "@/lib/api/products";
 import { getCategories } from "@/lib/api/categories";
 import { getTags } from "@/lib/api/tags";
 import { sortProducts, prettifyTag } from "@/lib/product";
+import { getCategoryImage } from "@/lib/images";
 
 export const revalidate = 10;
 
@@ -155,25 +156,51 @@ export default async function ShopPage(props: PageProps<"/shop">) {
   const heading = tag
     ? tags.find((t) => t.slug === tag)?.name ?? prettifyTag(tag)
     : "Shop All";
-  const categoryName = categories.find((c) => c.slug === category)?.name;
+  const categoryObj = categories.find((c) => c.slug === category);
+  const categoryName = categoryObj?.name;
+  const categoryImg = categoryObj ? getCategoryImage(categoryObj) : "/images/hero/hero-laddu.png";
 
   return (
-    <div className="py-10">
-      <Container>
-        <header className="mb-6">
-          <p className="text-sm font-medium uppercase tracking-wide text-saffron-600">
-            {categoryName ?? "Our Collection"}
-          </p>
-          <h1 className="mt-1 font-serif text-3xl font-bold text-maroon-900 sm:text-4xl">
-            {categoryName ? categoryName : heading}
-          </h1>
-          {q && (
-            <p className="mt-2 text-ink-500">
-              Showing results for &ldquo;{q}&rdquo;
+    <div className="pb-10">
+      {/* Category/Shop Hero Banner */}
+      <section className="relative overflow-hidden bg-maroon-950 mb-8 rounded-3xl mx-4 sm:mx-6 md:mx-8">
+        {/* Background Image with Overlay */}
+        {categoryImg && (
+          <div className="absolute inset-0 z-0">
+            <img
+              src={categoryImg}
+              alt={categoryName ? categoryName : heading}
+              className="h-full w-full object-cover object-center opacity-90 transition-opacity duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-maroon-950 via-maroon-950/85 to-maroon-950/30 md:to-transparent" />
+          </div>
+        )}
+        <Container className="relative z-10">
+          <div className="py-12 sm:py-16 text-left">
+            <p className="text-xs font-bold uppercase tracking-widest text-saffron-400 sm:text-sm">
+              {categoryName ? "Collection" : "Shop"}
             </p>
-          )}
-        </header>
+            <h1 className="mt-2 font-serif text-3xl font-bold text-cream-50 sm:text-5xl drop-shadow-sm">
+              {categoryName ? categoryName : heading}
+            </h1>
+            {q ? (
+              <p className="mt-3 text-sm text-cream-100/90 font-medium">
+                Showing results for &ldquo;<span className="text-saffron-300 font-semibold">{q}</span>&rdquo;
+              </p>
+            ) : categoryObj?.description ? (
+              <p className="mt-3 max-w-xl text-sm text-cream-100/85 font-medium leading-relaxed">
+                {categoryObj.description}
+              </p>
+            ) : (
+              <p className="mt-3 max-w-xl text-sm text-cream-100/85 font-medium leading-relaxed">
+                Explore our authentic traditional sweets, crispy mixtures, pickles, and combo packs freshly prepared with pure ghee.
+              </p>
+            )}
+          </div>
+        </Container>
+      </section>
 
+      <Container>
         <ShopControls categories={categories} />
 
         {items.length > 0 ? (

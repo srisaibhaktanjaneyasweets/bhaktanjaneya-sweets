@@ -17,6 +17,7 @@ import {
 import { Combobox } from "@/components/ui/Combobox";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { config } from "@/lib/config";
+import { useBusinessConfig } from "@/context/BusinessConfigContext";
 
 const selectClass =
   "h-11 w-full rounded-xl border border-cream-300 bg-white px-4 text-sm focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40 disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70";
@@ -38,6 +39,7 @@ export function DeliveryLocationGate({
   onConfirm: (state: string, city: string) => void;
   onReset: () => void;
 }) {
+  const { config: businessConfig } = useBusinessConfig();
   const [stateValue, setStateValue] = useState(defaultState);
   const [cityValue, setCityValue] = useState(defaultCity);
   const [touched, setTouched] = useState(false);
@@ -244,7 +246,7 @@ export function DeliveryLocationGate({
               </button>
 
               <a
-                href={`tel:${config.contact.phone.replace(/\s/g, "")}`}
+                href={`tel:${businessConfig.phone.replace(/\s/g, "")}`}
                 className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-maroon-800/30 bg-white px-5 text-sm font-bold text-maroon-900 shadow-sm hover:bg-cream-100 sm:w-auto transition-colors"
               >
                 <Phone size={16} className="text-maroon-800 shrink-0" /> Call now

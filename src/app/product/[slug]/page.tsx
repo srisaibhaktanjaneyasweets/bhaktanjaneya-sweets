@@ -26,8 +26,11 @@ export async function generateMetadata(
   const p = await getProductBySlug(slug);
   if (!p) return { title: "Product" };
   const url = `${config.siteUrl}/product/${p.slug}`;
-  const title = `${p.name} — Buy Pure Ghee ${p.name} Online`;
-  const desc = p.description || `Order fresh ${p.name} online from Bhaktanjaneya Sweets. Made with pure ghee & high quality ingredients. Delivered across India.`;
+  const title = `Buy ${p.name} Online | ${config.businessName}`;
+  let desc = p.description || `Buy fresh ${p.name} online from Bhaktanjaneya Sweets. Made with pure ghee & premium ingredients. Express delivery across India.`;
+  if (desc.length > 155) {
+    desc = desc.substring(0, 152) + "...";
+  }
   return {
     title,
     description: desc,

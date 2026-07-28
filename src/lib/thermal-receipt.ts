@@ -5,7 +5,8 @@ import { formatINR } from "./utils";
 /**
  * Generate thermal receipt HTML specifically formatted for 3-inch (80mm roll / 72mm printable area) thermal receipt printers.
  */
-export function generateThermalReceiptHtml(order: Order): string {
+export function generateThermalReceiptHtml(order: Order, bizConfig?: { phone: string; email: string }): string {
+  const phone = bizConfig?.phone || config.contact.phone;
   const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
   const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -99,7 +100,7 @@ export function generateThermalReceiptHtml(order: Order): string {
   <div class="center">
     <div class="title">${config.businessName.toUpperCase()}</div>
     <div class="subtitle">Authentic Sweets &amp; Savouries</div>
-    <div class="subtitle">Ph: ${config.contact.phone}</div>
+    <div class="subtitle">Ph: ${phone}</div>
   </div>
 
   <div class="double-divider"></div>
@@ -172,7 +173,9 @@ export function generateThermalReceiptHtml(order: Order): string {
 /**
  * Generate full A4 Tax Invoice / Order Receipt HTML for high-resolution printing & PDF saving.
  */
-export function generateFullInvoiceHtml(order: Order): string {
+export function generateFullInvoiceHtml(order: Order, bizConfig?: { phone: string; email: string; address: string }): string {
+  const phone = bizConfig?.phone || config.contact.phone;
+  const email = bizConfig?.email || config.contact.email;
   const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
   const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -248,7 +251,7 @@ export function generateFullInvoiceHtml(order: Order): string {
         <h1 style="margin: 0; font-size: 24px; color: #581C87; font-family: serif;">${config.businessName}</h1>
         <div style="font-size: 13px; color: #4B5563; margin-top: 4px;">
           Authentic Traditional Sweets &amp; Savouries<br/>
-          Ph: ${config.contact.phone} | Email: ${config.contact.email}
+          Ph: ${phone} | Email: ${email}
         </div>
       </td>
       <td style="text-align: right; vertical-align: top;">
@@ -313,7 +316,7 @@ export function generateFullInvoiceHtml(order: Order): string {
 
   <div class="footer-note">
     Thank you for purchasing from ${config.businessName}!<br/>
-    For assistance or bulk orders, visit www.bhaktanjaneyasweets.in or call ${config.contact.phone}.
+    For assistance or bulk orders, visit www.bhaktanjaneyasweets.in or call ${phone}.
   </div>
 
   <script>
@@ -327,8 +330,8 @@ export function generateFullInvoiceHtml(order: Order): string {
 }
 
 /** Trigger direct print / PDF download popup for 3-inch thermal slip. */
-export function printThermalReceipt(order: Order) {
-  const html = generateThermalReceiptHtml(order);
+export function printThermalReceipt(order: Order, bizConfig?: { phone: string; email: string }) {
+  const html = generateThermalReceiptHtml(order, bizConfig);
   const printWindow = window.open("", "_blank", "width=360,height=600");
   if (printWindow) {
     printWindow.document.open();
@@ -338,8 +341,8 @@ export function printThermalReceipt(order: Order) {
 }
 
 /** Trigger direct print / PDF download popup for full A4 invoice. */
-export function printFullInvoice(order: Order) {
-  const html = generateFullInvoiceHtml(order);
+export function printFullInvoice(order: Order, bizConfig?: { phone: string; email: string; address: string }) {
+  const html = generateFullInvoiceHtml(order, bizConfig);
   const printWindow = window.open("", "_blank", "width=800,height=900");
   if (printWindow) {
     printWindow.document.open();
@@ -351,7 +354,8 @@ export function printFullInvoice(order: Order) {
 /**
  * Generate formatted bold plain text receipt for Bluetooth thermal printer apps (RawBT, Bluetooth POS Printer, etc.).
  */
-export function generatePlainTextReceipt(order: Order, clean = false): string {
+export function generatePlainTextReceipt(order: Order, clean = false, bizConfig?: { phone: string }): string {
+  const phone = bizConfig?.phone || config.contact.phone;
   const shortId = order.id.replace(/^ord_/, "").toUpperCase().slice(0, 8);
   const dateStr = new Date(order.createdAt).toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
@@ -395,16 +399,12 @@ export function generatePlainTextReceipt(order: Order, clean = false): string {
   return [
     LARGE_ON + BOLD_ON + config.businessName.toUpperCase() + BOLD_OFF + NORMAL_TXT,
     BOLD_ON + "TRADITIONAL SWEETS & SAVOURIES" + BOLD_OFF,
-    `PHONE: ${config.contact.phone}`,
+    `PHONE: ${phone}`,
     dDivider,
     `${BOLD_ON}ORDER ID : #${shortId}${BOLD_OFF}`,
     `DATE     : ${dateStr.toUpperCase()}`,
     `${BOLD_ON}PAYMENT  : ${(order.paymentStatus || "").toUpperCase()} (${(order.paymentMethod || "").toUpperCase()})${BOLD_OFF}`,
-    sDivider,
-    `${BOLD_ON}CUSTOMER : ${(order.customerName || "GUEST").toUpperCase()}${BOLD_OFF}`,
-    `${BOLD_ON}PHONE    : +91 ${order.customerPhone ? order.customerPhone.replace(/\D/g, "") : ""}${BOLD_OFF}`,
-    order.customerEmail ? `EMAIL    : ${order.customerEmail.toUpperCase()}` : null,
-    sDivider,
+    dDivider,
     `${BOLD_ON}>>> ORDER ITEMS <<<${BOLD_OFF}`,
     itemLines,
     dDivider,
@@ -414,7 +414,11 @@ export function generatePlainTextReceipt(order: Order, clean = false): string {
     dDivider,
     LARGE_ON + BOLD_ON + `TOTAL    : ₹${order.total}` + BOLD_OFF + NORMAL_TXT,
     dDivider,
-    `${BOLD_ON}DELIVERY ADDRESS:${BOLD_OFF}`,
+    `${BOLD_ON}CUSTOMER & DELIVERY ADDRESS:${BOLD_OFF}`,
+    `${BOLD_ON}CUSTOMER : ${(order.customerName || "GUEST").toUpperCase()}${BOLD_OFF}`,
+    `${BOLD_ON}PHONE    : +91 ${order.customerPhone ? order.customerPhone.replace(/\D/g, "") : ""}${BOLD_OFF}`,
+    order.customerEmail ? `EMAIL    : ${order.customerEmail.toUpperCase()}` : null,
+    "",
     addressStr,
     order.notes ? `\n${BOLD_ON}SPECIAL INSTRUCTIONS:${BOLD_OFF}\n${order.notes.toUpperCase()}` : null,
     dDivider,
@@ -426,8 +430,8 @@ export function generatePlainTextReceipt(order: Order, clean = false): string {
 }
 
 /** Open RawBT Android app directly for instant Bluetooth printing */
-export function openRawBtPrintApp(order: Order) {
-  const text = generatePlainTextReceipt(order);
+export function openRawBtPrintApp(order: Order, bizConfig?: { phone: string }) {
+  const text = generatePlainTextReceipt(order, false, bizConfig);
   try {
     const b64 = btoa(unescape(encodeURIComponent(text)));
     const rawbtUrl = `rawbt:data:text/plain;charset=utf-8;base64,${b64}`;

@@ -25,7 +25,6 @@ import { apiGet, apiPut } from "@/lib/api/client";
 import {
   DEFAULT_SHIPPING_SETTINGS,
   type ShippingSettings,
-  type ShippingTier,
 } from "@/lib/shipping";
 import { DEFAULT_SERVICEABLE_AREAS } from "@/lib/constants/serviceable-areas";
 import { getPresetCitiesForState, STATE_DISTRICTS } from "@/lib/constants/india-locations";
@@ -95,32 +94,7 @@ export default function AdminDeliveryPage() {
     setSettings((prev) => ({ ...prev, freeShippingThreshold: num }));
   }
 
-  function handleAddTier() {
-    const newTier: ShippingTier = {
-      id: `tier-${Date.now()}`,
-      minSubtotal: 0,
-      maxSubtotal: 499,
-      fee: 50,
-    };
-    setSettings((prev) => ({
-      ...prev,
-      tiers: [...prev.tiers, newTier],
-    }));
-  }
 
-  function handleUpdateTier(id: string, field: keyof ShippingTier, value: unknown) {
-    setSettings((prev) => ({
-      ...prev,
-      tiers: prev.tiers.map((t) => (t.id === id ? { ...t, [field]: value } : t)),
-    }));
-  }
-
-  function handleRemoveTier(id: string) {
-    setSettings((prev) => ({
-      ...prev,
-      tiers: prev.tiers.filter((t) => t.id !== id),
-    }));
-  }
 
   async function handleSaveShipping() {
     setSaving(true);
@@ -468,101 +442,96 @@ export default function AdminDeliveryPage() {
             </div>
           </div>
 
-          {/* Tiered Delivery Charge Table */}
+          {/* State-wise Per-Kg Delivery Charges Card */}
           <div className="rounded-3xl border border-cream-200 bg-white p-6 shadow-soft space-y-4">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="font-serif text-lg font-bold text-maroon-900">
-                  Tiered Delivery Charges
+                  State-wise Per-Kg Delivery Charges
                 </h2>
                 <p className="text-xs text-ink-500">
-                  Define delivery fees based on cart subtotal ranges (e.g. below ₹499 is ₹50, above ₹799 is Free).
+                  Set specific delivery charges per kg for each serviceable state. AP & Telangana default to Free (₹0), other states default to ₹150/kg.
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={handleAddTier}
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-cream-300 bg-cream-50 px-3.5 text-xs font-semibold text-maroon-800 hover:bg-cream-100 transition-colors"
-              >
-                <Plus size={15} /> Add Fee Rule
-              </button>
             </div>
 
             <div className="overflow-x-auto rounded-2xl border border-cream-200">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-cream-200 bg-cream-50/70 text-xs font-semibold uppercase tracking-wider text-ink-600">
-                    <th className="px-4 py-3">Min Subtotal (₹)</th>
-                    <th className="px-4 py-3">Max Subtotal (₹)</th>
-                    <th className="px-4 py-3">Delivery Charge (₹)</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <th className="px-4 py-3">State Name</th>
+                    <th className="px-4 py-3">Charge per kg (₹)</th>
+                    <th className="px-4 py-3 text-right">Quick Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-cream-200">
-                  {settings.tiers.map((tier) => (
-                    <tr key={tier.id} className="hover:bg-cream-50/50">
-                      <td className="px-4 py-3">
-                        <input
-                          type="number"
-                          min="0"
-                          value={tier.minSubtotal}
-                          onChange={(e) =>
-                            handleUpdateTier(tier.id, "minSubtotal", Math.max(0, parseInt(e.target.value, 10) || 0))
-                          }
-                          className={`${inputClass} h-9 w-28 text-xs font-semibold`}
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min="0"
-                            value={tier.maxSubtotal === null ? "" : tier.maxSubtotal}
-                            placeholder="Unlimited"
-                            onChange={(e) => {
-                              const val = e.target.value === "" ? null : Math.max(0, parseInt(e.target.value, 10) || 0);
-                              handleUpdateTier(tier.id, "maxSubtotal", val);
+                  {Object.keys(areasMap).map((st) => {
+                    const currentVal = settings.stateCharges?.[st] ?? (
+                      (st.toLowerCase() === "andhra pradesh" || st.toLowerCase() === "telangana") 
+                      ? 0 
+                      : 150
+                    );
+
+                    return (
+                      <tr key={st} className="hover:bg-cream-50/50">
+                        <td className="px-4 py-3.5 font-semibold text-maroon-900">{st}</td>
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-32">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                                ₹
+                              </span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={currentVal}
+                                onChange={(e) => {
+                                  const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                                  setSettings(prev => ({
+                                    ...prev,
+                                    stateCharges: {
+                                      ...(prev.stateCharges || {}),
+                                      [st]: val
+                                    }
+                                  }));
+                                }}
+                                className={`${inputClass} pl-8 h-9 w-full text-xs font-bold text-maroon-900`}
+                              />
+                            </div>
+                            {currentVal === 0 && (
+                              <span className="rounded-full bg-leaf-600/10 px-2.5 py-0.5 text-[11px] font-bold text-leaf-700">
+                                FREE
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSettings(prev => ({
+                                ...prev,
+                                stateCharges: {
+                                  ...(prev.stateCharges || {}),
+                                  [st]: 0
+                                }
+                              }));
                             }}
-                            className={`${inputClass} h-9 w-32 text-xs font-semibold`}
-                          />
-                          {tier.maxSubtotal === null && (
-                            <span className="text-xs font-medium text-leaf-600">
-                              (No limit)
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min="0"
-                            value={tier.fee}
-                            onChange={(e) =>
-                              handleUpdateTier(tier.id, "fee", Math.max(0, parseInt(e.target.value, 10) || 0))
-                            }
-                            className={`${inputClass} h-9 w-28 text-xs font-bold text-maroon-900`}
-                          />
-                          {tier.fee === 0 && (
-                            <span className="rounded-full bg-leaf-600/10 px-2 py-0.5 text-[11px] font-bold text-leaf-700">
-                              FREE
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTier(tier.id)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 hover:bg-maroon-800/10 hover:text-maroon-700 transition-colors"
-                          title="Delete tier"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                            className="inline-flex h-8 items-center rounded-lg bg-leaf-600/10 px-2.5 text-[11px] font-bold text-leaf-700 hover:bg-leaf-600/20 transition-colors"
+                          >
+                            Set Free
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {Object.keys(areasMap).length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-8 text-center text-xs text-ink-400">
+                        No serviceable states added yet. Go to &quot;Serviceable States &amp; Cities&quot; tab to add some.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -827,9 +796,6 @@ export default function AdminDeliveryPage() {
               </li>
               <li>
                 <strong>Immediate Storefront Sync:</strong> Adding new states or cities immediately makes them selectable in customer delivery location dropdowns and pincode lookups.
-              </li>
-              <li>
-                <strong>SQL Migration Script:</strong> A database script is available in <code>supabase/serviceable_areas.sql</code> to create the <code>site_settings</code> table and default rows in Supabase.
               </li>
             </ul>
           </div>

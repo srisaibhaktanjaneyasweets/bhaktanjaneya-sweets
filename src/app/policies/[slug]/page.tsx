@@ -7,6 +7,7 @@ import { policies, policySlugs } from "@/lib/content";
 import { formatDate } from "@/lib/utils";
 import { config } from "@/lib/config";
 import { waLink } from "@/lib/whatsapp";
+import { getBusinessConfigServer } from "@/lib/server/business-config";
 
 export function generateStaticParams() {
   return policySlugs.map((slug) => ({ slug }));
@@ -35,6 +36,8 @@ export default async function PolicyPage(props: PageProps<"/policies/[slug]">) {
   const { slug } = await props.params;
   const policy = policies[slug];
   if (!policy) notFound();
+
+  const businessConfig = await getBusinessConfigServer();
 
   return (
     <div className="py-12">
@@ -123,10 +126,10 @@ export default async function PolicyPage(props: PageProps<"/policies/[slug]">) {
                   <MessageCircle size={17} /> Chat on WhatsApp
                 </a>
                 <a
-                  href={`mailto:${config.contact.email}`}
+                  href={`mailto:${businessConfig.email}`}
                   className="inline-flex h-11 items-center gap-2 rounded-full border border-maroon-800/30 px-5 text-sm font-semibold text-maroon-800 hover:bg-maroon-800/5"
                 >
-                  <Mail size={16} /> {config.contact.email}
+                  <Mail size={16} /> {businessConfig.email}
                 </a>
               </div>
             </div>

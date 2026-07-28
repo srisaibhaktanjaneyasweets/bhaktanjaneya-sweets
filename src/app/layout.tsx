@@ -37,6 +37,8 @@ export const metadata: Metadata = {
       { url: "/favicon.ico" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
@@ -44,11 +46,11 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   title: {
-    default: `${config.businessName} — Pure Ghee Sweets & Traditional Namkeen`,
+    default: `${config.businessName} | Pure Ghee Sweets & Namkeen`,
     template: `%s | ${config.businessName}`,
   },
   description:
-    `${config.tagline} Buy authentic Tapeswaram Kaja, Gottam Kaja, Madatha Kaja, Kaju Sweets, Ariselu, and Putharekulu online with pan-India delivery.`,
+    "Buy authentic Tapeswaram Kaja, Madatha Kaja, Ariselu, Putharekulu, and pure ghee sweets online. Order on WhatsApp with fast delivery across India.",
   keywords: [
     "Bhaktanjaneya Sweets",
     "Sri Sai Bhaktanjaneya Sweets",

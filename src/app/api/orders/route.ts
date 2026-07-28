@@ -9,6 +9,7 @@ import {
   type ShippingSettings,
 } from "@/lib/shipping";
 import type { Offer, Order, OrderItem, Product, ShippingAddress } from "@/lib/types";
+import { isServiceableState } from "@/lib/constants/serviceable-areas";
 
 /** Look up + validate a coupon against the offers table (never trust the client). */
 async function validatedOffer(code: unknown, subtotal: number): Promise<Offer | null> {
@@ -42,7 +43,7 @@ interface PricedOrder {
  * never trusted for prices or totals — it can only choose products, variants,
  * and quantities. Returns an error string if any line can't be priced.
  */
-async function priceOrder(rawItems: unknown, couponCode: unknown): Promise<PricedOrder | string> {
+async function priceOrder(rawItems: unknown, couponCode: unknown, state?: string | null): Promise<PricedOrder | string> {
   if (!Array.isArray(rawItems) || rawItems.length === 0) return "Your cart is empty.";
 
   const ids = [...new Set(rawItems.map((it) => (it as { productId?: string })?.productId).filter(Boolean))] as string[];
@@ -123,7 +124,7 @@ async function priceOrder(rawItems: unknown, couponCode: unknown): Promise<Price
     else if (offer.type === "free_shipping") offerFreeShipping = true;
   }
   discount = Math.min(Math.max(0, discount), subtotal);
-  const shipping = calculateShippingFee(subtotal, shippingSettings, offerFreeShipping);
+  const shipping = calculateShippingFee(subtotal, shippingSettings, offerFreeShipping, state, items);
   const total = Math.max(0, subtotal - discount + shipping);
 
   return { items, subtotal, shipping, discount, total };
@@ -199,16 +200,27 @@ export async function POST(req: Request) {
   if (!isValidAddress(order.shippingAddress)) {
     return NextResponse.json({ error: "Valid delivery address is required" }, { status: 400 });
   }
-  // Verify state-level serviceability (permitting Bus Cargo delivery for unlisted cities in AP & Telangana)
+  // Verify state-level serviceability
+  let areasMap = null;
+  try {
+    const { data } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "serviceable_areas")
+      .maybeSingle();
+    if (data?.value) {
+      areasMap = data.value;
+    }
+  } catch {}
+
   const isStateOk =
     order.shippingAddress.state &&
-    (order.shippingAddress.state.trim().toLowerCase() === "andhra pradesh" ||
-      order.shippingAddress.state.trim().toLowerCase() === "telangana");
+    isServiceableState(order.shippingAddress.state, areasMap);
 
   if (!isStateOk) {
     return NextResponse.json(
       {
-        error: "We currently deliver only to Andhra Pradesh & Telangana.",
+        error: "We do not currently deliver to the selected state.",
       },
       { status: 400 },
     );
@@ -219,7 +231,7 @@ export async function POST(req: Request) {
   }
 
   // Recompute money server-side; never trust client prices/totals.
-  const priced = await priceOrder(order.items, order.couponCode);
+  const priced = await priceOrder(order.items, order.couponCode, order.shippingAddress?.state);
   if (typeof priced === "string") {
     return NextResponse.json({ error: priced }, { status: 400 });
   }

@@ -21,6 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import { apiGet } from "@/lib/api/client";
 import { config } from "@/lib/config";
 import { cn } from "@/lib/utils";
+import { useBusinessConfig } from "@/context/BusinessConfigContext";
 import type { Category } from "@/lib/types";
 
 const leadingLinks = [
@@ -36,6 +37,7 @@ const trailingLinks = [
 ];
 
 export function Header() {
+  const { config: businessConfig } = useBusinessConfig();
   const router = useRouter();
   const pathname = usePathname();
   const isShopPage = pathname === "/shop";
@@ -207,7 +209,7 @@ export function Header() {
             )}
 
             <a
-              href={`tel:${config.contact.phone.replace(/\s/g, "")}`}
+              href={`tel:${businessConfig.phone.replace(/\s/g, "")}`}
               aria-label="Call us"
               className="hidden h-10 w-10 items-center justify-center rounded-full text-maroon-800 transition-colors hover:bg-maroon-800/5 md:inline-flex"
             >
@@ -446,7 +448,7 @@ export function Header() {
                 {customer ? "My Account" : "Login / Sign up"}
               </Link>
               <a
-                href={`tel:${config.contact.phone.replace(/\s/g, "")}`}
+                href={`tel:${businessConfig.phone.replace(/\s/g, "")}`}
                 className={cn(
                   "mt-3 flex h-11 items-center justify-center gap-2 rounded-full bg-maroon-800 text-sm font-medium text-cream-50",
                 )}

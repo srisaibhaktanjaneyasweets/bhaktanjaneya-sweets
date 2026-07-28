@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
+import { submitToIndexNow } from "@/lib/indexnow";
 import {
   categoryFromRow,
   categoryToRow,
@@ -151,5 +152,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<Recor
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(formatRow(resource, data as Record<string, unknown>), { status: 201 });
+  
+  const responseData = formatRow(resource, data as Record<string, unknown>);
+
+  // Trigger IndexNow notification dynamically
+  if (resource === "products" && responseData && typeof responseData === "object" && "slug" in responseData) {
+    submitToIndexNow([`/product/${responseData.slug}`, "/", "/shop"]);
+  } else if (resource === "categories" && responseData && typeof responseData === "object" && "slug" in responseData) {
+    submitToIndexNow([`/collections/${responseData.slug}`, "/shop"]);
+  } else if (resource === "posts" && responseData && typeof responseData === "object" && "slug" in responseData) {
+    submitToIndexNow([`/blog/${responseData.slug}`, "/blog"]);
+  } else {
+    submitToIndexNow(["/"]);
+  }
+
+  return NextResponse.json(responseData, { status: 201 });
 }

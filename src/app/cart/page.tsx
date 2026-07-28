@@ -41,6 +41,7 @@ import {
   DEFAULT_SHIPPING_SETTINGS,
   calculateShippingFee,
   checkMinOrderRequirement,
+  parseWeightKg,
   type ShippingSettings,
 } from "@/lib/shipping";
 import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
@@ -198,6 +199,29 @@ export default function CartPage() {
   );
 
   const discount = useMemo(() => discountFor(offer, subtotal), [offer, subtotal]);
+  const totalWeight = useMemo(() => {
+    return items.reduce((acc, it) => acc + parseWeightKg(it.variantLabel) * it.quantity, 0);
+  }, [items]);
+
+  const chargePerKg = useMemo(() => {
+    if (!state) return 0;
+    const stateNormalized = state.trim().toLowerCase();
+    
+    if (shippingSettings.stateCharges) {
+      const stateKey = Object.keys(shippingSettings.stateCharges).find(
+        (s) => s.toLowerCase() === stateNormalized
+      );
+      if (stateKey !== undefined) {
+        return shippingSettings.stateCharges[stateKey];
+      }
+    }
+    
+    if (stateNormalized === "andhra pradesh" || stateNormalized === "ap" || stateNormalized === "telangana") {
+      return 0;
+    }
+    return 150;
+  }, [state, shippingSettings]);
+
   const shipping = useMemo(
     () =>
       calculateShippingFee(
@@ -205,8 +229,10 @@ export default function CartPage() {
         shippingSettings,
         offer?.type === "free_shipping" &&
           (!offer.minSubtotal || subtotal >= offer.minSubtotal),
+        state,
+        items,
       ),
-    [subtotal, shippingSettings, offer],
+    [subtotal, shippingSettings, offer, state, items],
   );
   const minOrderCheck = useMemo(
     () => checkMinOrderRequirement(subtotal, shippingSettings),
@@ -277,10 +303,9 @@ export default function CartPage() {
         return "Your saved address is incomplete. Please choose a different address or update it in your account.";
       }
       const hasSavedState = customer?.savedAddress?.state &&
-        (customer.savedAddress.state.trim().toLowerCase() === "andhra pradesh" ||
-         customer.savedAddress.state.trim().toLowerCase() === "telangana");
+        isServiceableCity(customer.savedAddress.state, customer.savedAddress.city, areasMap);
       if (!hasSavedState) {
-        return "We currently deliver only to Andhra Pradesh & Telangana.";
+        return "We do not currently deliver to your saved address location.";
       }
       return null;
     }
@@ -1009,7 +1034,14 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <dt className="text-ink-600">Delivery</dt>
+                  <dt className="text-ink-600">
+                    <span>Delivery</span>
+                    {state && shipping > 0 && (
+                      <span className="block text-[11px] font-normal text-ink-500 mt-0.5">
+                        ({totalWeight.toFixed(2)} kg @ {formatINR(chargePerKg)}/kg for {state})
+                      </span>
+                    )}
+                  </dt>
                   <dd className="font-medium text-maroon-900">
                     {shipping === 0 ? "Free" : formatINR(shipping)}
                   </dd>

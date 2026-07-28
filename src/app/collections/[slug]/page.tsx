@@ -25,9 +25,13 @@ export async function generateMetadata(
   const c = await getCategory(slug);
   if (!c) return { title: "Collection" };
   const url = `${config.siteUrl}/collections/${c.slug}`;
-  const desc = c.description ?? `Shop authentic ${c.name} online from Bhaktanjaneya Sweets. Fresh ingredients, pure ghee, nationwide delivery.`;
+  const title = `Buy ${c.name} Online | ${config.businessName}`;
+  let desc = c.description ?? `Shop authentic ${c.name} online from Bhaktanjaneya Sweets. Fresh ingredients, pure ghee, nationwide delivery.`;
+  if (desc.length > 155) {
+    desc = desc.substring(0, 152) + "...";
+  }
   return {
-    title: `${c.name} — Buy Traditional ${c.name} Online`,
+    title,
     description: desc,
     alternates: { canonical: url },
     openGraph: {

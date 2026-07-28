@@ -13,17 +13,18 @@ import { getManagedInstagramReels } from "@/lib/managed-instagram-reels";
 import { config } from "@/lib/config";
 import { Analytics } from "@vercel/analytics/next"
 import { getOfferBannerSettingsServer } from "@/lib/api/offer-banner";
+import { getBusinessConfigServer } from "@/lib/server/business-config";
 import type { Metadata } from "next";
 
 export const revalidate = 10;
 
 export const metadata: Metadata = {
-  title: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
+  title: `${config.businessName} | Pure Ghee Sweets & Namkeen`,
   description:
-    `${config.tagline} Order fresh traditional Indian sweets, laddu, kaja and namkeen online or instantly on WhatsApp, delivered across India.`,
+    "Order fresh pure ghee sweets, traditional kaja, laddu, and crunchy namkeen online. Order instantly on WhatsApp with delivery across India.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: `${config.businessName} — Pure Ghee Sweets & Crunchy Namkeen`,
+    title: `${config.businessName} | Pure Ghee Sweets & Namkeen`,
     description: config.tagline,
     type: "website",
     url: config.siteUrl,
@@ -31,12 +32,13 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [products, featuredTags, liveReviewsData, reels, offerBannerSettings] = await Promise.all([
+  const [products, featuredTags, liveReviewsData, reels, offerBannerSettings, businessConfig] = await Promise.all([
     getProducts(),
     getFeaturedTags(),
     getLiveGoogleReviews(),
     getManagedInstagramReels(),
     getOfferBannerSettingsServer(),
+    getBusinessConfigServer(),
   ]);
 
   // Build a carousel for each admin-featured tag, keeping only those that
@@ -136,8 +138,30 @@ export default async function HomePage() {
             description: config.tagline,
             logo: `${config.siteUrl}/images/logo.png`,
             image: `${config.siteUrl}/images/hero/hero-laddu.png`,
-            telephone: config.contact.phone,
-            email: config.contact.email,
+            telephone: businessConfig.phone,
+            email: businessConfig.email,
+            priceRange: "₹₹",
+            openingHoursSpecification: [
+              {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday"
+                ],
+                opens: "09:00",
+                closes: "21:30"
+              }
+            ],
+            geo: {
+              "@type": "GeoCoordinates",
+              latitude: 17.0005,
+              longitude: 81.8040
+            },
             address: {
               "@type": "PostalAddress",
               addressLocality: "Rajamahendravaram",
@@ -145,9 +169,7 @@ export default async function HomePage() {
               addressCountry: "IN",
             },
             sameAs: [
-              config.social.instagram,
-              config.social.facebook,
-              config.social.youtube,
+              ...businessConfig.socials.map((s: { url: string }) => s.url),
               config.googleReviewsUrl,
             ],
             aggregateRating: {

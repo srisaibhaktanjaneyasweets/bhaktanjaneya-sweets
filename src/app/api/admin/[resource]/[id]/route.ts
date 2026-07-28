@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
+import { submitToIndexNow } from "@/lib/indexnow";
 import {
   categoryFromRow,
   categoryToRow,
@@ -84,7 +85,20 @@ async function updateResource(
     .select("*")
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(formatRow(resource, data as Record<string, unknown>));
+  const responseData = formatRow(resource, data as Record<string, unknown>);
+
+  // Trigger IndexNow notification dynamically
+  if (resource === "products" && responseData && typeof responseData === "object" && "slug" in responseData) {
+    submitToIndexNow([`/product/${responseData.slug}`, "/", "/shop"]);
+  } else if (resource === "categories" && responseData && typeof responseData === "object" && "slug" in responseData) {
+    submitToIndexNow([`/collections/${responseData.slug}`, "/shop"]);
+  } else if (resource === "posts" && responseData && typeof responseData === "object" && "slug" in responseData) {
+    submitToIndexNow([`/blog/${responseData.slug}`, "/blog"]);
+  } else {
+    submitToIndexNow(["/"]);
+  }
+
+  return NextResponse.json(responseData);
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<Record<string, string>> | Record<string, string> }) {
@@ -127,5 +141,17 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<Rec
 
   const { error } = await supabaseAdmin.from(p.resource).delete().eq("id", p.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Trigger IndexNow notification dynamically on deletion
+  if (p.resource === "products") {
+    submitToIndexNow(["/", "/shop"]);
+  } else if (p.resource === "categories") {
+    submitToIndexNow(["/shop"]);
+  } else if (p.resource === "posts") {
+    submitToIndexNow(["/blog"]);
+  } else {
+    submitToIndexNow(["/"]);
+  }
+
   return new NextResponse(null, { status: 204 });
 }

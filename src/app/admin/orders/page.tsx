@@ -93,6 +93,16 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewing, setViewing] = useState<Order | null>(null);
   const [bluetoothReceiptModal, setBluetoothReceiptModal] = useState<Order | null>(null);
+  const [bizConfig, setBizConfig] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/settings/business")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setBizConfig(data);
+      })
+      .catch(() => {});
+  }, []);
 
   const [deliveryCompany, setDeliveryCompany] = useState("");
   const [deliveryTrackingId, setDeliveryTrackingId] = useState("");
@@ -529,7 +539,7 @@ export default function AdminOrdersPage() {
                             {/* Quick A4 Full Page Invoice print */}
                             <button
                               type="button"
-                              onClick={() => printFullInvoice(o)}
+                              onClick={() => printFullInvoice(o, bizConfig)}
                               title="Print/Download A4 Invoice"
                               className="flex h-8 w-8 items-center justify-center rounded-lg border border-cream-200 bg-white text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors cursor-pointer"
                             >
@@ -664,7 +674,7 @@ export default function AdminOrdersPage() {
                     
                     <button
                       type="button"
-                      onClick={() => printFullInvoice(o)}
+                      onClick={() => printFullInvoice(o, bizConfig)}
                       className="flex h-8 items-center gap-1.5 px-3 rounded-lg border border-cream-200 bg-white text-xs font-bold text-ink-600 hover:border-maroon-800 hover:bg-maroon-800/5 hover:text-maroon-800 transition-colors cursor-pointer"
                     >
                       <FileText size={14} /> A4
@@ -902,7 +912,7 @@ export default function AdminOrdersPage() {
 
               <button
                 type="button"
-                onClick={() => printThermalReceipt(viewing)}
+                onClick={() => printThermalReceipt(viewing, bizConfig)}
                 className="flex h-11 items-center justify-center gap-1.5 rounded-xl border border-maroon-800/30 bg-white text-xs font-bold text-maroon-900 shadow-sm hover:bg-cream-100 transition-colors"
               >
                 <Printer size={16} className="shrink-0" /> 3-Inch Slip (Browser)
@@ -910,7 +920,7 @@ export default function AdminOrdersPage() {
 
               <button
                 type="button"
-                onClick={() => printFullInvoice(viewing)}
+                onClick={() => printFullInvoice(viewing, bizConfig)}
                 className="flex h-11 items-center justify-center gap-1.5 rounded-xl border border-maroon-800/30 bg-white text-xs font-bold text-maroon-900 shadow-sm hover:bg-cream-100 transition-colors"
               >
                 <FileText size={16} className="shrink-0" /> Full A4 Invoice
@@ -988,7 +998,7 @@ export default function AdminOrdersPage() {
 
               <button
                 type="button"
-                onClick={() => openRawBtPrintApp(bluetoothReceiptModal)}
+                onClick={() => openRawBtPrintApp(bluetoothReceiptModal, bizConfig)}
                 className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-saffron-500 bg-saffron-500/10 px-4 text-xs font-bold text-maroon-900 hover:bg-saffron-500/20 shadow-sm transition-colors"
               >
                 <Smartphone size={16} className="text-saffron-600" /> Open RawBT App Direct
@@ -1000,7 +1010,7 @@ export default function AdminOrdersPage() {
               <button
                 type="button"
                 onClick={() => {
-                  const text = generatePlainTextReceipt(bluetoothReceiptModal, true);
+                  const text = generatePlainTextReceipt(bluetoothReceiptModal, true, bizConfig);
                   let success = false;
 
                   try {

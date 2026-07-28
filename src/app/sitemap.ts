@@ -11,18 +11,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticRoutes = [
-    "",
-    "/shop",
-    "/about",
-    "/contact",
-    "/blog",
-    "/faq",
-    "/login",
-  ].map((path) => ({
+    { path: "", changeFreq: "daily" as const, priority: 1.0 },
+    { path: "/shop", changeFreq: "daily" as const, priority: 0.9 },
+    { path: "/about", changeFreq: "weekly" as const, priority: 0.5 },
+    { path: "/contact", changeFreq: "weekly" as const, priority: 0.5 },
+    { path: "/blog", changeFreq: "daily" as const, priority: 0.7 },
+    { path: "/faq", changeFreq: "weekly" as const, priority: 0.5 },
+    { path: "/login", changeFreq: "monthly" as const, priority: 0.2 },
+  ].map(({ path, changeFreq, priority }) => ({
     url: `${base}${path}`,
     lastModified: now,
-    changeFrequency: "weekly" as const,
-    priority: path === "" ? 1 : 0.7,
+    changeFrequency: changeFreq,
+    priority,
   }));
 
   const [products, categories, posts] = await Promise.all([
@@ -34,22 +34,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const productRoutes = products.map((p) => ({
     url: `${base}/product/${p.slug}`,
     lastModified: now,
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
+    changeFrequency: "daily" as const,
+    priority: 0.9,
   }));
 
   const categoryRoutes = categories.map((c) => ({
     url: `${base}/collections/${c.slug}`,
     lastModified: now,
-    changeFrequency: "weekly" as const,
-    priority: 0.6,
+    changeFrequency: "daily" as const,
+    priority: 0.8,
   }));
 
   const blogRoutes = posts.map((b) => ({
     url: `${base}/blog/${b.slug}`,
     lastModified: b.date ? new Date(b.date) : now,
-    changeFrequency: "monthly" as const,
-    priority: 0.5,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
   }));
 
   const policyRoutes = policySlugs.map((slug) => ({
