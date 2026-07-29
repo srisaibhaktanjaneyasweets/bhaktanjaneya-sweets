@@ -455,7 +455,8 @@ export default function AdminDeliveryPage() {
               </div>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-cream-200">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto rounded-2xl border border-cream-200">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-cream-200 bg-cream-50/70 text-xs font-semibold uppercase tracking-wider text-ink-600">
@@ -565,6 +566,122 @@ export default function AdminDeliveryPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Card Grid View */}
+            <div className="block md:hidden space-y-4">
+              {Object.keys(areasMap).map((st) => {
+                const currentVal = settings.stateCharges?.[st] ?? (
+                  (st.toLowerCase() === "andhra pradesh" || st.toLowerCase() === "telangana") 
+                  ? 0 
+                  : 150
+                );
+
+                return (
+                  <div key={st} className="rounded-2xl border border-cream-200 bg-white p-4 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-cream-100 pb-2">
+                      <span className="font-serif text-sm font-bold text-maroon-900">{st}</span>
+                      {currentVal === 0 ? (
+                        <span className="rounded-full bg-leaf-600/10 px-2.5 py-0.5 text-[10px] font-bold text-leaf-700">
+                          FREE SHIPPING
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-semibold text-ink-400">
+                          CUSTOM RATES
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Charge Per Kg Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-ink-500">
+                          Rate / Kg
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                            ₹
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={currentVal}
+                            onChange={(e) => {
+                              const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                              setSettings(prev => ({
+                                ...prev,
+                                stateCharges: {
+                                  ...(prev.stateCharges || {}),
+                                  [st]: val
+                                }
+                              }));
+                            }}
+                            className={`${inputClass} pl-7 h-9 text-xs font-bold text-maroon-900`}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Free Threshold Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-ink-500">
+                          Free Threshold
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                            ₹
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={settings.stateFreeThresholds?.[st] ?? ""}
+                            onChange={(e) => {
+                              const valStr = e.target.value;
+                              const val = valStr === "" ? undefined : Math.max(0, parseInt(valStr, 10) || 0);
+                              setSettings(prev => {
+                                const thresholdsCopy = { ...(prev.stateFreeThresholds || {}) };
+                                if (val === undefined) {
+                                  delete thresholdsCopy[st];
+                                } else {
+                                  thresholdsCopy[st] = val;
+                                }
+                                return {
+                                  ...prev,
+                                  stateFreeThresholds: thresholdsCopy
+                                };
+                              });
+                            }}
+                            className={`${inputClass} pl-7 h-9 text-xs font-bold text-maroon-900`}
+                            placeholder={`Global (₹${settings.freeShippingThreshold})`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {currentVal !== 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSettings(prev => ({
+                            ...prev,
+                            stateCharges: {
+                              ...(prev.stateCharges || {}),
+                              [st]: 0
+                            }
+                          }));
+                        }}
+                        className="w-full flex h-8 items-center justify-center rounded-lg bg-leaf-600/10 text-xs font-bold text-leaf-700 hover:bg-leaf-600/20 transition-colors"
+                      >
+                        Set Delivery Free
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              {Object.keys(areasMap).length === 0 && (
+                <div className="rounded-2xl border border-dashed border-cream-300 p-6 text-center text-xs text-ink-400 bg-cream-50/30">
+                  No serviceable states added yet. Go to &quot;Serviceable States &amp; Cities&quot; tab to add some.
+                </div>
+              )}
             </div>
           </div>
         </div>
