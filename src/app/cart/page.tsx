@@ -1043,7 +1043,15 @@ export default function CartPage() {
                     )}
                   </dt>
                   <dd className="font-medium text-maroon-900">
-                    {shipping === 0 ? "Free" : formatINR(shipping)}
+                    {!state ? (
+                      <span className="text-xs font-normal text-ink-400 italic">
+                        Select state to calculate
+                      </span>
+                    ) : shipping === 0 ? (
+                      "Free"
+                    ) : (
+                      formatINR(shipping)
+                    )}
                   </dd>
                 </div>
                 <div className="flex justify-between border-t border-cream-200 pt-2 text-base">

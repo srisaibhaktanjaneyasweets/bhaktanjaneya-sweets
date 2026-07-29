@@ -213,16 +213,26 @@ export function buildShipmentWhatsAppMessage(
   const rawId = order.id ?? "";
   const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
 
-  const companyText = deliveryCompany ? `\n• Courier Company: *${deliveryCompany}*` : "";
-  const trackingText = deliveryTrackingId ? `\n• Tracking ID: *${deliveryTrackingId}*` : "";
+  const companyLine = deliveryCompany ? `🚚 *Courier Partner* : ${deliveryCompany}` : "";
+  const trackingLine = deliveryTrackingId ? `📦 *Tracking ID*      : ${deliveryTrackingId}` : "";
+  const detailsBlock = [companyLine, trackingLine].filter(Boolean).join("\n");
 
   return [
-    `Hello! Your order #${shortId} from ${config.businessName} has been shipped.${companyText}${trackingText}`,
+    `*🎉 Great news! Your order has been shipped!*`,
     "",
-    "It will be delivered in 3-4 days. If not, contact us.",
+    `Hello ${order.customerName || "Customer"},`,
+    `We have shipped your order *#${shortId}* from *${config.businessName}*! Here are your shipping details:`,
     "",
-    "Please take a video of opening the box without pauses or cuts while opening and send it, or else we can't provide any refund or replacement in case of damage or missing items.",
+    "--------------------------------",
+    detailsBlock,
+    "--------------------------------",
     "",
-    "Thank you!",
-  ].join("\n");
+    `🗓️ *Estimated Delivery:* 3-4 business days.`,
+    `📞 If you do not receive it within this time, please contact us at *${config.contact.phone}*.`,
+    "",
+    `⚠️ *CRITICAL: BOX OPENING INSTRUCTIONS*`,
+    "Please record a *continuous video of opening the box* without any cuts, edits, or pauses. This video is *compulsory* to claim a refund or replacement in case of damages or missing items.",
+    "",
+    `Thank you for ordering traditional pure ghee sweets from us! We hope you love them! ✨`,
+  ].filter((l) => l !== undefined).join("\n");
 }
