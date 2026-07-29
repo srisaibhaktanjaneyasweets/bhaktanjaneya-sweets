@@ -347,8 +347,8 @@ export default function AdminDeliveryPage() {
       {/* Tab 1: Shipping Charges & Rules */}
       {activeTab === "shipping" && (
         <div className="space-y-8">
-          {/* Main Settings - Single Column */}
-          <div className="max-w-md">
+          {/* Main Settings - Full Width Card */}
+          <div>
             {/* Minimum Order Requirement Card */}
             <div className="flex flex-col justify-between rounded-3xl border border-cream-200 bg-white p-6 shadow-soft">
               <div className="space-y-4">
@@ -362,7 +362,7 @@ export default function AdminDeliveryPage() {
                   Customers cannot place orders if their cart subtotal is less than this minimum value. Set to 0 to disable.
                 </p>
 
-                <div className="space-y-2 pt-2">
+                <div className="space-y-2 pt-2 max-w-xs">
                   <label className="text-xs font-semibold uppercase tracking-wider text-ink-600">
                     Minimum Order Subtotal (₹)
                   </label>
@@ -382,7 +382,7 @@ export default function AdminDeliveryPage() {
                 </div>
               </div>
 
-              <div className="mt-6 rounded-2xl bg-cream-100 p-3.5 text-xs text-ink-600">
+              <div className="mt-6 rounded-2xl bg-cream-100 p-3.5 text-xs text-ink-600 max-w-md">
                 {settings.minOrderValue > 0 ? (
                   <p className="flex items-center gap-2 font-medium text-maroon-900">
                     <CheckCircle2 size={16} className="text-leaf-600 shrink-0" />
@@ -479,33 +479,60 @@ export default function AdminDeliveryPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3.5">
-                          <div className="relative w-36">
-                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
-                              ₹
-                            </span>
-                            <input
-                              type="number"
-                              min="0"
-                              value={thresholdVal ?? ""}
-                              onChange={(e) => {
-                                const valStr = e.target.value;
-                                const val = valStr === "" ? undefined : Math.max(0, parseInt(valStr, 10) || 0);
-                                setSettings(prev => {
-                                  const thresholdsCopy = { ...(prev.stateFreeThresholds || {}) };
-                                  if (val === undefined) {
-                                    delete thresholdsCopy[st];
-                                  } else {
-                                    thresholdsCopy[st] = val;
-                                  }
-                                  return {
-                                    ...prev,
-                                    stateFreeThresholds: thresholdsCopy
-                                  };
-                                });
-                              }}
-                              className={`${inputClass} pl-8 h-9 w-full text-xs font-bold text-maroon-900`}
-                              placeholder="e.g. 799"
-                            />
+                          <div className="flex items-center gap-3">
+                            {/* Toggle Switch */}
+                            <label className="relative inline-flex cursor-pointer items-center">
+                              <input
+                                type="checkbox"
+                                checked={thresholdVal !== undefined}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setSettings(prev => {
+                                    const thresholdsCopy = { ...(prev.stateFreeThresholds || {}) };
+                                    if (checked) {
+                                      thresholdsCopy[st] = 799; // default initial value
+                                    } else {
+                                      delete thresholdsCopy[st];
+                                    }
+                                    return {
+                                      ...prev,
+                                      stateFreeThresholds: thresholdsCopy
+                                    };
+                                  });
+                                }}
+                                className="peer sr-only"
+                              />
+                              <div className="peer h-5 w-9 rounded-full bg-cream-300 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-maroon-800 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none shrink-0" />
+                            </label>
+
+                            {thresholdVal !== undefined ? (
+                              <div className="relative w-28">
+                                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                                  ₹
+                                </span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={thresholdVal}
+                                  onChange={(e) => {
+                                    const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                                    setSettings(prev => ({
+                                      ...prev,
+                                      stateFreeThresholds: {
+                                        ...(prev.stateFreeThresholds || {}),
+                                        [st]: val
+                                      }
+                                    }));
+                                  }}
+                                  className={`${inputClass} pl-6 h-8 w-full text-xs font-bold text-maroon-900`}
+                                  placeholder="e.g. 799"
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs text-ink-400 font-medium select-none">
+                                Disabled
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="px-4 py-3.5 text-right">
@@ -610,33 +637,59 @@ export default function AdminDeliveryPage() {
                         <label className="text-[10px] font-bold uppercase tracking-wider text-ink-500">
                           Free Threshold
                         </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
-                            ₹
-                          </span>
-                          <input
-                            type="number"
-                            min="0"
-                            value={thresholdVal ?? ""}
-                            onChange={(e) => {
-                              const valStr = e.target.value;
-                              const val = valStr === "" ? undefined : Math.max(0, parseInt(valStr, 10) || 0);
-                              setSettings(prev => {
-                                const thresholdsCopy = { ...(prev.stateFreeThresholds || {}) };
-                                if (val === undefined) {
-                                  delete thresholdsCopy[st];
-                                } else {
-                                  thresholdsCopy[st] = val;
-                                }
-                                return {
-                                  ...prev,
-                                  stateFreeThresholds: thresholdsCopy
-                                };
-                              });
-                            }}
-                            className={`${inputClass} pl-7 h-9 text-xs font-bold text-maroon-900`}
-                            placeholder="e.g. 799"
-                          />
+                        <div className="flex items-center gap-2 h-9">
+                          <label className="relative inline-flex cursor-pointer items-center">
+                            <input
+                              type="checkbox"
+                              checked={thresholdVal !== undefined}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setSettings(prev => {
+                                  const thresholdsCopy = { ...(prev.stateFreeThresholds || {}) };
+                                  if (checked) {
+                                    thresholdsCopy[st] = 799; // default initial value
+                                  } else {
+                                    delete thresholdsCopy[st];
+                                  }
+                                  return {
+                                    ...prev,
+                                    stateFreeThresholds: thresholdsCopy
+                                  };
+                                });
+                              }}
+                              className="peer sr-only"
+                            />
+                            <div className="peer h-5 w-9 rounded-full bg-cream-300 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-maroon-800 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none shrink-0" />
+                          </label>
+
+                          {thresholdVal !== undefined ? (
+                            <div className="relative flex-1">
+                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                                ₹
+                              </span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={thresholdVal}
+                                onChange={(e) => {
+                                  const val = Math.max(0, parseInt(e.target.value, 10) || 0);
+                                  setSettings(prev => ({
+                                    ...prev,
+                                    stateFreeThresholds: {
+                                      ...(prev.stateFreeThresholds || {}),
+                                      [st]: val
+                                    }
+                                  }));
+                                }}
+                                className={`${inputClass} pl-6 h-8 w-full text-xs font-bold text-maroon-900`}
+                                placeholder="e.g. 799"
+                              />
+                            </div>
+                          ) : (
+                            <span className="text-xs text-ink-400 font-medium select-none">
+                              Disabled
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
