@@ -347,27 +347,29 @@ export default function AdminDeliveryPage() {
       {/* Tab 1: Shipping Charges & Rules */}
       {activeTab === "shipping" && (
         <div className="space-y-8">
-          {/* Main Settings - Full Width Card */}
-          <div>
-            {/* Minimum Order Requirement Card */}
-            <div className="flex flex-col justify-between rounded-3xl border border-cream-200 bg-white p-6 shadow-soft">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-maroon-900">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-saffron-500/10 text-saffron-600">
-                    <IndianRupee size={18} />
-                  </span>
-                  <h2 className="font-serif text-lg font-bold">Minimum Order Requirement</h2>
-                </div>
+          {/* State-wise Per-Kg Delivery Charges Card */}
+          <div className="rounded-3xl border border-cream-200 bg-white p-6 shadow-soft space-y-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-cream-100 pb-4">
+              <div>
+                <h2 className="font-serif text-lg font-bold text-maroon-900">
+                  State-wise Per-Kg Delivery Charges &amp; Rules
+                </h2>
                 <p className="text-xs text-ink-500">
-                  Customers cannot place orders if their cart subtotal is less than this minimum value. Set to 0 to disable.
+                  Set specific delivery charges per kg for each serviceable state and configure custom free shipping thresholds.
                 </p>
+              </div>
 
-                <div className="space-y-2 pt-2 max-w-xs">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-ink-600">
-                    Minimum Order Subtotal (₹)
+              {/* Minimum Order Value inline setting */}
+              <div className="flex items-center gap-3 bg-cream-50/70 border border-cream-200 rounded-2xl p-3 shrink-0">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-saffron-500/10 text-saffron-600 shrink-0">
+                  <IndianRupee size={15} />
+                </span>
+                <div className="space-y-0.5">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-ink-500 block">
+                    Min Order Value
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-semibold text-ink-400">
+                  <div className="relative w-28">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-400">
                       ₹
                     </span>
                     <input
@@ -375,39 +377,20 @@ export default function AdminDeliveryPage() {
                       min="0"
                       value={settings.minOrderValue}
                       onChange={(e) => handleMinOrderChange(e.target.value)}
-                      className={`${inputClass} pl-8 text-base font-bold text-maroon-900`}
+                      className="w-full pl-6 pr-2 h-7 rounded-lg border border-cream-300 bg-white text-xs font-bold text-maroon-900 focus:border-saffron-400 focus:outline-none focus:ring-1 focus:ring-saffron-400"
                       placeholder="e.g. 200"
                     />
                   </div>
+                  {settings.minOrderValue > 0 ? (
+                    <span className="text-[9px] text-leaf-700 font-semibold block leading-none">
+                      Blocked below ₹{settings.minOrderValue}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-ink-400 font-medium block leading-none">
+                      No order limit
+                    </span>
+                  )}
                 </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl bg-cream-100 p-3.5 text-xs text-ink-600 max-w-md">
-                {settings.minOrderValue > 0 ? (
-                  <p className="flex items-center gap-2 font-medium text-maroon-900">
-                    <CheckCircle2 size={16} className="text-leaf-600 shrink-0" />
-                    Orders below <strong>{formatINR(settings.minOrderValue)}</strong> will be blocked with an alert.
-                  </p>
-                ) : (
-                  <p className="flex items-center gap-2 text-ink-500">
-                    <AlertCircle size={16} className="text-ink-400 shrink-0" />
-                    No minimum order limit active. Any cart subtotal can checkout.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* State-wise Per-Kg Delivery Charges Card */}
-          <div className="rounded-3xl border border-cream-200 bg-white p-6 shadow-soft space-y-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="font-serif text-lg font-bold text-maroon-900">
-                  State-wise Per-Kg Delivery Charges
-                </h2>
-                <p className="text-xs text-ink-500">
-                  Set specific delivery charges per kg for each serviceable state. AP & Telangana default to Free (₹0), other states default to ₹150/kg.
-                </p>
               </div>
             </div>
 
