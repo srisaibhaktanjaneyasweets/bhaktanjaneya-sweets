@@ -429,10 +429,25 @@ export default function AdminDeliveryPage() {
                       ? 0 
                       : 150
                     );
+                    const thresholdVal = settings.stateFreeThresholds?.[st];
+
+                    let ruleSummary = "";
+                    if (currentVal === 0) {
+                      ruleSummary = "Delivery is always free";
+                    } else if (thresholdVal && thresholdVal > 0) {
+                      ruleSummary = `₹${currentVal}/kg, free on orders ≥ ₹${thresholdVal}`;
+                    } else {
+                      ruleSummary = `₹${currentVal}/kg on all orders (no free limit)`;
+                    }
 
                     return (
                       <tr key={st} className="hover:bg-cream-50/50">
-                        <td className="px-4 py-3.5 font-semibold text-maroon-900">{st}</td>
+                        <td className="px-4 py-3.5">
+                          <div className="font-semibold text-maroon-900">{st}</div>
+                          <div className="text-[11px] text-ink-400 mt-0.5 font-medium">
+                            {ruleSummary}
+                          </div>
+                        </td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="relative w-32">
@@ -471,7 +486,7 @@ export default function AdminDeliveryPage() {
                             <input
                               type="number"
                               min="0"
-                              value={settings.stateFreeThresholds?.[st] ?? ""}
+                              value={thresholdVal ?? ""}
                               onChange={(e) => {
                                 const valStr = e.target.value;
                                 const val = valStr === "" ? undefined : Math.max(0, parseInt(valStr, 10) || 0);
@@ -489,7 +504,7 @@ export default function AdminDeliveryPage() {
                                 });
                               }}
                               className={`${inputClass} pl-8 h-9 w-full text-xs font-bold text-maroon-900`}
-                              placeholder="Disabled (e.g. 799)"
+                              placeholder="e.g. 799"
                             />
                           </div>
                         </td>
@@ -532,17 +547,30 @@ export default function AdminDeliveryPage() {
                   ? 0 
                   : 150
                 );
+                const thresholdVal = settings.stateFreeThresholds?.[st];
+
+                let ruleSummary = "";
+                if (currentVal === 0) {
+                  ruleSummary = "Delivery is always free";
+                } else if (thresholdVal && thresholdVal > 0) {
+                  ruleSummary = `₹${currentVal}/kg, free on orders ≥ ₹${thresholdVal}`;
+                } else {
+                  ruleSummary = `₹${currentVal}/kg on all orders`;
+                }
 
                 return (
                   <div key={st} className="rounded-2xl border border-cream-200 bg-white p-4 shadow-sm space-y-4">
                     <div className="flex items-center justify-between border-b border-cream-100 pb-2">
-                      <span className="font-serif text-sm font-bold text-maroon-900">{st}</span>
+                      <div>
+                        <span className="font-serif text-sm font-bold text-maroon-900">{st}</span>
+                        <p className="text-[10px] text-ink-400 font-medium mt-0.5">{ruleSummary}</p>
+                      </div>
                       {currentVal === 0 ? (
-                        <span className="rounded-full bg-leaf-600/10 px-2.5 py-0.5 text-[10px] font-bold text-leaf-700">
+                        <span className="rounded-full bg-leaf-600/10 px-2.5 py-0.5 text-[10px] font-bold text-leaf-700 shrink-0">
                           FREE SHIPPING
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold text-ink-400">
+                        <span className="text-[10px] font-semibold text-ink-400 shrink-0">
                           CUSTOM RATES
                         </span>
                       )}
@@ -589,7 +617,7 @@ export default function AdminDeliveryPage() {
                           <input
                             type="number"
                             min="0"
-                            value={settings.stateFreeThresholds?.[st] ?? ""}
+                            value={thresholdVal ?? ""}
                             onChange={(e) => {
                               const valStr = e.target.value;
                               const val = valStr === "" ? undefined : Math.max(0, parseInt(valStr, 10) || 0);
@@ -607,7 +635,7 @@ export default function AdminDeliveryPage() {
                               });
                             }}
                             className={`${inputClass} pl-7 h-9 text-xs font-bold text-maroon-900`}
-                            placeholder="Disabled (e.g. 799)"
+                            placeholder="e.g. 799"
                           />
                         </div>
                       </div>
