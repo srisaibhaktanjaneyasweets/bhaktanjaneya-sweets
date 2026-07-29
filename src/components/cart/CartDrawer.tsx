@@ -89,10 +89,10 @@ export function CartDrawer() {
   }, [isOpen]);
 
   const remaining = getFreeShippingRemaining(subtotal, shippingSettings);
-  const progress = Math.min(
-    100,
-    (subtotal / (shippingSettings.freeShippingThreshold || 1)) * 100,
-  );
+  const showFreeShippingProgress = shippingSettings.freeShippingThreshold > 0 && shippingSettings.freeShippingThreshold < Infinity;
+  const progress = showFreeShippingProgress
+    ? Math.min(100, (subtotal / (shippingSettings.freeShippingThreshold || 1)) * 100)
+    : 0;
   const minOrderCheck = checkMinOrderRequirement(subtotal, shippingSettings);
 
   // Basket-aware recommendations: rank the catalogue by similarity to what's
@@ -176,39 +176,41 @@ export function CartDrawer() {
                 </div>
               )}
               {/* Free shipping progress */}
-              <div className="mb-4 rounded-xl bg-cream-100 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  {remaining > 0 ? (
-                    <p className="text-xs text-ink-600">
-                      Add{" "}
-                      <span className="font-semibold text-maroon-800">
-                        {formatINR(remaining)}
-                      </span>{" "}
-                      more for free shipping
-                    </p>
-                  ) : (
-                    <p className="text-xs font-semibold text-leaf-600">
-                      🎉 You&apos;ve unlocked free shipping!
-                    </p>
-                  )}
-                  <Truck
-                    size={16}
-                    className={cn(
-                      "shrink-0",
-                      remaining > 0 ? "text-ink-400" : "text-leaf-600",
+              {showFreeShippingProgress && (
+                <div className="mb-4 rounded-xl bg-cream-100 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    {remaining > 0 ? (
+                      <p className="text-xs text-ink-600">
+                        Add{" "}
+                        <span className="font-semibold text-maroon-800">
+                          {formatINR(remaining)}
+                        </span>{" "}
+                        more for free shipping
+                      </p>
+                    ) : (
+                      <p className="text-xs font-semibold text-leaf-600">
+                        🎉 You&apos;ve unlocked free shipping!
+                      </p>
                     )}
-                  />
+                    <Truck
+                      size={16}
+                      className={cn(
+                        "shrink-0",
+                        remaining > 0 ? "text-ink-400" : "text-leaf-600",
+                      )}
+                    />
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream-300">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        remaining > 0 ? "bg-saffron-500" : "bg-leaf-500",
+                      )}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream-300">
-                  <div
-                    className={cn(
-                      "h-full rounded-full transition-all",
-                      remaining > 0 ? "bg-saffron-500" : "bg-leaf-500",
-                    )}
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
+              )}
 
               <ul className="space-y-4">
                 {items.map((it) => (

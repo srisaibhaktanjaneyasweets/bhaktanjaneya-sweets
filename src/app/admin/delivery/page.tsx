@@ -89,10 +89,7 @@ export default function AdminDeliveryPage() {
     setSettings((prev) => ({ ...prev, minOrderValue: num }));
   }
 
-  function handleFreeThresholdChange(val: string) {
-    const num = Math.max(0, parseInt(val, 10) || 0);
-    setSettings((prev) => ({ ...prev, freeShippingThreshold: num }));
-  }
+
 
 
 
@@ -350,8 +347,8 @@ export default function AdminDeliveryPage() {
       {/* Tab 1: Shipping Charges & Rules */}
       {activeTab === "shipping" && (
         <div className="space-y-8">
-          {/* Main Settings Grid */}
-          <div className="grid gap-6 md:grid-cols-2">
+          {/* Main Settings - Single Column */}
+          <div className="max-w-md">
             {/* Minimum Order Requirement Card */}
             <div className="flex flex-col justify-between rounded-3xl border border-cream-200 bg-white p-6 shadow-soft">
               <div className="space-y-4">
@@ -397,47 +394,6 @@ export default function AdminDeliveryPage() {
                     No minimum order limit active. Any cart subtotal can checkout.
                   </p>
                 )}
-              </div>
-            </div>
-
-            {/* Free Shipping Threshold Card */}
-            <div className="flex flex-col justify-between rounded-3xl border border-cream-200 bg-white p-6 shadow-soft">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-maroon-900">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-leaf-600/10 text-leaf-600">
-                    <Truck size={18} />
-                  </span>
-                  <h2 className="font-serif text-lg font-bold">Free Shipping Threshold</h2>
-                </div>
-                <p className="text-xs text-ink-500">
-                  Orders with subtotals equal to or greater than this threshold automatically qualify for FREE delivery.
-                </p>
-
-                <div className="space-y-2 pt-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-ink-600">
-                    Free Shipping Threshold (₹)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-semibold text-ink-400">
-                      ₹
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      value={settings.freeShippingThreshold}
-                      onChange={(e) => handleFreeThresholdChange(e.target.value)}
-                      className={`${inputClass} pl-8 text-base font-bold text-maroon-900`}
-                      placeholder="e.g. 799"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-2xl bg-cream-100 p-3.5 text-xs text-ink-600">
-                <p className="flex items-center gap-2 font-medium text-maroon-900">
-                  <CheckCircle2 size={16} className="text-leaf-600 shrink-0" />
-                  Orders above <strong>{formatINR(settings.freeShippingThreshold)}</strong> get free shipping automatically.
-                </p>
               </div>
             </div>
           </div>
@@ -533,7 +489,7 @@ export default function AdminDeliveryPage() {
                                 });
                               }}
                               className={`${inputClass} pl-8 h-9 w-full text-xs font-bold text-maroon-900`}
-                              placeholder={`Global (₹${settings.freeShippingThreshold})`}
+                              placeholder="Disabled (e.g. 799)"
                             />
                           </div>
                         </td>
@@ -651,7 +607,7 @@ export default function AdminDeliveryPage() {
                               });
                             }}
                             className={`${inputClass} pl-7 h-9 text-xs font-bold text-maroon-900`}
-                            placeholder={`Global (₹${settings.freeShippingThreshold})`}
+                            placeholder="Disabled (e.g. 799)"
                           />
                         </div>
                       </div>
