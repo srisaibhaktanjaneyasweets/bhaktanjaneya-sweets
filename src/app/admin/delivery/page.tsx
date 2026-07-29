@@ -461,6 +461,7 @@ export default function AdminDeliveryPage() {
                   <tr className="border-b border-cream-200 bg-cream-50/70 text-xs font-semibold uppercase tracking-wider text-ink-600">
                     <th className="px-4 py-3">State Name</th>
                     <th className="px-4 py-3">Charge per kg (₹)</th>
+                    <th className="px-4 py-3">Free Threshold (₹)</th>
                     <th className="px-4 py-3 text-right">Quick Actions</th>
                   </tr>
                 </thead>
@@ -505,6 +506,36 @@ export default function AdminDeliveryPage() {
                             )}
                           </div>
                         </td>
+                        <td className="px-4 py-3.5">
+                          <div className="relative w-36">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={settings.stateFreeThresholds?.[st] ?? ""}
+                              onChange={(e) => {
+                                const valStr = e.target.value;
+                                const val = valStr === "" ? undefined : Math.max(0, parseInt(valStr, 10) || 0);
+                                setSettings(prev => {
+                                  const thresholdsCopy = { ...(prev.stateFreeThresholds || {}) };
+                                  if (val === undefined) {
+                                    delete thresholdsCopy[st];
+                                  } else {
+                                    thresholdsCopy[st] = val;
+                                  }
+                                  return {
+                                    ...prev,
+                                    stateFreeThresholds: thresholdsCopy
+                                  };
+                                });
+                              }}
+                              className={`${inputClass} pl-8 h-9 w-full text-xs font-bold text-maroon-900`}
+                              placeholder={`Global (₹${settings.freeShippingThreshold})`}
+                            />
+                          </div>
+                        </td>
                         <td className="px-4 py-3.5 text-right">
                           <button
                             type="button"
@@ -527,7 +558,7 @@ export default function AdminDeliveryPage() {
                   })}
                   {Object.keys(areasMap).length === 0 && (
                     <tr>
-                      <td colSpan={3} className="px-4 py-8 text-center text-xs text-ink-400">
+                      <td colSpan={4} className="px-4 py-8 text-center text-xs text-ink-400">
                         No serviceable states added yet. Go to &quot;Serviceable States &amp; Cities&quot; tab to add some.
                       </td>
                     </tr>

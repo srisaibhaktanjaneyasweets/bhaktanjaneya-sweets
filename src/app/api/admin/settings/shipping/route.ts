@@ -64,11 +64,13 @@ export async function PUT(req: Request) {
   const minOrderValue = Math.max(0, Number(body.minOrderValue) || 0);
   const freeShippingThreshold = Math.max(0, Number(body.freeShippingThreshold) || 0);
   const stateCharges = body.stateCharges && typeof body.stateCharges === "object" ? body.stateCharges : {};
+  const stateFreeThresholds = body.stateFreeThresholds && typeof body.stateFreeThresholds === "object" ? body.stateFreeThresholds : {};
 
   const configToSave: ShippingSettings = {
     minOrderValue,
     freeShippingThreshold,
     stateCharges,
+    stateFreeThresholds,
   };
 
   if (!isConfigured) return NextResponse.json(configToSave);

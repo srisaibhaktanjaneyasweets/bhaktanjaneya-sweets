@@ -2,6 +2,7 @@ export interface ShippingSettings {
   minOrderValue: number;
   freeShippingThreshold: number;
   stateCharges: Record<string, number>;
+  stateFreeThresholds?: Record<string, number>;
 }
 
 export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
@@ -11,6 +12,7 @@ export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
     "Andhra Pradesh": 0,
     "Telangana": 0,
   },
+  stateFreeThresholds: {},
 };
 
 /** Parse the weight in kg from a variant label string. */
@@ -46,7 +48,23 @@ export function calculateShippingFee(
   state?: string | null,
   items?: { variantLabel: string; quantity: number }[],
 ): number {
-  if (offerFreeShipping || subtotal >= settings.freeShippingThreshold) {
+  if (offerFreeShipping) {
+    return 0;
+  }
+
+  // Determine the active free shipping threshold for this state
+  let activeFreeThreshold = settings.freeShippingThreshold;
+  if (state && settings.stateFreeThresholds) {
+    const normalizedState = state.trim().toLowerCase();
+    const thresholdKey = Object.keys(settings.stateFreeThresholds).find(
+      (s) => s.toLowerCase() === normalizedState
+    );
+    if (thresholdKey !== undefined) {
+      activeFreeThreshold = settings.stateFreeThresholds[thresholdKey];
+    }
+  }
+
+  if (subtotal >= activeFreeThreshold) {
     return 0;
   }
 
@@ -90,8 +108,19 @@ export function calculateShippingFee(
 export function getFreeShippingRemaining(
   subtotal: number,
   settings: ShippingSettings = DEFAULT_SHIPPING_SETTINGS,
+  state?: string | null,
 ): number {
-  return Math.max(0, settings.freeShippingThreshold - subtotal);
+  let activeFreeThreshold = settings.freeShippingThreshold;
+  if (state && settings.stateFreeThresholds) {
+    const normalizedState = state.trim().toLowerCase();
+    const thresholdKey = Object.keys(settings.stateFreeThresholds).find(
+      (s) => s.toLowerCase() === normalizedState
+    );
+    if (thresholdKey !== undefined) {
+      activeFreeThreshold = settings.stateFreeThresholds[thresholdKey];
+    }
+  }
+  return Math.max(0, activeFreeThreshold - subtotal);
 }
 
 /** Check if minimum order value is satisfied. */
