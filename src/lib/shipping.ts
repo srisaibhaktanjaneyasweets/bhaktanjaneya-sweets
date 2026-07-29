@@ -53,11 +53,7 @@ export function calculateShippingFee(
   }
 
   // Determine the active free shipping threshold for this state
-  let activeFreeThreshold = settings.freeShippingThreshold || Infinity;
-  if (activeFreeThreshold === 0) {
-    activeFreeThreshold = Infinity;
-  }
-
+  let activeFreeThreshold = Infinity;
   if (state && settings.stateFreeThresholds) {
     const normalizedState = state.trim().toLowerCase();
     const thresholdKey = Object.keys(settings.stateFreeThresholds).find(
@@ -114,10 +110,7 @@ export function getFreeShippingRemaining(
   settings: ShippingSettings = DEFAULT_SHIPPING_SETTINGS,
   state?: string | null,
 ): number {
-  let activeFreeThreshold = settings.freeShippingThreshold || Infinity;
-  if (activeFreeThreshold === 0) {
-    activeFreeThreshold = Infinity;
-  }
+  let activeFreeThreshold = Infinity;
   if (state && settings.stateFreeThresholds) {
     const normalizedState = state.trim().toLowerCase();
     const thresholdKey = Object.keys(settings.stateFreeThresholds).find(

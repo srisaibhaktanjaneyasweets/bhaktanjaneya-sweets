@@ -203,3 +203,26 @@ export function buildAdminCustomerPaymentLinkMessage(order: Partial<Order>): str
     "Thank you!",
   ].join("\n");
 }
+
+/** Build WhatsApp message containing shipment details to share with customer. */
+export function buildShipmentWhatsAppMessage(
+  order: Partial<Order>,
+  deliveryCompany?: string,
+  deliveryTrackingId?: string,
+): string {
+  const rawId = order.id ?? "";
+  const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
+
+  const companyText = deliveryCompany ? `\n• Courier Company: *${deliveryCompany}*` : "";
+  const trackingText = deliveryTrackingId ? `\n• Tracking ID: *${deliveryTrackingId}*` : "";
+
+  return [
+    `Hello! Your order #${shortId} from ${config.businessName} has been shipped.${companyText}${trackingText}`,
+    "",
+    "It will be delivered in 3-4 days. If not, contact us.",
+    "",
+    "Please take a video of opening the box without pauses or cuts while opening and send it, or else we can't provide any refund or replacement in case of damage or missing items.",
+    "",
+    "Thank you!",
+  ].join("\n");
+}

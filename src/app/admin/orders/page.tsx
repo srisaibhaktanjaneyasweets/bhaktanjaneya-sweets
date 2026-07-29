@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/Badge";
 import { toast } from "@/components/ui/toast";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatINR } from "@/lib/utils";
-import { waLinkToPhone, buildAdminCustomerWhatsAppMessage, buildAdminCustomerPaymentLinkMessage } from "@/lib/whatsapp";
+import { waLinkToPhone, buildAdminCustomerWhatsAppMessage, buildAdminCustomerPaymentLinkMessage, buildShipmentWhatsAppMessage } from "@/lib/whatsapp";
 import {
   printThermalReceipt,
   printFullInvoice,
@@ -226,6 +226,11 @@ export default function AdminOrdersPage() {
         deliveryCompany: company || undefined,
         deliveryTrackingId: tracking || undefined,
       });
+
+      const message = buildShipmentWhatsAppMessage(shippingPrompt, company || undefined, tracking || undefined);
+      const url = waLinkToPhone(shippingPrompt.customerPhone, message);
+      window.open(url, "_blank");
+
       setShippingPrompt(null);
     } catch (error) {
       setPromptError(getErrorMessage(error, "Could not mark order as shipped."));
@@ -245,6 +250,13 @@ export default function AdminOrdersPage() {
         deliveryCompany: deliveryCompany.trim() || undefined,
         deliveryTrackingId: deliveryTrackingId.trim() || undefined,
       });
+
+      if (modalStatus === "shipped") {
+        const message = buildShipmentWhatsAppMessage(next, deliveryCompany.trim() || undefined, deliveryTrackingId.trim() || undefined);
+        const url = waLinkToPhone(next.customerPhone, message);
+        window.open(url, "_blank");
+      }
+
       setViewing(next);
     } catch (error) {
       setPromptError(getErrorMessage(error, "Could not save shipping details."));
@@ -539,7 +551,12 @@ export default function AdminOrdersPage() {
 
                             {/* Quick WhatsApp message */}
                             <a
-                              href={waLinkToPhone(o.customerPhone, buildAdminCustomerWhatsAppMessage(o))}
+                              href={waLinkToPhone(
+                                o.customerPhone,
+                                o.status === "shipped"
+                                  ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId)
+                                  : buildAdminCustomerWhatsAppMessage(o)
+                              )}
                               target="_blank"
                               rel="noopener noreferrer"
                               title="Message customer via WhatsApp"
@@ -598,7 +615,12 @@ export default function AdminOrdersPage() {
                     </div>
                     {/* Direct WhatsApp Message Link */}
                     <a
-                      href={waLinkToPhone(o.customerPhone, buildAdminCustomerWhatsAppMessage(o))}
+                      href={waLinkToPhone(
+                        o.customerPhone,
+                        o.status === "shipped"
+                          ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId)
+                          : buildAdminCustomerWhatsAppMessage(o)
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex h-7 px-2.5 items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 text-[10px] font-bold text-emerald-700 hover:bg-emerald-100 transition-colors"
@@ -918,7 +940,12 @@ export default function AdminOrdersPage() {
               </button>
 
               <a
-                href={waLinkToPhone(viewing.customerPhone, buildAdminCustomerWhatsAppMessage(viewing))}
+                href={waLinkToPhone(
+                  viewing.customerPhone,
+                  viewing.status === "shipped"
+                    ? buildShipmentWhatsAppMessage(viewing, viewing.deliveryCompany, viewing.deliveryTrackingId)
+                    : buildAdminCustomerWhatsAppMessage(viewing)
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-11 items-center justify-center gap-1.5 rounded-xl bg-[#35B664] text-xs font-bold text-white shadow-sm hover:bg-[#2E9E57] transition-colors"
