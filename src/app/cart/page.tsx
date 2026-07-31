@@ -109,7 +109,15 @@ export default function CartPage() {
     customer?.savedAddress?.city,
     areasMap,
   );
-  const cityOptions = citiesForState(state, areasMap);
+  const cityOptions = useMemo(() => {
+    const serviceableCities = citiesForState(state, areasMap);
+    const cleanPincode = pincode.trim();
+    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.postOffices) {
+      const apiCities = pincodeDetails.postOffices.map((po) => po.name).filter(Boolean);
+      return Array.from(new Set([...apiCities, ...serviceableCities])).sort();
+    }
+    return serviceableCities;
+  }, [state, areasMap, pincodeDetails, pincode]);
 
   function confirmDeliveryLocation(nextState: string, nextCity: string) {
     setState(nextState);
@@ -164,6 +172,34 @@ export default function CartPage() {
       const details = await lookupPincode(pincode.trim());
       lastLookupPincode.current = pincode.trim();
       setPincodeDetails(details);
+
+      let matchedState = "";
+      let matchedCity = "";
+
+      const availableStates = getServiceableStates(areasMap);
+      if (details.state) {
+        const foundState = availableStates.find(
+          (s) => s.toLowerCase() === details.state.toLowerCase()
+        );
+        matchedState = foundState || details.state;
+        setState(matchedState);
+      }
+
+      if (details.postOffices && details.postOffices.length > 0) {
+        matchedCity = details.postOffices[0].name;
+      } else if (details.city) {
+        matchedCity = details.city;
+      }
+
+      if (matchedCity) {
+        const activeState = matchedState || details.state || "";
+        const currentCityOptions = citiesForState(activeState, areasMap);
+        const foundCity = currentCityOptions.find(
+          (c) => c.toLowerCase() === matchedCity.toLowerCase()
+        );
+        setCity(foundCity || matchedCity);
+      }
+
       setDistrict((prev) => prev || details.district);
 
       const dists = Array.from(new Set(details.postOffices.map((po) => po.district).filter(Boolean)));
@@ -177,7 +213,7 @@ export default function CartPage() {
     } finally {
       setLookingUpPincode(false);
     }
-  }, [district, pincode]);
+  }, [district, pincode, areasMap]);
 
   useEffect(() => {
     if (addressMode !== "new") return;
@@ -847,6 +883,28 @@ export default function CartPage() {
                 </label>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <label className="text-sm font-medium text-maroon-900">
+                    PIN code *
+                    <input
+                      value={pincode}
+                      onChange={(e) => {
+                        setPincode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                        setPincodeHint("");
+                        if (e.target.value.replace(/\D/g, "").slice(0, 6).length < 6) {
+                          lastLookupPincode.current = "";
+                        }
+                      }}
+                      inputMode="numeric"
+                      placeholder="6-digit PIN"
+                      className={`${fieldClass} mt-1.5`}
+                    />
+                    {lookingUpPincode ? (
+                      <p className="mt-1 text-xs text-ink-500">Looking up area…</p>
+                    ) : pincodeHint ? (
+                      <p className="mt-1 text-xs text-maroon-700">{pincodeHint}</p>
+                    ) : null}
+                  </label>
+
+                  <label className="text-sm font-medium text-maroon-900">
                     State *
                     <select
                       value={state}
@@ -864,6 +922,7 @@ export default function CartPage() {
                       ))}
                     </select>
                   </label>
+
                   <div className="text-sm font-medium text-maroon-900">
                     <span className="mb-1.5 block">City *</span>
                     <Combobox
@@ -886,27 +945,6 @@ export default function CartPage() {
                       }
                     />
                   </div>
-                  <label className="text-sm font-medium text-maroon-900">
-                    PIN code *
-                    <input
-                      value={pincode}
-                      onChange={(e) => {
-                        setPincode(e.target.value.replace(/\D/g, "").slice(0, 6));
-                        setPincodeHint("");
-                        if (e.target.value.replace(/\D/g, "").slice(0, 6).length < 6) {
-                          lastLookupPincode.current = "";
-                        }
-                      }}
-                      inputMode="numeric"
-                      placeholder="6-digit PIN"
-                      className={`${fieldClass} mt-1.5`}
-                    />
-                    {lookingUpPincode ? (
-                      <p className="mt-1 text-xs text-ink-500">Looking up area…</p>
-                    ) : pincodeHint ? (
-                      <p className="mt-1 text-xs text-maroon-700">{pincodeHint}</p>
-                    ) : null}
-                  </label>
                 </div>
                 <label className="block text-sm font-medium text-maroon-900">
                   District

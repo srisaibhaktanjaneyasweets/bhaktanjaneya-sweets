@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   MapPin,
   Check,
@@ -18,6 +18,8 @@ import { Combobox } from "@/components/ui/Combobox";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { config } from "@/lib/config";
 import { useBusinessConfig } from "@/context/BusinessConfigContext";
+import { lookupPincode } from "@/lib/api/pincode";
+import type { PincodeLookup } from "@/lib/api/pincode";
 
 const selectClass =
   "h-11 w-full rounded-xl border border-cream-300 bg-white px-4 text-sm focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40 disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70";
@@ -47,6 +49,12 @@ export function DeliveryLocationGate({
   const [unavailable, setUnavailable] = useState(false);
   const [showCargoModal, setShowCargoModal] = useState(false);
 
+  const [pincode, setPincode] = useState("");
+  const [pincodeDetails, setPincodeDetails] = useState<PincodeLookup | null>(null);
+  const [lookingUpPincode, setLookingUpPincode] = useState(false);
+  const [pincodeHint, setPincodeHint] = useState("");
+  const [lastLookupPincode, setLastLookupPincode] = useState("");
+
   const [areasMap, setAreasMap] = useState<Record<string, readonly string[]> | null>(null);
 
   useEffect(() => {
@@ -68,8 +76,59 @@ export function DeliveryLocationGate({
   }, [defaultState, defaultCity, touched, confirmed]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  useEffect(() => {
+    const nextPincode = pincode.trim();
+    if (!/^\d{6}$/.test(nextPincode) || nextPincode === lastLookupPincode) {
+      return;
+    }
+
+    setPincodeHint("");
+    setLookingUpPincode(true);
+    lookupPincode(nextPincode)
+      .then((details) => {
+        setLastLookupPincode(nextPincode);
+        setPincodeDetails(details);
+        setTouched(true);
+        setError("");
+
+        let matchedState = "";
+        let matchedCity = "";
+
+        const availableStates = getServiceableStates(areasMap);
+        if (details.state) {
+          const foundState = availableStates.find(
+            (s) => s.toLowerCase() === details.state.toLowerCase()
+          );
+          matchedState = foundState || details.state;
+          setStateValue(matchedState);
+        }
+
+        if (details.postOffices && details.postOffices.length > 0) {
+          matchedCity = details.postOffices[0].name;
+        } else if (details.city) {
+          matchedCity = details.city;
+        }
+        setCityValue(matchedCity);
+      })
+      .catch((err) => {
+        setPincodeHint("Could not find this PIN code.");
+      })
+      .finally(() => {
+        setLookingUpPincode(false);
+      });
+  }, [pincode, lastLookupPincode, areasMap]);
+
   const availableStates = getServiceableStates(areasMap);
-  const cities = citiesForState(stateValue, areasMap);
+
+  const cities = useMemo(() => {
+    const serviceableCities = citiesForState(stateValue, areasMap);
+    const cleanPincode = pincode.trim();
+    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.postOffices) {
+      const apiCities = pincodeDetails.postOffices.map((po) => po.name).filter(Boolean);
+      return Array.from(new Set([...apiCities, ...serviceableCities])).sort();
+    }
+    return serviceableCities;
+  }, [stateValue, areasMap, pincodeDetails, pincode]);
 
   function handleContinue() {
     setError("");
@@ -145,7 +204,29 @@ export function DeliveryLocationGate({
         delivery through APSRTC / TGSRTC Cargo to your nearest bus station.
       </p>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <label className="block text-sm font-medium text-maroon-900">
+          PIN code *
+          <input
+            value={pincode}
+            onChange={(e) => {
+              setPincode(e.target.value.replace(/\D/g, "").slice(0, 6));
+              setPincodeHint("");
+              if (e.target.value.replace(/\D/g, "").slice(0, 6).length < 6) {
+                setLastLookupPincode("");
+              }
+            }}
+            inputMode="numeric"
+            placeholder="6-digit PIN"
+            className={`${selectClass} mt-1.5`}
+          />
+          {lookingUpPincode ? (
+            <p className="mt-1 text-xs text-ink-500">Looking up area…</p>
+          ) : pincodeHint ? (
+            <p className="mt-1 text-xs text-maroon-700">{pincodeHint}</p>
+          ) : null}
+        </label>
+
         <label className="block text-sm font-medium text-maroon-900">
           State *
           <select
@@ -167,7 +248,7 @@ export function DeliveryLocationGate({
             ))}
           </select>
         </label>
-        <div className="text-sm font-medium text-maroon-900">
+        <div className="text-sm font-medium text-maroon-900 animate-fade-in">
           <span className="mb-1.5 block">City *</span>
           <Combobox
             value={cityValue}

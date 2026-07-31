@@ -105,12 +105,16 @@ export default function AdminOrdersPage() {
   }, []);
 
   const [deliveryCompany, setDeliveryCompany] = useState("");
+  const [deliveryCustomName, setDeliveryCustomName] = useState("");
+  const [deliveryCustomLink, setDeliveryCustomLink] = useState("");
   const [deliveryTrackingId, setDeliveryTrackingId] = useState("");
   const [modalStatus, setModalStatus] = useState<OrderStatus>("new");
   const [savingDelivery, setSavingDelivery] = useState(false);
 
   const [shippingPrompt, setShippingPrompt] = useState<Order | null>(null);
   const [promptCompany, setPromptCompany] = useState("");
+  const [promptCustomName, setPromptCustomName] = useState("");
+  const [promptCustomLink, setPromptCustomLink] = useState("");
   const [promptTracking, setPromptTracking] = useState("");
   const [promptError, setPromptError] = useState("");
   const [promptSaving, setPromptSaving] = useState(false);
@@ -171,7 +175,21 @@ export default function AdminOrdersPage() {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!viewing) return;
-    setDeliveryCompany(viewing.deliveryCompany ?? "");
+    const rawCompany = viewing.deliveryCompany ?? "";
+    if (rawCompany.includes("|")) {
+      const [name, link] = rawCompany.split("|");
+      setDeliveryCompany("other");
+      setDeliveryCustomName(name);
+      setDeliveryCustomLink(link);
+    } else if (["world first", "DTDC", "APSRTC", "TSRTC", ""].includes(rawCompany)) {
+      setDeliveryCompany(rawCompany);
+      setDeliveryCustomName("");
+      setDeliveryCustomLink("");
+    } else {
+      setDeliveryCompany("other");
+      setDeliveryCustomName(rawCompany);
+      setDeliveryCustomLink("");
+    }
     setDeliveryTrackingId(viewing.deliveryTrackingId ?? "");
     setModalStatus(viewing.status);
   }, [viewing]);
@@ -180,7 +198,21 @@ export default function AdminOrdersPage() {
   async function handleStatusChange(order: Order, nextStatus: OrderStatus) {
     if (nextStatus === "shipped") {
       setShippingPrompt(order);
-      setPromptCompany(order.deliveryCompany ?? "");
+      const rawCompany = order.deliveryCompany ?? "";
+      if (rawCompany.includes("|")) {
+        const [name, link] = rawCompany.split("|");
+        setPromptCompany("other");
+        setPromptCustomName(name);
+        setPromptCustomLink(link);
+      } else if (["world first", "DTDC", "APSRTC", "TSRTC", ""].includes(rawCompany)) {
+        setPromptCompany(rawCompany);
+        setPromptCustomName("");
+        setPromptCustomLink("");
+      } else {
+        setPromptCompany("other");
+        setPromptCustomName(rawCompany);
+        setPromptCustomLink("");
+      }
       setPromptTracking(order.deliveryTrackingId ?? "");
       setPromptError("");
       return;
@@ -216,8 +248,14 @@ export default function AdminOrdersPage() {
 
   async function confirmShipped() {
     if (!shippingPrompt) return;
-    const company = promptCompany.trim();
     const tracking = promptTracking.trim();
+    let company = promptCompany.trim();
+    if (company === "other") {
+      company = promptCustomName.trim();
+      if (promptCustomLink.trim()) {
+        company = `${promptCustomName.trim()}|${promptCustomLink.trim()}`;
+      }
+    }
 
     setPromptSaving(true);
     setPromptError("");
@@ -245,14 +283,22 @@ export default function AdminOrdersPage() {
     setSavingDelivery(true);
     setPromptError("");
     try {
+      let company = deliveryCompany.trim();
+      if (company === "other") {
+        company = deliveryCustomName.trim();
+        if (deliveryCustomLink.trim()) {
+          company = `${deliveryCustomName.trim()}|${deliveryCustomLink.trim()}`;
+        }
+      }
+
       const next = await updateOrder(viewing.id, {
         status: modalStatus,
-        deliveryCompany: deliveryCompany.trim() || undefined,
+        deliveryCompany: company || undefined,
         deliveryTrackingId: deliveryTrackingId.trim() || undefined,
       });
 
       if (modalStatus === "shipped") {
-        const message = buildShipmentWhatsAppMessage(next, deliveryCompany.trim() || undefined, deliveryTrackingId.trim() || undefined);
+        const message = buildShipmentWhatsAppMessage(next, company || undefined, deliveryTrackingId.trim() || undefined);
         const url = waLinkToPhone(next.customerPhone, message);
         window.open(url, "_blank");
       }
@@ -741,12 +787,50 @@ export default function AdminOrdersPage() {
             {shippingPrompt.id.replace(/^ord_/, "").toUpperCase().slice(0, 8)} (optional, you can leave these blank and proceed).
           </p>
           <div className="mt-4 space-y-3">
-            <input
+            <select
               value={promptCompany}
-              onChange={(e) => setPromptCompany(e.target.value)}
-              placeholder="Delivery company (e.g. Delhivery, Blue Dart, DTDC)"
+              onChange={(e) => {
+                const val = e.target.value;
+                setPromptCompany(val);
+                if (val !== "other") {
+                  setPromptCustomName("");
+                  setPromptCustomLink("");
+                }
+              }}
               className={inputClass}
-            />
+            >
+              <option value="">Select courier company (optional)</option>
+              <option value="world first">world first</option>
+              <option value="DTDC">DTDC</option>
+              <option value="APSRTC">APSRTC</option>
+              <option value="TSRTC">TSRTC</option>
+              <option value="other">Other / Custom...</option>
+              {promptCompany && !["world first", "DTDC", "APSRTC", "TSRTC", "other", ""].includes(promptCompany) && (
+                <option value={promptCompany}>{promptCompany}</option>
+              )}
+            </select>
+
+            {promptCompany === "other" && (
+              <div className="space-y-3 mt-3 border-l-2 border-cream-300 pl-3">
+                <input
+                  required
+                  value={promptCustomName}
+                  onChange={(e) => setPromptCustomName(e.target.value)}
+                  placeholder="Custom courier company name (e.g. Blue Dart)"
+                  className={inputClass}
+                />
+                <input
+                  value={promptCustomLink}
+                  onChange={(e) => setPromptCustomLink(e.target.value)}
+                  placeholder="Custom tracking link route (e.g. https://bluedart.com/track?id=TRACKING_ID)"
+                  className={inputClass}
+                />
+                <p className="text-[10px] text-ink-400">
+                  Optional. Use <strong>TRACKING_ID</strong> as placeholder for tracking ID inside your URL.
+                </p>
+              </div>
+            )}
+
             <input
               value={promptTracking}
               onChange={(e) => setPromptTracking(e.target.value)}
@@ -842,12 +926,28 @@ export default function AdminOrdersPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-ink-500 mb-1">Courier Company</label>
-                  <input
+                  <select
                     value={deliveryCompany}
-                    onChange={(e) => setDeliveryCompany(e.target.value)}
-                    placeholder="e.g. Delhivery, Blue Dart"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setDeliveryCompany(val);
+                      if (val !== "other") {
+                        setDeliveryCustomName("");
+                        setDeliveryCustomLink("");
+                      }
+                    }}
                     className={inputClass}
-                  />
+                  >
+                    <option value="">Select courier company (optional)</option>
+                    <option value="world first">world first</option>
+                    <option value="DTDC">DTDC</option>
+                    <option value="APSRTC">APSRTC</option>
+                    <option value="TSRTC">TSRTC</option>
+                    <option value="other">Other / Custom...</option>
+                    {deliveryCompany && !["world first", "DTDC", "APSRTC", "TSRTC", "other", ""].includes(deliveryCompany) && (
+                      <option value={deliveryCompany}>{deliveryCompany}</option>
+                    )}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-ink-500 mb-1">Tracking / AWB #</label>
@@ -859,6 +959,33 @@ export default function AdminOrdersPage() {
                   />
                 </div>
               </div>
+
+              {deliveryCompany === "other" && (
+                <div className="grid gap-3 sm:grid-cols-2 mt-3 pt-3 border-t border-cream-100">
+                  <div>
+                    <label className="block text-xs font-medium text-ink-500 mb-1">Custom Courier Name</label>
+                    <input
+                      required
+                      value={deliveryCustomName}
+                      onChange={(e) => setDeliveryCustomName(e.target.value)}
+                      placeholder="Custom courier company name (e.g. Blue Dart)"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-ink-500 mb-1">Custom Tracking Link Route</label>
+                    <input
+                      value={deliveryCustomLink}
+                      onChange={(e) => setDeliveryCustomLink(e.target.value)}
+                      placeholder="Custom tracking link (e.g. https://bluedart.com/track?id=TRACKING_ID)"
+                      className={inputClass}
+                    />
+                  </div>
+                  <p className="text-[10px] text-ink-400 sm:col-span-2">
+                    Optional. Use <strong>TRACKING_ID</strong> as placeholder for tracking ID inside your URL.
+                  </p>
+                </div>
+              )}
 
               {promptError && !shippingPrompt ? <Alert>{promptError}</Alert> : null}
 

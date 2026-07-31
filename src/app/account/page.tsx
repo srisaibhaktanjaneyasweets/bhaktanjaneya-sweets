@@ -87,6 +87,16 @@ export default function AccountPage() {
     return Array.from(new Set([...fromState, ...fromPincode])).sort();
   }, [address.state, pincodeDetails]);
 
+  const cityOptions = useMemo(() => {
+    const serviceableCities = citiesForState(address.state, areasMap);
+    const cleanPincode = address.pincode.trim();
+    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.postOffices) {
+      const apiCities = pincodeDetails.postOffices.map((po) => po.name).filter(Boolean);
+      return Array.from(new Set([...apiCities, ...serviceableCities])).sort();
+    }
+    return serviceableCities;
+  }, [address.state, areasMap, pincodeDetails, address.pincode]);
+
   const findAddressByPincode = useCallback(async () => {
     if (!/^\d{6}$/.test(address.pincode.trim())) return;
 
@@ -96,9 +106,37 @@ export default function AccountPage() {
       const details = await lookupPincode(address.pincode.trim());
       lastLookupPincode.current = address.pincode.trim();
       setPincodeDetails(details);
-      // State & city come from the serviceable-area dropdowns; only fill district.
+
+      let matchedState = "";
+      let matchedCity = "";
+
+      const availableStates = getServiceableStates(areasMap);
+      if (details.state) {
+        const foundState = availableStates.find(
+          (s) => s.toLowerCase() === details.state.toLowerCase()
+        );
+        matchedState = foundState || details.state;
+      }
+
+      if (details.postOffices && details.postOffices.length > 0) {
+        matchedCity = details.postOffices[0].name;
+      } else if (details.city) {
+        matchedCity = details.city;
+      }
+
+      if (matchedCity) {
+        const activeState = matchedState || details.state || "";
+        const currentCityOptions = citiesForState(activeState, areasMap);
+        const foundCity = currentCityOptions.find(
+          (c) => c.toLowerCase() === matchedCity.toLowerCase()
+        );
+        matchedCity = foundCity || matchedCity;
+      }
+
       setAddress((prev) => ({
         ...prev,
+        state: matchedState || prev.state,
+        city: matchedCity || prev.city,
         district: prev.district || details.district,
       }));
       setAddressMessageTone("success");
@@ -109,7 +147,7 @@ export default function AccountPage() {
     } finally {
       setLookingUpPincode(false);
     }
-  }, [address.pincode]);
+  }, [address.pincode, areasMap]);
 
   // Hydration: intentionally setting state on mount
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -392,7 +430,38 @@ export default function AccountPage() {
                     placeholder="Area / landmark"
                     className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
                   />
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div>
+                      <input
+                        value={address.pincode}
+                        onChange={(e) => {
+                          const next = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setAddress((prev) => ({ ...prev, pincode: next }));
+                          setAddressMessage("");
+                          if (next.length < 6) lastLookupPincode.current = "";
+                        }}
+                        inputMode="numeric"
+                        placeholder="PIN code *"
+                        className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
+                      />
+                      {lookingUpPincode ? (
+                        <p className="text-xs text-ink-500 mt-1">Looking up area…</p>
+                      ) : null}
+                      {addressMessage ? (
+                        <p
+                          className={
+                            "mt-1 " + (addressMessageTone === "error"
+                              ? "text-xs font-medium text-maroon-700"
+                              : addressMessageTone === "success"
+                                ? "text-xs font-medium text-leaf-600"
+                                : "text-xs text-ink-500")
+                          }
+                        >
+                          {addressMessage}
+                        </p>
+                      ) : null}
+                    </div>
+
                     <select
                       value={address.state}
                       onChange={(e) =>
@@ -412,16 +481,18 @@ export default function AccountPage() {
                         </option>
                       ))}
                     </select>
+
                     <Combobox
                       value={address.city}
                       onChange={(city) => setAddress((prev) => ({ ...prev, city }))}
-                      options={citiesForState(address.state, areasMap)}
+                      options={cityOptions}
                       disabled={!address.state}
                       placeholder={address.state ? "Type or select your city" : "Select a state first"}
                       ariaLabel="City"
                       className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-cream-100/60 disabled:opacity-70"
                     />
                   </div>
+
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                     {districtOptions.length > 0 ? (
                       <select
@@ -450,34 +521,6 @@ export default function AccountPage() {
                       />
                     )}
                   </div>
-                  <input
-                    value={address.pincode}
-                    onChange={(e) => {
-                      const next = e.target.value.replace(/\D/g, "").slice(0, 6);
-                      setAddress((prev) => ({ ...prev, pincode: next }));
-                      setAddressMessage("");
-                      if (next.length < 6) lastLookupPincode.current = "";
-                    }}
-                    inputMode="numeric"
-                    placeholder="PIN code *"
-                    className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
-                  />
-                  {lookingUpPincode ? (
-                    <p className="text-xs text-ink-500">Looking up area…</p>
-                  ) : null}
-                  {addressMessage ? (
-                    <p
-                      className={
-                        addressMessageTone === "error"
-                          ? "text-xs font-medium text-maroon-700"
-                          : addressMessageTone === "success"
-                            ? "text-xs font-medium text-leaf-600"
-                            : "text-xs text-ink-500"
-                      }
-                    >
-                      {addressMessage}
-                    </p>
-                  ) : null}
 
                   <div className="flex gap-2">
                     <button

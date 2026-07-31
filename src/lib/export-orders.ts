@@ -112,7 +112,7 @@ export function downloadOrdersCSV(orders: Order[], filters: ExportFilters) {
       escapeCSV(o.paymentMethod || ""),
       escapeCSV(o.paymentStatus || ""),
       escapeCSV(o.status || ""),
-      escapeCSV(o.deliveryCompany || ""),
+      escapeCSV(o.deliveryCompany ? (o.deliveryCompany.includes("|") ? o.deliveryCompany.split("|")[0] : o.deliveryCompany) : ""),
       escapeCSV(o.deliveryTrackingId || ""),
       escapeCSV(o.notes || ""),
     ].join(",");

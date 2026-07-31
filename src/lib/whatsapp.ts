@@ -204,6 +204,38 @@ export function buildAdminCustomerPaymentLinkMessage(order: Partial<Order>): str
   ].join("\n");
 }
 
+/** Get official tracking page URL for supported courier companies. */
+export function getTrackingLink(company: string, trackingId: string): string {
+  if (!trackingId) return "";
+  const cleanCompany = company.trim().toLowerCase();
+
+  // Check if it's a custom company with a custom tracking URL format
+  if (company.includes("|")) {
+    const [_, route] = company.split("|");
+    if (route) {
+      const finalRoute = route.trim();
+      // Replace placeholder if it exists
+      if (finalRoute.includes("TRACKING_ID")) {
+        return finalRoute.replace("TRACKING_ID", trackingId);
+      }
+      if (finalRoute.includes("[TRACKING_ID]")) {
+        return finalRoute.replace("[TRACKING_ID]", trackingId);
+      }
+      // Otherwise append tracking ID
+      if (finalRoute.endsWith("=") || finalRoute.endsWith("/")) {
+        return finalRoute + trackingId;
+      }
+      return finalRoute + (finalRoute.includes("?") ? "&" : "?") + "id=" + trackingId;
+    }
+  }
+
+  if (cleanCompany.includes("dtdc")) return `https://www.dtdc.com/track-your-shipment/${trackingId}`;
+  if (cleanCompany.includes("world first")) return `https://worldfirst.in/tracking.html?awbno=${trackingId}`;
+  if (cleanCompany.includes("apsrtc")) return `https://cargo.apsrtconline.in/track/${trackingId}`;
+  if (cleanCompany.includes("tsrtc")) return `https://app.tgsrtclogistics.co.in/tsrtc/manifest/bookinghistory/0?s=${trackingId}`;
+  return "";
+}
+
 /** Build WhatsApp message containing shipment details to share with customer. */
 export function buildShipmentWhatsAppMessage(
   order: Partial<Order>,
@@ -215,7 +247,9 @@ export function buildShipmentWhatsAppMessage(
 
   const companyLine = deliveryCompany ? `🚚 *Courier Partner* : ${deliveryCompany}` : "";
   const trackingLine = deliveryTrackingId ? `📦 *Tracking ID*      : ${deliveryTrackingId}` : "";
-  const detailsBlock = [companyLine, trackingLine].filter(Boolean).join("\n");
+  const trackingLink = getTrackingLink(deliveryCompany || "", deliveryTrackingId || "");
+  const trackingLinkLine = trackingLink ? `🔗 *Tracking Link*    : ${trackingLink}` : "";
+  const detailsBlock = [companyLine, trackingLine, trackingLinkLine].filter(Boolean).join("\n");
 
   return [
     `*🎉 Great news! Your order has been shipped!*`,

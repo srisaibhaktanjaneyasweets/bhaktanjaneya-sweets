@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Search, MessageCircle, CheckCircle2, ShoppingBag, Home, CreditCard, ArrowRight, Truck, Clock, XCircle } from "lucide-react";
+import { Search, MessageCircle, CheckCircle2, ShoppingBag, Home, CreditCard, ArrowRight, Truck, Clock, XCircle, ExternalLink } from "lucide-react";
 
 import { EmptyState, inputClass } from "@/components/admin/ui";
 import { Alert } from "@/components/ui/Alert";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatINR, formatDate } from "@/lib/utils";
 import type { Order, OrderStatus, PaymentStatus } from "@/lib/types";
 import { apiGet } from "@/lib/api/client";
-import { waLink, buildFormattedWhatsAppOrderMessage } from "@/lib/whatsapp";
+import { waLink, buildFormattedWhatsAppOrderMessage, getTrackingLink } from "@/lib/whatsapp";
 
 type PublicOrderLookupResponse = {
   id: string;
@@ -314,12 +314,30 @@ export default function PublicOrderLookupPage() {
                     <Truck size={14} /> Shipment Details
                   </p>
                   <p className="mt-1.5 text-xs text-ink-755 leading-relaxed">
-                    <span className="font-semibold text-ink-800">{order.deliveryCompany ? order.deliveryCompany : "Courier Partner"}</span>
+                    <span className="font-semibold text-ink-800">
+                      {order.deliveryCompany
+                        ? (order.deliveryCompany.includes("|")
+                          ? order.deliveryCompany.split("|")[0]
+                          : order.deliveryCompany)
+                        : "Courier Partner"}
+                    </span>
                     {order.deliveryTrackingId ? (
                       <>
                         <br />
                         <span className="text-[10px] text-ink-400 uppercase font-bold">Tracking ID: </span>
                         <span className="font-mono font-bold text-ink-800 bg-white border border-cream-200 px-1.5 py-0.5 rounded text-[11px]">{order.deliveryTrackingId}</span>
+                        {getTrackingLink(order.deliveryCompany || "", order.deliveryTrackingId) && (
+                          <span className="block mt-2.5">
+                            <a
+                              href={getTrackingLink(order.deliveryCompany || "", order.deliveryTrackingId)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-[10px] font-bold text-maroon-900 bg-cream-100/80 hover:bg-cream-200 border border-cream-300 px-3 py-1 rounded-lg transition-colors cursor-pointer"
+                            >
+                              <ExternalLink size={12} className="text-maroon-800" /> Track Shipment
+                            </a>
+                          </span>
+                        )}
                       </>
                     ) : null}
                   </p>

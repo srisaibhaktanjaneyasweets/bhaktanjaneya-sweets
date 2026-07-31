@@ -95,5 +95,10 @@ export function isServiceableCity(
   areasMap?: Record<string, readonly string[]> | null,
 ): boolean {
   if (!state || !city) return false;
-  return citiesForState(state, areasMap).some((c) => normalize(c) === normalize(city));
+  const map =
+    areasMap && Object.keys(areasMap).length > 0
+      ? areasMap
+      : DEFAULT_SERVICEABLE_AREAS;
+  const states = Object.keys(map);
+  return states.some((s) => normalize(s) === normalize(state));
 }
