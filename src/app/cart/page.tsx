@@ -119,9 +119,12 @@ export default function CartPage() {
     return serviceableCities;
   }, [state, areasMap, pincodeDetails, pincode]);
 
-  function confirmDeliveryLocation(nextState: string, nextCity: string) {
+  function confirmDeliveryLocation(nextState: string, nextCity: string, nextPincode?: string) {
     setState(nextState);
     setCity(nextCity);
+    if (nextPincode) {
+      setPincode(nextPincode);
+    }
     setDeliveryConfirmed(true);
   }
 
@@ -182,7 +185,7 @@ export default function CartPage() {
           (s) => s.toLowerCase() === details.state.toLowerCase()
         );
         matchedState = foundState || details.state;
-        setState(matchedState);
+        setState((prev) => prev || matchedState);
       }
 
       if (details.postOffices && details.postOffices.length > 0) {
@@ -197,7 +200,7 @@ export default function CartPage() {
         const foundCity = currentCityOptions.find(
           (c) => c.toLowerCase() === matchedCity.toLowerCase()
         );
-        setCity(foundCity || matchedCity);
+        setCity((prev) => prev || foundCity || matchedCity);
       }
 
       setDistrict((prev) => prev || details.district);

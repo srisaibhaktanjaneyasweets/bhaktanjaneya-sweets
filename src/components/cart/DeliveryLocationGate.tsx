@@ -38,7 +38,7 @@ export function DeliveryLocationGate({
   confirmedCity?: string;
   defaultState?: string;
   defaultCity?: string;
-  onConfirm: (state: string, city: string) => void;
+  onConfirm: (state: string, city: string, pincode?: string) => void;
   onReset: () => void;
 }) {
   const { config: businessConfig } = useBusinessConfig();
@@ -149,13 +149,13 @@ export function DeliveryLocationGate({
     }
 
     setUnavailable(false);
-    onConfirm(stateValue, cityValue);
+    onConfirm(stateValue, cityValue, pincode);
   }
 
   function confirmBusCargoLocation() {
     setShowCargoModal(false);
     setUnavailable(false);
-    onConfirm(stateValue || "Andhra Pradesh", cityValue);
+    onConfirm(stateValue || "Andhra Pradesh", cityValue, pincode);
   }
 
   if (confirmed) {
