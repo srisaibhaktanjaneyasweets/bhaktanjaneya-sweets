@@ -15,7 +15,7 @@ const slides = [
     text: "From melt-in-your-mouth Kaju Patisa to homestyle Junnu — crafted in small batches with pure ghee and love.",
     primary: { href: "/shop", label: "Shop Sweets" },
     secondary: { href: "/shop?tag=best-seller", label: "Best Sellers" },
-    image: "/images/hero/hero-laddu.png",
+    image: "/images/hero/hero-laddu.webp",
   },
   {
     eyebrow: "Crunchy • Spiced • Fresh",
@@ -23,7 +23,7 @@ const slides = [
     text: "Agra Mixture, Chakidalu, Flower Janthukulu and more — the perfect crunchy companions to your chai.",
     primary: { href: "/shop", label: "Shop Namkeen" },
     secondary: { href: "/shop", label: "Explore All" },
-    image: "/images/hero/hero-khaja.png",
+    image: "/images/hero/hero-khaja.webp",
   },
   {
     eyebrow: "Welcome Offer",
@@ -31,7 +31,7 @@ const slides = [
     text: "Use code BAS10 on orders above ₹500. Free shipping over ₹700, delivered fresh across India.",
     primary: { href: "/shop", label: "Start Shopping" },
     secondary: { href: "/shop", label: "Shop All" },
-    image: "/images/hero/hero-mysorepak.png",
+    image: "/images/hero/hero-mysorepak.webp",
   },
 ];
 

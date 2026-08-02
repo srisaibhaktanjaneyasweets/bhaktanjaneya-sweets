@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { optimizeUploadedImage } from "@/lib/server/image-optimizer";
 
 const BUCKET = "category-images";
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -28,13 +29,27 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Image must be under 5 MB" }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  let uploadBuffer: any = buffer;
+  let contentType = file.type;
+  let ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+
+  try {
+    const optimized = await optimizeUploadedImage(buffer, file.type);
+    uploadBuffer = optimized.buffer;
+    contentType = optimized.contentType;
+    ext = optimized.ext;
+  } catch (optError) {
+    console.error("Fallback upload used:", optError);
+    ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  }
+
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
 
   const { error } = await supabaseAdmin.storage
     .from(BUCKET)
-    .upload(path, buffer, { contentType: file.type, upsert: false });
+    .upload(path, uploadBuffer, { contentType, upsert: false });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
