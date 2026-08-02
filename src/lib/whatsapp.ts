@@ -231,7 +231,7 @@ export function getTrackingLink(company: string, trackingId: string): string {
 
   if (cleanCompany.includes("dtdc")) return "https://www.dtdc.com";
   if (cleanCompany.includes("world first")) return "https://worldfirst.in";
-  if (cleanCompany.includes("apsrtc")) return "https://cargo.apsrtconline.in";
+  if (cleanCompany.includes("apsrtc")) return "https://logistics.apsrtconline.in";
   if (cleanCompany.includes("tsrtc")) return "https://app.tgsrtclogistics.co.in";
   return "";
 }
