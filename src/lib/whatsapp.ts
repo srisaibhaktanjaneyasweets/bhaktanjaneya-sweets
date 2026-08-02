@@ -229,10 +229,10 @@ export function getTrackingLink(company: string, trackingId: string): string {
     }
   }
 
-  if (cleanCompany.includes("dtdc")) return `https://www.dtdc.com/track-your-shipment/${trackingId}`;
-  if (cleanCompany.includes("world first")) return `https://worldfirst.in/tracking.html?awbno=${trackingId}`;
-  if (cleanCompany.includes("apsrtc")) return `https://cargo.apsrtconline.in/track/${trackingId}`;
-  if (cleanCompany.includes("tsrtc")) return `https://app.tgsrtclogistics.co.in/tsrtc/manifest/bookinghistory/0?s=${trackingId}`;
+  if (cleanCompany.includes("dtdc")) return "https://www.dtdc.com";
+  if (cleanCompany.includes("world first")) return "https://worldfirst.in";
+  if (cleanCompany.includes("apsrtc")) return "https://cargo.apsrtconline.in";
+  if (cleanCompany.includes("tsrtc")) return "https://app.tgsrtclogistics.co.in";
   return "";
 }
 
@@ -269,4 +269,27 @@ export function buildShipmentWhatsAppMessage(
     "",
     `Thank you for ordering traditional pure ghee sweets from us! We hope you love them! ✨`,
   ].filter((l) => l !== undefined).join("\n");
+}
+
+/** Build WhatsApp message containing delivery follow-up and review incentive to share with customer. */
+export function buildDeliveryWhatsAppMessage(order: Partial<Order>): string {
+  const rawId = order.id ?? "";
+  const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
+
+  return [
+    `*🎉 Sweets Delivered! Hope you love them!* 🎁`,
+    "",
+    `Hello ${order.customerName || "Customer"},`,
+    `Your order *#${shortId}* from *${config.businessName}* has been successfully delivered! We hope you enjoy our traditional, pure ghee sweets and crunchy namkeens.`,
+    "",
+    `If you loved our products, we would be thrilled if you shared the joy!`,
+    `*Post a story on Instagram* tagging us *@bhaktanjaneyasweets.in* and adding our website link: ${config.siteUrl}`,
+    "",
+    `As a token of our appreciation, we'll send you:`,
+    `🎁 A *complimentary sweet* on your next order`,
+    `*OR*`,
+    `🎟️ A *5% discount coupon* for your next online purchase!`,
+    "",
+    `Thank you so much for choosing us. We look forward to serving you again soon! ✨`,
+  ].join("\n");
 }

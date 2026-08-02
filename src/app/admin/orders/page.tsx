@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/Badge";
 import { toast } from "@/components/ui/toast";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatINR } from "@/lib/utils";
-import { waLinkToPhone, buildAdminCustomerWhatsAppMessage, buildAdminCustomerPaymentLinkMessage, buildShipmentWhatsAppMessage } from "@/lib/whatsapp";
+import { waLinkToPhone, buildAdminCustomerWhatsAppMessage, buildAdminCustomerPaymentLinkMessage, buildShipmentWhatsAppMessage, buildDeliveryWhatsAppMessage } from "@/lib/whatsapp";
 import {
   printThermalReceipt,
   printFullInvoice,
@@ -601,7 +601,9 @@ export default function AdminOrdersPage() {
                                 o.customerPhone,
                                 o.status === "shipped"
                                   ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId)
-                                  : buildAdminCustomerWhatsAppMessage(o)
+                                  : o.status === "delivered"
+                                    ? buildDeliveryWhatsAppMessage(o)
+                                    : buildAdminCustomerWhatsAppMessage(o)
                               )}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -665,7 +667,9 @@ export default function AdminOrdersPage() {
                         o.customerPhone,
                         o.status === "shipped"
                           ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId)
-                          : buildAdminCustomerWhatsAppMessage(o)
+                          : o.status === "delivered"
+                            ? buildDeliveryWhatsAppMessage(o)
+                            : buildAdminCustomerWhatsAppMessage(o)
                       )}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -1071,7 +1075,9 @@ export default function AdminOrdersPage() {
                   viewing.customerPhone,
                   viewing.status === "shipped"
                     ? buildShipmentWhatsAppMessage(viewing, viewing.deliveryCompany, viewing.deliveryTrackingId)
-                    : buildAdminCustomerWhatsAppMessage(viewing)
+                    : viewing.status === "delivered"
+                      ? buildDeliveryWhatsAppMessage(viewing)
+                      : buildAdminCustomerWhatsAppMessage(viewing)
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
