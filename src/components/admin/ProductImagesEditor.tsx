@@ -28,6 +28,17 @@ function normalizeImages(images: string[]) {
   return cleaned.length ? cleaned : [""];
 }
 
+function isAllowedPreviewUrl(src: string): boolean {
+  if (!src) return false;
+  if (src.startsWith("/")) return true;
+  try {
+    const url = new URL(src);
+    return ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
 export function ProductImagesEditor({
   images,
   onChange,
@@ -36,6 +47,7 @@ export function ProductImagesEditor({
   onChange: (images: string[]) => void;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [previewErrors, setPreviewErrors] = useState<Record<number, boolean>>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
   const value = normalizeImages(images);
@@ -62,6 +74,10 @@ export function ProductImagesEditor({
 
   function setAt(i: number, nextUrl: string) {
     onChange(value.map((u, idx) => (idx === i ? nextUrl : u)));
+  }
+
+  function markPreviewBroken(i: number) {
+    setPreviewErrors((current) => ({ ...current, [i]: true }));
   }
 
   return (
@@ -124,6 +140,10 @@ export function ProductImagesEditor({
                 <div className="relative h-24 w-full overflow-hidden rounded-lg border border-cream-200 bg-cream-50 flex items-center justify-center">
                   {isVideo(img) ? (
                     <video src={img} controls className="h-full w-full object-cover" muted />
+                  ) : !isAllowedPreviewUrl(img) || previewErrors[i] ? (
+                    <div className="flex h-full w-full items-center justify-center px-4 text-center text-xs text-ink-400">
+                      Preview unavailable for this URL
+                    </div>
                   ) : (
                     <Image
                       src={img}
@@ -131,6 +151,8 @@ export function ProductImagesEditor({
                       fill
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, 240px"
+                      unoptimized
+                      onError={() => markPreviewBroken(i)}
                     />
                   )}
                 </div>

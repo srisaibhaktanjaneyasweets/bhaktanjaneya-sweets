@@ -5,7 +5,16 @@ import { optimizeUploadedImage } from "@/lib/server/image-optimizer";
 
 const BUCKET = "product-images2";
 const MAX_BYTES = 5 * 1024 * 1024;
-const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+const ALLOWED = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+  "video/quicktime",
+]);
 
 async function getFileBuffer(file: File): Promise<Buffer> {
   if (typeof (file as any).bytes === "function") {
@@ -66,14 +75,16 @@ export async function POST(req: Request) {
   let contentType = file.type;
   let ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
 
-  try {
-    const optimized = await optimizeUploadedImage(buffer, file.type);
-    uploadBuffer = optimized.buffer;
-    contentType = optimized.contentType;
-    ext = optimized.ext;
-  } catch (optError) {
-    console.error("Fallback upload used:", optError);
-    ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  if (file.type.startsWith("image/")) {
+    try {
+      const optimized = await optimizeUploadedImage(buffer, file.type);
+      uploadBuffer = optimized.buffer;
+      contentType = optimized.contentType;
+      ext = optimized.ext;
+    } catch (optError) {
+      console.error("Fallback upload used:", optError);
+      ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    }
   }
 
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
