@@ -17,8 +17,29 @@ export async function optimizeUploadedImage(
 ): Promise<{ buffer: Buffer; ext: string; contentType: string }> {
   const { maxWidth = 1000, quality = 75 } = options;
 
+  let inputBuffer = buffer;
+  // Detect Apple CgBI PNG format and revert it to standard PNG first
+  if (
+    buffer.length >= 16 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47
+  ) {
+    const chunkName = buffer.toString("ascii", 12, 16);
+    if (chunkName === "CgBI") {
+      console.log("CgBI PNG detected, reverting to standard PNG...");
+      try {
+        const cgbiToPng = require("cgbi-to-png");
+        inputBuffer = cgbiToPng.revert(buffer);
+      } catch (cgbiError) {
+        console.error("Failed to revert CgBI image:", cgbiError);
+      }
+    }
+  }
+
   try {
-    let pipeline = sharp(buffer);
+    let pipeline = sharp(inputBuffer);
     const metadata = await pipeline.metadata();
 
     // Rotate image based on EXIF metadata (e.g. phone camera orientation)

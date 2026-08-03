@@ -47,11 +47,18 @@ async function optimizeImageClientSide(file: File, maxWidth = 1000, quality = 0.
             if (blob) {
               // Create a new File from the blob, renaming extension to .jpg
               const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-              const newFile = new File([blob], newName, {
-                type: "image/jpeg",
-                lastModified: Date.now(),
-              });
-              resolve(newFile);
+              try {
+                const newFile = new File([blob], newName, {
+                  type: "image/jpeg",
+                  lastModified: Date.now(),
+                });
+                resolve(newFile);
+              } catch {
+                // Fallback if browser doesn't support File constructor on blob
+                const fallback = new Blob([blob], { type: "image/jpeg" }) as any;
+                fallback.name = newName;
+                resolve(fallback);
+              }
             } else {
               resolve(file);
             }
