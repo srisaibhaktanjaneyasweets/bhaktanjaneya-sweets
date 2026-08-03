@@ -10,9 +10,6 @@ import {
   FileSpreadsheet,
   Download,
   Search,
-  IndianRupee,
-  Clock,
-  CheckCircle2,
   FileText,
   RefreshCw,
   Smartphone,
@@ -129,18 +126,7 @@ export default function AdminOrdersPage() {
     limit: "all",
   });
 
-  // KPI Metrics Calculations
-  const metrics = useMemo(() => {
-    const totalOrders = orders.length;
-    const totalRevenue = orders
-      .filter((o) => o.paymentStatus === "paid" || o.status === "delivered")
-      .reduce((sum, o) => sum + (o.total || 0), 0);
-    const pendingOrders = orders.filter((o) => o.status === "new" || o.status === "confirmed").length;
-    const shippedOrders = orders.filter((o) => o.status === "shipped").length;
-    const deliveredOrders = orders.filter((o) => o.status === "delivered").length;
 
-    return { totalOrders, totalRevenue, pendingOrders, shippedOrders, deliveredOrders };
-  }, [orders]);
 
   // Search & Filter Logic
   const filtered = useMemo(() => {
@@ -220,6 +206,11 @@ export default function AdminOrdersPage() {
 
     try {
       await updateOrderStatus(order.id, nextStatus);
+      if (nextStatus === "delivered") {
+        const message = buildDeliveryWhatsAppMessage(order);
+        const url = waLinkToPhone(order.customerPhone, message);
+        window.open(url, "_blank");
+      }
     } catch (error) {
       setPromptError(getErrorMessage(error, "Could not update order status."));
     }
@@ -265,7 +256,7 @@ export default function AdminOrdersPage() {
         deliveryTrackingId: tracking || undefined,
       });
 
-      const message = buildShipmentWhatsAppMessage(shippingPrompt, company || undefined, tracking || undefined);
+      const message = buildShipmentWhatsAppMessage(shippingPrompt, company || undefined, tracking || undefined, bizConfig?.whatsappShipmentTemplate);
       const url = waLinkToPhone(shippingPrompt.customerPhone, message);
       window.open(url, "_blank");
 
@@ -298,7 +289,11 @@ export default function AdminOrdersPage() {
       });
 
       if (modalStatus === "shipped") {
-        const message = buildShipmentWhatsAppMessage(next, company || undefined, deliveryTrackingId.trim() || undefined);
+        const message = buildShipmentWhatsAppMessage(next, company || undefined, deliveryTrackingId.trim() || undefined, bizConfig?.whatsappShipmentTemplate);
+        const url = waLinkToPhone(next.customerPhone, message);
+        window.open(url, "_blank");
+      } else if (modalStatus === "delivered") {
+        const message = buildDeliveryWhatsAppMessage(next, bizConfig?.whatsappDeliveryTemplate);
         const url = waLinkToPhone(next.customerPhone, message);
         window.open(url, "_blank");
       }
@@ -330,60 +325,7 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* KPI Overview Metrics */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Total Revenue */}
-        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-leaf-600/5 blur-lg group-hover:scale-150 transition-all duration-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">Total Revenue</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-leaf-600/10 text-leaf-600 group-hover:scale-110 transition-transform duration-300">
-              <IndianRupee size={20} />
-            </span>
-          </div>
-          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{formatINR(metrics.totalRevenue)}</p>
-          <p className="mt-1 text-xs text-ink-500 font-medium">From paid &amp; delivered orders</p>
-        </div>
 
-        {/* Pending Orders */}
-        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-saffron-500/5 blur-lg group-hover:scale-150 transition-all duration-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">Pending Orders</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-saffron-500/10 text-saffron-600 group-hover:scale-110 transition-transform duration-300">
-              <Clock size={20} />
-            </span>
-          </div>
-          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{metrics.pendingOrders}</p>
-          <p className="mt-1 text-xs text-ink-500 font-medium">Require packing or confirmation</p>
-        </div>
-
-        {/* In Transit */}
-        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-blue-500/5 blur-lg group-hover:scale-150 transition-all duration-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">In Transit</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300">
-              <Truck size={20} />
-            </span>
-          </div>
-          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{metrics.shippedOrders}</p>
-          <p className="mt-1 text-xs text-ink-500 font-medium">Currently out for delivery</p>
-        </div>
-
-        {/* Delivered */}
-        <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-          <div className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-emerald-500/5 blur-lg group-hover:scale-150 transition-all duration-500" />
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-ink-400">Delivered</span>
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 group-hover:scale-110 transition-transform duration-300">
-              <CheckCircle2 size={20} />
-            </span>
-          </div>
-          <p className="mt-3 font-serif text-2xl font-black text-maroon-900 tracking-tight">{metrics.deliveredOrders}</p>
-          <p className="mt-1 text-xs text-ink-500 font-medium">Successfully completed</p>
-        </div>
-      </div>
 
       {/* Search & Filter Toolbar */}
       <div className="rounded-2xl border border-cream-200 bg-white p-4 shadow-soft space-y-4">
@@ -600,9 +542,9 @@ export default function AdminOrdersPage() {
                               href={waLinkToPhone(
                                 o.customerPhone,
                                 o.status === "shipped"
-                                  ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId)
+                                  ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId, bizConfig?.whatsappShipmentTemplate)
                                   : o.status === "delivered"
-                                    ? buildDeliveryWhatsAppMessage(o)
+                                    ? buildDeliveryWhatsAppMessage(o, bizConfig?.whatsappDeliveryTemplate)
                                     : buildAdminCustomerWhatsAppMessage(o)
                               )}
                               target="_blank"
@@ -666,9 +608,9 @@ export default function AdminOrdersPage() {
                       href={waLinkToPhone(
                         o.customerPhone,
                         o.status === "shipped"
-                          ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId)
+                          ? buildShipmentWhatsAppMessage(o, o.deliveryCompany, o.deliveryTrackingId, bizConfig?.whatsappShipmentTemplate)
                           : o.status === "delivered"
-                            ? buildDeliveryWhatsAppMessage(o)
+                            ? buildDeliveryWhatsAppMessage(o, bizConfig?.whatsappDeliveryTemplate)
                             : buildAdminCustomerWhatsAppMessage(o)
                       )}
                       target="_blank"
@@ -1074,9 +1016,9 @@ export default function AdminOrdersPage() {
                 href={waLinkToPhone(
                   viewing.customerPhone,
                   viewing.status === "shipped"
-                    ? buildShipmentWhatsAppMessage(viewing, viewing.deliveryCompany, viewing.deliveryTrackingId)
+                    ? buildShipmentWhatsAppMessage(viewing, viewing.deliveryCompany, viewing.deliveryTrackingId, bizConfig?.whatsappShipmentTemplate)
                     : viewing.status === "delivered"
-                      ? buildDeliveryWhatsAppMessage(viewing)
+                      ? buildDeliveryWhatsAppMessage(viewing, bizConfig?.whatsappDeliveryTemplate)
                       : buildAdminCustomerWhatsAppMessage(viewing)
                 )}
                 target="_blank"

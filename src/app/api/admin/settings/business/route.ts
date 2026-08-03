@@ -19,11 +19,45 @@ export async function GET(req: Request) {
     );
   }
 
+  const defaultShipmentTemplate = `*🎉 Great news! Your order has been shipped!*
+
+Hello {{customerName}},
+We have shipped your order *#{{orderId}}* from *{{businessName}}*! Here are your shipping details:
+
+--------------------------------
+{{detailsBlock}}
+--------------------------------
+
+🗓️ *Estimated Delivery:* 3-4 business days.
+📞 If you do not receive it within this time, please contact us at *{{contactPhone}}*.
+
+⚠️ *CRITICAL: BOX OPENING INSTRUCTIONS*
+Please record a *continuous video of opening the box* without any cuts, edits, or pauses. This video is *compulsory* to claim a refund or replacement in case of damages or missing items.
+
+Thank you for ordering traditional pure ghee sweets from us! We hope you love them! ✨`;
+
+  const defaultDeliveryTemplate = `*🎉 Sweets Delivered! Hope you love them!* 🎁
+
+Hello {{customerName}},
+Your order *#{{orderId}}* from *{{businessName}}* has been successfully delivered! We hope you enjoy our traditional, pure ghee sweets and crunchy namkeens.
+
+If you loved our products, we would be thrilled if you shared the joy!
+*Post a story on Instagram* tagging us *@bhaktanjaneyasweets.in* and adding our website link: {{siteUrl}}
+
+As a token of our appreciation, we'll send you:
+🎁 A *complimentary sweet* on your next order
+*OR*
+🎟️ A *5% discount coupon* for your next online purchase!
+
+Thank you so much for choosing us. We look forward to serving you again soon! ✨`;
+
   const defaultBusiness = {
     phone: config.contact.phone,
     email: config.contact.email,
     address: config.contact.address,
     socials: defaultSocials,
+    whatsappShipmentTemplate: defaultShipmentTemplate,
+    whatsappDeliveryTemplate: defaultDeliveryTemplate,
   };
 
   if (!isConfigured) return NextResponse.json(defaultBusiness);
@@ -76,6 +110,8 @@ export async function PUT(req: Request) {
   const email = String(body.email || "").trim();
   const address = String(body.address || "").trim();
   const socials = Array.isArray(body.socials) ? body.socials : [];
+  const whatsappShipmentTemplate = String(body.whatsappShipmentTemplate || "");
+  const whatsappDeliveryTemplate = String(body.whatsappDeliveryTemplate || "");
 
   const configToSave = {
     phone,
@@ -86,6 +122,8 @@ export async function PUT(req: Request) {
       name: String(s.name || "").trim(),
       url: String(s.url || "").trim(),
     })).filter((s: { name: string; url: string }) => s.name && s.url),
+    whatsappShipmentTemplate,
+    whatsappDeliveryTemplate,
   };
 
   if (!isConfigured) return NextResponse.json(configToSave);

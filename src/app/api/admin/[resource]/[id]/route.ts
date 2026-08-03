@@ -70,7 +70,16 @@ async function updateResource(
     return NextResponse.json(body);
   }
 
-  const payload = payloadFor(resource, body);
+  const updatedBody = { ...body };
+  if (resource === "orders") {
+    if (updatedBody.status === "confirmed") {
+      updatedBody.paymentStatus = "paid";
+    } else if (updatedBody.status === "cancelled") {
+      updatedBody.paymentStatus = "failed";
+    }
+  }
+
+  const payload = payloadFor(resource, updatedBody);
   const { data, error } = await supabaseAdmin
     .from(resource)
     .update(payload)

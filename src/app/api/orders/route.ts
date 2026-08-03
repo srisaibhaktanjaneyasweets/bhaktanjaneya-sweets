@@ -12,22 +12,100 @@ import type { Offer, Order, OrderItem, Product, ShippingAddress } from "@/lib/ty
 import { isServiceableState } from "@/lib/constants/serviceable-areas";
 
 /** Look up + validate a coupon against the offers table (never trust the client). */
-async function validatedOffer(code: unknown, subtotal: number): Promise<Offer | null> {
+async function validatedOffer(
+  code: unknown,
+  subtotal: number,
+  customerPhone?: string,
+  customerEmail?: string
+): Promise<Offer | null> {
   if (typeof code !== "string" || !code.trim()) return null;
+  const cleanCode = code.trim().toUpperCase();
+
+  // 1. Try standard offers table first
   const { data } = await supabaseAdmin
     .from("offers")
     .select("*")
-    .ilike("code", code.trim())
+    .ilike("code", cleanCode)
     .eq("active", true)
     .limit(1)
     .maybeSingle();
-  if (!data) return null;
-  const offer = offerFromRow(data);
-  const now = new Date();
-  if (offer.startsAt && new Date(offer.startsAt) > now) return null;
-  if (offer.endsAt && new Date(offer.endsAt) < now) return null;
-  if (offer.minSubtotal && subtotal < offer.minSubtotal) return null;
-  return offer;
+
+  if (data) {
+    const offer = offerFromRow(data);
+    const now = new Date();
+    if (offer.startsAt && new Date(offer.startsAt) > now) return null;
+    if (offer.endsAt && new Date(offer.endsAt) < now) return null;
+    if (offer.minSubtotal && subtotal < offer.minSubtotal) return null;
+    return offer;
+  }
+
+  // 2. Try custom coupons array from settings/site_settings
+  try {
+    let customList: any[] = [];
+    const { data: siteData } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "custom_coupons")
+      .maybeSingle();
+
+    if (siteData?.value && Array.isArray(siteData.value)) {
+      customList = siteData.value;
+    } else {
+      const { data: setModeData } = await supabaseAdmin
+        .from("settings")
+        .select("value")
+        .eq("key", "custom_coupons")
+        .maybeSingle();
+      if (setModeData?.value && Array.isArray(setModeData.value)) {
+        customList = setModeData.value;
+      }
+    }
+
+    const custom = customList.find((c) => c.code === cleanCode);
+    if (!custom || !custom.active) return null;
+
+    const now = new Date();
+    if (custom.startsAt && new Date(custom.startsAt) > now) return null;
+    if (custom.endsAt && new Date(custom.endsAt) < now) return null;
+    if (custom.minSubtotal && subtotal < custom.minSubtotal) return null;
+
+    // Check usage limits
+    if (custom.usesCount !== undefined && custom.maxUses !== undefined) {
+      if (custom.usesCount >= custom.maxUses) return null;
+    }
+
+    // Check phone restriction (compare last 10 digits)
+    if (custom.allowedPhone) {
+      const cleanCustPhone = customerPhone ? customerPhone.replace(/\D/g, "") : "";
+      const cleanAllowedPhone = custom.allowedPhone.replace(/\D/g, "");
+      const p1 = cleanCustPhone.slice(-10);
+      const p2 = cleanAllowedPhone.slice(-10);
+      if (!p1 || !p2 || p1 !== p2) return null;
+    }
+
+    // Check email restriction
+    if (custom.allowedEmail) {
+      const cleanCustEmail = customerEmail ? customerEmail.trim().toLowerCase() : "";
+      const cleanAllowedEmail = custom.allowedEmail.trim().toLowerCase();
+      if (!cleanCustEmail || cleanCustEmail !== cleanAllowedEmail) return null;
+    }
+
+    // Map custom coupon fields to standard Offer structure
+    return {
+      id: `custom_${custom.code}`,
+      code: custom.code,
+      title: custom.type === "percent" ? `${custom.value}% off` : custom.type === "flat" ? `Flat ₹${custom.value} off` : "Free Shipping",
+      description: `Custom promo code ${custom.code}`,
+      type: custom.type,
+      value: custom.value,
+      minSubtotal: custom.minSubtotal,
+      active: custom.active,
+      startsAt: custom.startsAt,
+      endsAt: custom.endsAt,
+    };
+  } catch {
+    return null;
+  }
 }
 
 interface PricedOrder {
@@ -43,7 +121,13 @@ interface PricedOrder {
  * never trusted for prices or totals — it can only choose products, variants,
  * and quantities. Returns an error string if any line can't be priced.
  */
-async function priceOrder(rawItems: unknown, couponCode: unknown, state?: string | null): Promise<PricedOrder | string> {
+async function priceOrder(
+  rawItems: unknown,
+  couponCode: unknown,
+  state?: string | null,
+  customerPhone?: string,
+  customerEmail?: string
+): Promise<PricedOrder | string> {
   if (!Array.isArray(rawItems) || rawItems.length === 0) return "Your cart is empty.";
 
   const ids = [...new Set(rawItems.map((it) => (it as { productId?: string })?.productId).filter(Boolean))] as string[];
@@ -115,7 +199,7 @@ async function priceOrder(rawItems: unknown, couponCode: unknown, state?: string
   }
 
   // Discount comes ONLY from a server-validated coupon — never the client value.
-  const offer = await validatedOffer(couponCode, subtotal);
+  const offer = await validatedOffer(couponCode, subtotal, customerPhone, customerEmail);
   let discount = 0;
   let offerFreeShipping = false;
   if (offer) {
@@ -231,7 +315,13 @@ export async function POST(req: Request) {
   }
 
   // Recompute money server-side; never trust client prices/totals.
-  const priced = await priceOrder(order.items, order.couponCode, order.shippingAddress?.state);
+  const priced = await priceOrder(
+    order.items,
+    order.couponCode,
+    order.shippingAddress?.state,
+    order.customerPhone,
+    order.customerEmail
+  );
   if (typeof priced === "string") {
     return NextResponse.json({ error: priced }, { status: 400 });
   }
@@ -282,6 +372,46 @@ export async function POST(req: Request) {
     email: order.customerEmail ?? null,
     created_at: new Date().toISOString(),
   });
+
+  // If a custom coupon code was used, increment its usage count in site_settings
+  if (order.couponCode) {
+    const cleanCoupon = String(order.couponCode).trim().toUpperCase();
+    try {
+      let customList: any[] = [];
+      let isSiteSettings = true;
+      const { data: siteData } = await supabaseAdmin
+        .from("site_settings")
+        .select("value")
+        .eq("key", "custom_coupons")
+        .maybeSingle();
+
+      if (siteData?.value && Array.isArray(siteData.value)) {
+        customList = siteData.value;
+      } else {
+        const { data: setModeData } = await supabaseAdmin
+          .from("settings")
+          .select("value")
+          .eq("key", "custom_coupons")
+          .maybeSingle();
+        if (setModeData?.value && Array.isArray(setModeData.value)) {
+          customList = setModeData.value;
+          isSiteSettings = false;
+        }
+      }
+
+      const idx = customList.findIndex((c) => c.code === cleanCoupon);
+      if (idx > -1) {
+        customList[idx].usesCount = (customList[idx].usesCount || 0) + 1;
+        
+        await supabaseAdmin
+          .from(isSiteSettings ? "site_settings" : "settings")
+          .upsert(
+            { key: "custom_coupons", value: customList },
+            { onConflict: "key" },
+          );
+      }
+    } catch {}
+  }
 
   return NextResponse.json(orderFromRow(data as Record<string, unknown>), { status: 201 });
 }

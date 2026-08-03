@@ -78,7 +78,7 @@ export async function PATCH(
 
   const { data, error } = await supabaseAdmin
     .from("orders")
-    .update(orderToRow({ status: "cancelled" }))
+    .update(orderToRow({ status: "cancelled", paymentStatus: "failed" }))
     .eq("id", id)
     .select("*")
     .single();

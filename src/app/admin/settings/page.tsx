@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { KeyRound, UserPlus, Building2, Share2, Plus, Trash2 } from "lucide-react";
+import { KeyRound, UserPlus, Building2, Share2, Plus, Trash2, MessageCircle } from "lucide-react";
 import { AdminButton, Field, inputClass } from "@/components/admin/ui";
 import { useAdmin } from "@/context/AdminContext";
 import { apiGet, apiPost, apiPut } from "@/lib/api/client";
@@ -21,6 +21,8 @@ export default function AdminSettingsPage() {
   const [bizEmail, setBizEmail] = useState("");
   const [bizAddress, setBizAddress] = useState("");
   const [bizSocials, setBizSocials] = useState<Array<{ id: string; name: string; url: string }>>([]);
+  const [whatsappShipmentTemplate, setWhatsappShipmentTemplate] = useState("");
+  const [whatsappDeliveryTemplate, setWhatsappDeliveryTemplate] = useState("");
   
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -35,6 +37,8 @@ export default function AdminSettingsPage() {
           setBizEmail(data.email || "");
           setBizAddress(data.address || "");
           setBizSocials(Array.isArray(data.socials) ? data.socials : []);
+          setWhatsappShipmentTemplate(data.whatsappShipmentTemplate || "");
+          setWhatsappDeliveryTemplate(data.whatsappDeliveryTemplate || "");
         }
       })
       .catch(() => {});
@@ -86,8 +90,10 @@ export default function AdminSettingsPage() {
         email: bizEmail,
         address: bizAddress,
         socials: bizSocials.filter(s => s.name.trim() && s.url.trim()),
+        whatsappShipmentTemplate,
+        whatsappDeliveryTemplate,
       });
-      setMessage("Business configurations and social media links saved successfully.");
+      setMessage("Business configurations and WhatsApp templates saved successfully.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save business settings.");
     } finally {
@@ -215,6 +221,45 @@ export default function AdminSettingsPage() {
             {bizSocials.length === 0 && (
               <p className="text-center text-xs text-ink-400 py-4">No social media links added yet. Click &quot;Add Social Page&quot; to configure.</p>
             )}
+        </div>
+      </div>
+      {/* WhatsApp Notification Templates Section */}
+        <div className="space-y-4 pt-6 border-t border-cream-100">
+          <div className="flex items-center gap-2 text-maroon-900">
+            <MessageCircle size={18} />
+            <h3 className="font-serif text-lg font-bold">WhatsApp Message Templates</h3>
+          </div>
+          <p className="text-[11px] text-ink-500 leading-relaxed">
+            Customize the automated messages sent to customers on WhatsApp. You can use the following placeholders in your templates:
+            <br />
+            <code className="bg-cream-100 px-1 py-0.5 rounded font-mono text-[10px] text-maroon-800 font-bold">{"{{customerName}}"}</code>,{" "}
+            <code className="bg-cream-100 px-1 py-0.5 rounded font-mono text-[10px] text-maroon-800 font-bold">{"{{orderId}}"}</code>,{" "}
+            <code className="bg-cream-100 px-1 py-0.5 rounded font-mono text-[10px] text-maroon-800 font-bold">{"{{businessName}}"}</code>,{" "}
+            <code className="bg-cream-100 px-1 py-0.5 rounded font-mono text-[10px] text-maroon-800 font-bold">{"{{contactPhone}}"}</code>,{" "}
+            <code className="bg-cream-100 px-1 py-0.5 rounded font-mono text-[10px] text-maroon-800 font-bold">{"{{siteUrl}}"}</code>, and{" "}
+            <code className="bg-cream-100 px-1 py-0.5 rounded font-mono text-[10px] text-maroon-800 font-bold">{"{{detailsBlock}}"}</code> (Shipment only).
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Order Shipped Template">
+              <textarea
+                rows={8}
+                className="w-full rounded-xl border border-cream-300 bg-white p-3 text-xs text-ink-900 focus:border-saffron-400 focus:outline-none"
+                value={whatsappShipmentTemplate}
+                onChange={(e) => setWhatsappShipmentTemplate(e.target.value)}
+                placeholder="Message template when order is shipped..."
+              />
+            </Field>
+
+            <Field label="Order Delivered Template">
+              <textarea
+                rows={8}
+                className="w-full rounded-xl border border-cream-300 bg-white p-3 text-xs text-ink-900 focus:border-saffron-400 focus:outline-none"
+                value={whatsappDeliveryTemplate}
+                onChange={(e) => setWhatsappDeliveryTemplate(e.target.value)}
+                placeholder="Message template when order is delivered..."
+              />
+            </Field>
           </div>
         </div>
 

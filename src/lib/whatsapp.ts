@@ -236,11 +236,35 @@ export function getTrackingLink(company: string, trackingId: string): string {
   return "";
 }
 
+export function fillWhatsAppTemplate(
+  template: string,
+  variables: {
+    customerName: string;
+    orderId: string;
+    businessName: string;
+    contactPhone: string;
+    siteUrl: string;
+    detailsBlock?: string;
+  }
+): string {
+  let filled = template;
+  filled = filled.replace(/\{\{customerName\}\}/g, variables.customerName);
+  filled = filled.replace(/\{\{orderId\}\}/g, variables.orderId);
+  filled = filled.replace(/\{\{businessName\}\}/g, variables.businessName);
+  filled = filled.replace(/\{\{contactPhone\}\}/g, variables.contactPhone);
+  filled = filled.replace(/\{\{siteUrl\}\}/g, variables.siteUrl);
+  if (variables.detailsBlock !== undefined) {
+    filled = filled.replace(/\{\{detailsBlock\}\}/g, variables.detailsBlock);
+  }
+  return filled;
+}
+
 /** Build WhatsApp message containing shipment details to share with customer. */
 export function buildShipmentWhatsAppMessage(
   order: Partial<Order>,
   deliveryCompany?: string,
   deliveryTrackingId?: string,
+  customTemplate?: string,
 ): string {
   const rawId = order.id ?? "";
   const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
@@ -250,6 +274,17 @@ export function buildShipmentWhatsAppMessage(
   const trackingLink = getTrackingLink(deliveryCompany || "", deliveryTrackingId || "");
   const trackingLinkLine = trackingLink ? `🔗 *Tracking Link*    : ${trackingLink}` : "";
   const detailsBlock = [companyLine, trackingLine, trackingLinkLine].filter(Boolean).join("\n");
+
+  if (customTemplate && customTemplate.trim()) {
+    return fillWhatsAppTemplate(customTemplate, {
+      customerName: order.customerName || "Customer",
+      orderId: shortId,
+      businessName: config.businessName,
+      contactPhone: config.contact.phone,
+      siteUrl: config.siteUrl,
+      detailsBlock,
+    });
+  }
 
   return [
     `*🎉 Great news! Your order has been shipped!*`,
@@ -272,9 +307,22 @@ export function buildShipmentWhatsAppMessage(
 }
 
 /** Build WhatsApp message containing delivery follow-up and review incentive to share with customer. */
-export function buildDeliveryWhatsAppMessage(order: Partial<Order>): string {
+export function buildDeliveryWhatsAppMessage(
+  order: Partial<Order>,
+  customTemplate?: string,
+): string {
   const rawId = order.id ?? "";
   const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
+
+  if (customTemplate && customTemplate.trim()) {
+    return fillWhatsAppTemplate(customTemplate, {
+      customerName: order.customerName || "Customer",
+      orderId: shortId,
+      businessName: config.businessName,
+      contactPhone: config.contact.phone,
+      siteUrl: config.siteUrl,
+    });
+  }
 
   return [
     `*🎉 Sweets Delivered! Hope you love them!* 🎁`,

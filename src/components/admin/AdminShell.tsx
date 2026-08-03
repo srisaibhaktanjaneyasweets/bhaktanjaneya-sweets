@@ -21,6 +21,7 @@ import {
   RefreshCw,
   Menu,
   X,
+  BarChart3,
 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import { config } from "@/lib/config";
@@ -28,6 +29,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/tags", label: "Tags", icon: Tag },
