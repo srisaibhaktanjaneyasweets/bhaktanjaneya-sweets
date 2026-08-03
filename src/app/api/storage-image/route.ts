@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 const ALLOWED_HOST_SUFFIXES = [".supabase.co"];
 
@@ -6,6 +7,20 @@ function isAllowedUrl(url: URL): boolean {
   if (url.protocol !== "https:") return false;
   if (!ALLOWED_HOST_SUFFIXES.some((suffix) => url.hostname.endsWith(suffix))) return false;
   return url.pathname.startsWith("/storage/v1/object/public/");
+}
+
+function parseStorageObject(url: URL): { bucket: string; path: string } | null {
+  const prefix = "/storage/v1/object/public/";
+  if (!url.pathname.startsWith(prefix)) return null;
+
+  const remainder = url.pathname.slice(prefix.length);
+  const firstSlash = remainder.indexOf("/");
+  if (firstSlash === -1) return null;
+
+  const bucket = remainder.slice(0, firstSlash);
+  const path = remainder.slice(firstSlash + 1);
+  if (!bucket || !path) return null;
+  return { bucket, path };
 }
 
 export async function GET(req: NextRequest) {
@@ -26,20 +41,27 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const upstream = await fetch(url.toString(), {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; BhaktanjaneyaSweets/1.0)",
-        Accept: "image/avif,image/webp,image/*,*/*;q=0.8,video/*;q=0.7",
-      },
-      next: { revalidate: 86400 },
-    });
-
-    const contentType = upstream.headers.get("content-type") ?? "";
-    if (!upstream.ok || !upstream.body || (!contentType.startsWith("image/") && !contentType.startsWith("video/"))) {
-      return new NextResponse("Upstream media unavailable", { status: 502 });
+    const parsed = parseStorageObject(url);
+    if (!parsed) {
+      return new NextResponse("Invalid storage path", { status: 400 });
     }
 
-    return new NextResponse(upstream.body, {
+    const { data, error } = await supabaseAdmin.storage
+      .from(parsed.bucket)
+      .download(parsed.path);
+
+    if (error || !data) {
+      return new NextResponse(error?.message ?? "Upstream media unavailable", { status: 502 });
+    }
+
+    const contentType = data.type || "application/octet-stream";
+    if (!contentType.startsWith("image/") && !contentType.startsWith("video/")) {
+      return new NextResponse("Unsupported media type", { status: 415 });
+    }
+
+    const bytes = Buffer.from(await data.arrayBuffer());
+
+    return new NextResponse(bytes, {
       status: 200,
       headers: {
         "Content-Type": contentType,
