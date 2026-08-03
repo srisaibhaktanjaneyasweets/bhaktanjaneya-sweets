@@ -39,6 +39,7 @@ export default function AnalyticsPage() {
   const [endDate, setEndDate] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [searchCustomer, setSearchCustomer] = useState("");
+  const [customerType, setCustomerType] = useState<"all" | "new" | "repeat" | "loyal">("all");
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
 
   // Get all unique months available in orders
@@ -249,15 +250,27 @@ export default function AnalyticsPage() {
   // Filtered customer list
   const filteredCustomers = useMemo(() => {
     const search = searchCustomer.trim().toLowerCase();
-    if (!search) return customerAnalytics.clientList;
+    let list = customerAnalytics.clientList;
 
-    return customerAnalytics.clientList.filter(
-      (c) =>
-        c.name.toLowerCase().includes(search) ||
-        c.phone.includes(search) ||
-        c.email.toLowerCase().includes(search),
-    );
-  }, [customerAnalytics.clientList, searchCustomer]);
+    if (search) {
+      list = list.filter(
+        (c) =>
+          c.name.toLowerCase().includes(search) ||
+          c.phone.includes(search) ||
+          c.email.toLowerCase().includes(search),
+      );
+    }
+
+    if (customerType === "new") {
+      list = list.filter((c) => c.ordersCount === 1);
+    } else if (customerType === "repeat") {
+      list = list.filter((c) => c.ordersCount >= 2);
+    } else if (customerType === "loyal") {
+      list = list.filter((c) => c.ordersCount >= 4);
+    }
+
+    return list;
+  }, [customerAnalytics.clientList, searchCustomer, customerType]);
 
   // Selected customer history details
   const activeCustomerDetails = useMemo(() => {
@@ -280,8 +293,12 @@ export default function AnalyticsPage() {
     const chartWidth = width - paddingLeft - paddingRight;
     const chartHeight = height - paddingTop - paddingBottom;
 
-    const maxRevenue = Math.max(...data.map((d) => d.revenue), 1000);
-    const maxCount = Math.max(...data.map((d) => d.count), 1);
+    const rawMaxRevenue = Math.max(...data.map((d) => d.revenue), 1000);
+    const rawMaxCount = Math.max(...data.map((d) => d.count), 1);
+
+    // Clean Y-axis scaling: round max up to even multiples
+    const maxRevenue = Math.ceil(rawMaxRevenue / 1000) * 1000;
+    const maxCount = Math.max(4, Math.ceil(rawMaxCount / 4) * 4);
 
     const points = data.map((d, index) => {
       const x = paddingLeft + (index / (data.length - 1 || 1)) * chartWidth;
@@ -338,48 +355,57 @@ export default function AnalyticsPage() {
 
       {/* Date, Preset & Month Filters Section */}
       <div className="rounded-2xl border border-cream-200 bg-white p-4 shadow-soft">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          {/* Preset buttons row - scrollable on mobile, wraps on desktop */}
-          <div className="flex items-center gap-1.5 overflow-x-auto lg:overflow-x-visible lg:flex-wrap pb-2 lg:pb-0 no-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0">
-            <span className="text-xs font-bold text-ink-500 uppercase tracking-wider mr-2 flex items-center gap-1 shrink-0">
-              <Filter size={14} /> Ranges:
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-start lg:gap-6">
+          
+          {/* Preset Ranges Section */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-bold text-ink-500 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
+              <Filter size={14} className="text-ink-400" /> Ranges:
             </span>
-            {(
-              [
-                ["weekly", "Weekly"],
-                ["15days", "15 Days"],
-                ["30days", "30 Days"],
-                ["3months", "3 Months"],
-                ["6months", "6 Months"],
-                ["1year", "1 Year"],
-                ["5years", "5 Years"],
-                ["all", "All-Time"],
-              ] as const
-            ).map(([val, label]) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => {
-                  setPreset(val);
-                  setStartDate("");
-                  setEndDate("");
-                  setSelectedMonth("");
-                }}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer shrink-0 ${
-                  preset === val && !startDate && !endDate && !selectedMonth
-                    ? "bg-maroon-900 text-cream-50"
-                    : "bg-cream-50 text-ink-600 hover:bg-cream-100"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 py-0.5">
+              <div className="flex gap-1.5 shrink-0">
+                {(
+                  [
+                    ["weekly", "Weekly"],
+                    ["15days", "15 Days"],
+                    ["30days", "30 Days"],
+                    ["3months", "3 Months"],
+                    ["6months", "6 Months"],
+                    ["1year", "1 Year"],
+                    ["5years", "5 Years"],
+                    ["all", "All-Time"],
+                  ] as const
+                ).map(([val, label]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => {
+                      setPreset(val);
+                      setStartDate("");
+                      setEndDate("");
+                      setSelectedMonth("");
+                    }}
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors cursor-pointer shrink-0 ${
+                      preset === val && !startDate && !endDate && !selectedMonth
+                        ? "bg-maroon-900 text-cream-50"
+                        : "bg-cream-50 text-ink-600 hover:bg-cream-100"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Month Dropdown Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-ink-500 uppercase tracking-wider flex items-center gap-1 shrink-0">
+          {/* Desktop divider line */}
+          <div className="hidden lg:block h-6 w-px bg-cream-200 shrink-0" />
+
+          {/* Month & Custom Date Filters Section */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6 lg:gap-6 w-full lg:w-auto">
+            {/* Month Dropdown */}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-bold text-ink-500 uppercase tracking-wider flex items-center gap-1.5 shrink-0 lg:hidden">
                 Month:
               </span>
               <select
@@ -390,7 +416,7 @@ export default function AnalyticsPage() {
                   setStartDate("");
                   setEndDate("");
                 }}
-                className="rounded-lg border border-cream-300 bg-cream-50/50 px-2 py-1.5 text-xs font-medium text-ink-700 outline-hidden focus:border-maroon-800 focus:bg-white"
+                className="rounded-lg border border-cream-300 bg-cream-50/50 px-3 py-1 text-xs font-medium text-ink-700 outline-hidden focus:border-maroon-800 focus:bg-white w-full sm:w-40 h-8"
               >
                 <option value="">-- Choose Month --</option>
                 {availableMonths.map((m) => (
@@ -401,34 +427,37 @@ export default function AnalyticsPage() {
               </select>
             </div>
 
-            {/* Custom Range Picker */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-ink-500 uppercase tracking-wider flex items-center gap-1 shrink-0">
-                <Calendar size={14} /> Custom:
+            {/* Custom Date Range */}
+            <div className="flex items-center gap-2 w-full lg:w-auto">
+              <span className="text-xs font-bold text-ink-500 uppercase tracking-wider flex items-center gap-1.5 shrink-0 lg:hidden">
+                Custom:
               </span>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setPreset("all");
-                  setSelectedMonth("");
-                }}
-                className="rounded-lg border border-cream-300 bg-cream-50/50 px-2 py-1.5 text-xs font-medium text-ink-700 outline-hidden focus:border-maroon-800"
-              />
-              <span className="text-xs text-ink-400 font-bold">to</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setPreset("all");
-                  setSelectedMonth("");
-                }}
-                className="rounded-lg border border-cream-300 bg-cream-50/50 px-2 py-1.5 text-xs font-medium text-ink-700 outline-hidden focus:border-maroon-800"
-              />
+              <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    setPreset("all");
+                    setSelectedMonth("");
+                  }}
+                  className="rounded-lg border border-cream-300 bg-cream-50/50 px-2 py-1 text-xs font-medium text-ink-700 outline-hidden focus:border-maroon-800 flex-1 sm:w-32 h-8"
+                />
+                <span className="text-xs text-ink-400 font-bold">to</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setPreset("all");
+                    setSelectedMonth("");
+                  }}
+                  className="rounded-lg border border-cream-300 bg-cream-50/50 px-2 py-1 text-xs font-medium text-ink-700 outline-hidden focus:border-maroon-800 flex-1 sm:w-32 h-8"
+                />
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -490,7 +519,7 @@ export default function AnalyticsPage() {
       {/* Visual Analytics Section (Charts) */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Sales & Revenue Trend Chart */}
-        <div className="rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft space-y-4">
+        <div className="rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft space-y-4 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between">
             <h3 className="font-serif text-base font-bold text-maroon-900">
               Sales Revenue Trend
@@ -517,7 +546,10 @@ export default function AnalyticsPage() {
                 {[0, 0.25, 0.5, 0.75, 1].map((r, i) => {
                   const y = chartProps.paddingTop + r * chartProps.chartHeight;
                   const gridVal = chartProps.maxRevenue - r * chartProps.maxRevenue;
-                  const formattedVal = "₹" + (gridVal >= 1000 ? (gridVal / 1000).toFixed(1).replace(/\.0$/, "") + "k" : gridVal);
+                  const roundedVal = Math.round(gridVal);
+                  const formattedVal = "₹" + (roundedVal >= 1000 
+                    ? (roundedVal / 1000).toFixed(1).replace(/\.0$/, "") + "k" 
+                    : roundedVal);
                   return (
                     <g key={i}>
                       <line
@@ -620,7 +652,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Order Count Bar Chart */}
-        <div className="rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft space-y-4">
+        <div className="rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft space-y-4 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between">
             <h3 className="font-serif text-base font-bold text-maroon-900">
               Order Volume
@@ -848,17 +880,32 @@ export default function AnalyticsPage() {
               Customer Loyalty & Spend Analysis
             </h3>
 
-            {/* Loyalty Search */}
-            <div className="relative max-w-xs w-full">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-400">
-                <Search size={14} />
-              </span>
-              <input
-                value={searchCustomer}
-                onChange={(e) => setSearchCustomer(e.target.value)}
-                placeholder="Search phone, email, or name..."
-                className="w-full rounded-lg border border-cream-300 bg-cream-50/50 py-1.5 pl-9 pr-4 text-xs outline-hidden focus:border-maroon-800 focus:bg-white"
-              />
+            {/* Loyalty Search & Type Filters */}
+            <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+              {/* Type Select */}
+              <select
+                value={customerType}
+                onChange={(e) => setCustomerType(e.target.value as any)}
+                className="w-full sm:w-36 rounded-lg border border-cream-300 bg-cream-50/50 px-2.5 py-1 text-xs font-semibold text-ink-700 outline-hidden focus:border-maroon-800 focus:bg-white h-8"
+              >
+                <option value="all">All Customers</option>
+                <option value="new">New (1 Order)</option>
+                <option value="repeat">Repeat (2+ Orders)</option>
+                <option value="loyal">Loyal (4+ Orders)</option>
+              </select>
+
+              {/* Search */}
+              <div className="relative w-full sm:w-60">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-400">
+                  <Search size={14} />
+                </span>
+                <input
+                  value={searchCustomer}
+                  onChange={(e) => setSearchCustomer(e.target.value)}
+                  placeholder="Search phone, email, or name..."
+                  className="w-full rounded-lg border border-cream-300 bg-cream-50/50 py-1.5 pl-9 pr-4 text-xs outline-hidden focus:border-maroon-800 focus:bg-white h-8"
+                />
+              </div>
             </div>
           </div>
 
