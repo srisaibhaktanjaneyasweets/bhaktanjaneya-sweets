@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { getProductImages } from "@/lib/images";
+import { defaultProductImage } from "@/lib/images";
 import { cn } from "@/lib/utils";
 import { Play, ZoomIn, X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -31,6 +32,7 @@ export function ProductGallery({
   const imgs = getProductImages({ images, category });
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [brokenMedia, setBrokenMedia] = useState<Record<number, boolean>>({});
 
   const prevMedia = () => {
     setActive((prev) => (prev - 1 + imgs.length) % imgs.length);
@@ -39,6 +41,10 @@ export function ProductGallery({
   const nextMedia = () => {
     setActive((prev) => (prev + 1) % imgs.length);
   };
+
+  function mediaSrc(index: number) {
+    return brokenMedia[index] ? defaultProductImage(category) : imgs[index];
+  }
 
   return (
     <div>
@@ -55,12 +61,14 @@ export function ProductGallery({
           />
         ) : (
           <Image
-            src={imgs[active]}
+            src={mediaSrc(active)}
             alt={name}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
             priority
+            unoptimized
+            onError={() => setBrokenMedia((current) => ({ ...current, [active]: true }))}
           />
         )}
 
@@ -103,7 +111,15 @@ export function ProductGallery({
                       </div>
                     </>
                   ) : (
-                    <Image src={src} alt="" fill sizes="64px" className="object-cover" />
+                    <Image
+                      src={brokenMedia[i] ? defaultProductImage(category) : src}
+                      alt=""
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                      unoptimized
+                      onError={() => setBrokenMedia((current) => ({ ...current, [i]: true }))}
+                    />
                   )}
                 </button>
                 {isVid && (
@@ -158,12 +174,14 @@ export function ProductGallery({
               ) : (
                 <div className="relative w-full h-full">
                   <Image
-                    src={imgs[active]}
+                      src={mediaSrc(active)}
                     alt={name}
                     fill
                     sizes="100vw"
                     className="object-contain"
                     priority
+                      unoptimized
+                      onError={() => setBrokenMedia((current) => ({ ...current, [active]: true }))}
                   />
                 </div>
               )}
@@ -205,7 +223,15 @@ export function ProductGallery({
                         </div>
                       </>
                     ) : (
-                      <Image src={src} alt="" fill sizes="64px" className="object-cover" />
+                      <Image
+                        src={brokenMedia[i] ? defaultProductImage(category) : src}
+                        alt=""
+                        fill
+                        sizes="64px"
+                        className="object-cover"
+                        unoptimized
+                        onError={() => setBrokenMedia((current) => ({ ...current, [i]: true }))}
+                      />
                     )}
                   </button>
                 );

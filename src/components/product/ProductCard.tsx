@@ -13,7 +13,7 @@ import {
   variantLabel,
   prettifyTag,
 } from "@/lib/product";
-import { getProductImage } from "@/lib/images";
+import { defaultProductImage, getProductImage } from "@/lib/images";
 import { formatINR, cn } from "@/lib/utils";
 
 export function ProductCard({
@@ -25,6 +25,7 @@ export function ProductCard({
 }) {
   const { add } = useCart();
   const [added, setAdded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const firstInStockVariant = product.variants.find((v) => v.stock > 0) || product.variants[0];
   const [selectedVariantId, setSelectedVariantId] = useState(
     firstInStockVariant?.id || ""
@@ -37,6 +38,7 @@ export function ProductCard({
   const available = inStock(product);
   const featureTag = (product.tags ?? [])[0];
   const href = `/product/${product.slug}`;
+  const imageSrc = imageFailed ? defaultProductImage(product.category) : getProductImage(product);
 
   function quickAdd() {
     add(toCartItem(product, activeVariant));
@@ -53,11 +55,13 @@ export function ProductCard({
     >
       <Link href={href} className="relative block aspect-square overflow-hidden bg-cream-100">
         <Image
-          src={getProductImage(product)}
+          src={imageSrc}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
           className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+          unoptimized
+          onError={() => setImageFailed(true)}
         />
 
         {featureTag && (

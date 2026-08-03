@@ -28,16 +28,37 @@ export function defaultProductImage(categorySlug: string): string {
 }
 
 export function getCategoryImage(category: { slug: string; image?: string | null }): string {
-  const uploaded = category.image?.trim();
+  const uploaded = proxyStorageImage(category.image?.trim() ?? "");
   return uploaded || defaultCategoryImage(category.slug);
 }
 
 export function getProductImage(product: { images?: string[]; category: string }): string {
-  const uploaded = product.images?.find((img) => img?.trim());
+  const uploaded = product.images?.map((img) => proxyStorageImage(img?.trim() ?? "")).find(Boolean);
   return uploaded || defaultProductImage(product.category);
 }
 
 export function getProductImages(product: { images?: string[]; category: string }): string[] {
-  const uploaded = (product.images ?? []).filter((img) => img?.trim());
+  const uploaded = (product.images ?? [])
+    .map((img) => proxyStorageImage(img?.trim() ?? ""))
+    .filter((img) => img?.trim());
   return uploaded.length ? uploaded : [defaultProductImage(product.category)];
+}
+
+/** Route Supabase storage URLs through our same-origin proxy so the browser
+ * never depends on Next image optimization or the bucket's public URL shape.
+ */
+export function proxyStorageImage(url: string): string {
+  if (!url || url.startsWith("/") || url.startsWith("data:")) return url;
+  try {
+    const parsed = new URL(url);
+    if (
+      parsed.hostname.endsWith("supabase.co") &&
+      parsed.pathname.startsWith("/storage/v1/object/public/")
+    ) {
+      return `/api/storage-image?url=${encodeURIComponent(url)}`;
+    }
+  } catch {
+    return url;
+  }
+  return url;
 }

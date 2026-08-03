@@ -7,6 +7,7 @@ import { Plus, Trash2, Upload } from "lucide-react";
 import { AdminButton, Field, inputClass } from "./ui";
 
 import { uploadProductImage } from "@/lib/api/upload";
+import { proxyStorageImage } from "@/lib/images";
 
 
 function isVideo(src: string): boolean {
@@ -139,14 +140,14 @@ export function ProductImagesEditor({
               {img?.trim() ? (
                 <div className="relative h-24 w-full overflow-hidden rounded-lg border border-cream-200 bg-cream-50 flex items-center justify-center">
                   {isVideo(img) ? (
-                    <video src={img} controls className="h-full w-full object-cover" muted />
+                    <video src={proxyStorageImage(img)} controls className="h-full w-full object-cover" muted />
                   ) : !isAllowedPreviewUrl(img) || previewErrors[i] ? (
                     <div className="flex h-full w-full items-center justify-center px-4 text-center text-xs text-ink-400">
                       Preview unavailable for this URL
                     </div>
                   ) : (
                     <Image
-                      src={img}
+                      src={proxyStorageImage(img)}
                       alt="Product image"
                       fill
                       className="object-cover"

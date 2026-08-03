@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { optimizeUploadedImage } from "@/lib/server/image-optimizer";
+import { proxyStorageImage } from "@/lib/images";
 
-const BUCKET = "product-images2";
+const BUCKETS = ["product-images2", "product-images"];
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = new Set([
   "image/jpeg",
@@ -89,15 +90,23 @@ export async function POST(req: Request) {
 
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
 
-  const { error } = await supabaseAdmin.storage
-    .from(BUCKET)
-    .upload(path, uploadBuffer, { contentType, upsert: false });
+  let lastError: string | null = null;
+  for (const bucket of BUCKETS) {
+    const { error } = await supabaseAdmin.storage
+      .from(bucket)
+      .upload(path, uploadBuffer, { contentType, upsert: false });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!error) {
+      const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(path);
+      return NextResponse.json({ url: proxyStorageImage(data.publicUrl) });
+    }
+
+    lastError = error.message;
+    if (!/bucket|not found|does not exist/i.test(error.message)) {
+      break;
+    }
   }
 
-  const { data } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(path);
-  return NextResponse.json({ url: data.publicUrl });
+  return NextResponse.json({ error: lastError ?? "Upload failed" }, { status: 500 });
 }
 
