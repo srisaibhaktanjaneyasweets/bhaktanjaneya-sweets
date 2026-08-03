@@ -7,6 +7,32 @@ const BUCKET = "category-images";
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
+async function getFileBuffer(file: File): Promise<Buffer> {
+  if (typeof (file as any).bytes === "function") {
+    return Buffer.from(await (file as any).bytes());
+  }
+  try {
+    const reader = file.stream().getReader();
+    const chunks: Uint8Array[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) chunks.push(value);
+    }
+    const totalLength = chunks.reduce((acc, c) => acc + c.length, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+      result.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return Buffer.from(result.buffer);
+  } catch (err) {
+    console.warn("Stream read failed, falling back to arrayBuffer:", err);
+    return Buffer.from(await file.arrayBuffer());
+  }
+}
+
 export async function POST(req: Request) {
   try {
     await requireRole(req, "admin");
@@ -29,7 +55,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Image must be under 5 MB" }, { status: 400 });
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const buffer = await getFileBuffer(file);
 
   let uploadBuffer: any = buffer;
   let contentType = file.type;
