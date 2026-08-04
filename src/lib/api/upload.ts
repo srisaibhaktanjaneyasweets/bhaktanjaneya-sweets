@@ -55,7 +55,7 @@ async function optimizeImageClientSide(file: File, maxWidth = 1000, quality = 0.
                 resolve(newFile);
               } catch {
                 // Fallback if browser doesn't support File constructor on blob
-                const fallback = new Blob([blob], { type: "image/jpeg" }) as any;
+                const fallback = new Blob([blob], { type: "image/jpeg" }) as Blob & { name?: string };
                 fallback.name = newName;
                 resolve(fallback);
               }

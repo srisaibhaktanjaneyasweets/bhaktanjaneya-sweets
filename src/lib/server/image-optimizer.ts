@@ -1,4 +1,5 @@
 import sharp from "sharp";
+const cgbiToPng = require("cgbi-to-png");
 
 interface OptimizeOptions {
   maxWidth?: number;
@@ -30,7 +31,6 @@ export async function optimizeUploadedImage(
     if (chunkName === "CgBI") {
       console.log("CgBI PNG detected, reverting to standard PNG...");
       try {
-        const cgbiToPng = require("cgbi-to-png");
         inputBuffer = cgbiToPng.revert(buffer);
       } catch (cgbiError) {
         console.error("Failed to revert CgBI image:", cgbiError);

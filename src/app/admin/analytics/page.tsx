@@ -216,12 +216,14 @@ export default function AnalyticsPage() {
         };
       }
 
-      clients[key].ordersCount += 1;
-      clients[key].ordersList.push(o);
+      const isValidOrder = o.paymentStatus === "paid" || o.status === "delivered" || o.status === "confirmed" || o.status === "shipped";
       
-      if (o.paymentStatus === "paid" || o.status === "delivered" || o.status === "confirmed" || o.status === "shipped") {
+      if (isValidOrder) {
+        clients[key].ordersCount += 1;
         clients[key].spent += o.total || 0;
       }
+      
+      clients[key].ordersList.push(o);
 
       const currentLast = new Date(clients[key].lastOrderDate);
       const checkDate = new Date(o.createdAt || 0);

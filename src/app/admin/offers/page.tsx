@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, BadgePercent, RefreshCw, Key, Filter, Calendar } from "lucide-react";
+import { Plus, Pencil, Trash2, BadgePercent, RefreshCw, Key, Filter, Calendar, Share2 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import {
   AdminButton,
@@ -556,6 +556,35 @@ export default function AdminOffersPage() {
     }
   }
 
+  async function handleShareCustomCoupon(c: any) {
+    const valLabel = offerValueLabelCustom(c);
+    
+    let validityStr = "No expiry date";
+    if (c.endsAt) {
+      validityStr = new Date(c.endsAt).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    }
+
+    const text = `🎉 Exclusive Offer for You! 🎉\n\nUse code: ${c.code}\nGet: ${valLabel} on your order.\n\nValidity: ${validityStr}\nUses left: ${c.maxUses - (c.usesCount || 0)}\n\nShop now at Bhaktanjaneya Sweets!`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "Your Special Discount Code",
+          text: text,
+        });
+      } else {
+        await navigator.clipboard.writeText(text);
+        toast({ title: "Copied!", message: "Coupon details copied to clipboard.", tone: "leaf" });
+      }
+    } catch (err) {
+      console.log("Share failed", err);
+    }
+  }
+
   function getCouponStatus(c: any): { label: string; tone: "leaf" | "saffron" | "muted" | "maroon" } {
     if (!c.active) return { label: "Inactive", tone: "muted" };
     const now = new Date();
@@ -766,6 +795,14 @@ export default function AdminOffersPage() {
                                 className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 hover:bg-cream-100 hover:text-maroon-800 cursor-pointer"
                               >
                                 <Pencil size={16} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleShareCustomCoupon(c)}
+                                aria-label={`Share custom coupon ${c.code}`}
+                                className="flex h-9 w-9 items-center justify-center rounded-lg text-ink-500 hover:bg-pista-100 hover:text-pista-800 cursor-pointer"
+                              >
+                                <Share2 size={16} />
                               </button>
                               <button
                                 type="button"

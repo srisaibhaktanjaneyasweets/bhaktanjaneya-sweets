@@ -18,8 +18,9 @@ const ALLOWED = new Set([
 ]);
 
 async function getFileBuffer(file: File): Promise<Buffer> {
-  if (typeof (file as any).bytes === "function") {
-    return Buffer.from(await (file as any).bytes());
+  const f = file as File & { bytes?: () => Promise<ArrayBuffer> };
+  if (typeof f.bytes === "function") {
+    return Buffer.from(await f.bytes());
   }
   try {
     const reader = file.stream().getReader();
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
 
   const buffer = await getFileBuffer(file);
 
-  let uploadBuffer: any = buffer;
+  let uploadBuffer: Buffer | Uint8Array = buffer;
   let contentType = file.type;
   let ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
 
