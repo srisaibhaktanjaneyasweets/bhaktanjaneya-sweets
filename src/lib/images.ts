@@ -48,17 +48,7 @@ export function getProductImages(product: { images?: string[]; category: string 
  * never depends on Next image optimization or the bucket's public URL shape.
  */
 export function proxyStorageImage(url: string): string {
-  if (!url || url.startsWith("/") || url.startsWith("data:")) return url;
-  try {
-    const parsed = new URL(url);
-    if (
-      parsed.hostname.endsWith("supabase.co") &&
-      parsed.pathname.startsWith("/storage/v1/object/public/")
-    ) {
-      return `/api/storage-image?url=${encodeURIComponent(url)}`;
-    }
-  } catch {
-    return url;
-  }
+  // Bypass the Vercel API proxy to prevent binary corruption and save bandwidth.
+  // Serve the image directly from the Supabase CDN.
   return url;
 }
