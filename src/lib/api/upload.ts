@@ -95,8 +95,8 @@ export async function uploadCategoryImage(file: File): Promise<string> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      filename: file.name,
-      contentType: file.type,
+      filename: optimizedFile.name,
+      contentType: optimizedFile.type,
       base64,
     }),
   });
@@ -137,8 +137,8 @@ export async function uploadProductImage(file: File): Promise<string> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      filename: file.name,
-      contentType: file.type,
+      filename: optimizedFile.name,
+      contentType: optimizedFile.type,
       base64,
     }),
   });

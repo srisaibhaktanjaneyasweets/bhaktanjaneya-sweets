@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { optimizeUploadedImage } from "@/lib/server/image-optimizer";
 import { proxyStorageImage } from "@/lib/images";
 
 const BUCKET = "product-images2";
@@ -52,17 +51,6 @@ export async function POST(req: Request) {
   let contentType = fileType;
   let ext = (filename || "").split(".").pop()?.toLowerCase() || "jpg";
 
-  if (fileType.startsWith("image/")) {
-    try {
-      const optimized = await optimizeUploadedImage(buffer, fileType);
-      uploadBuffer = optimized.buffer;
-      contentType = optimized.contentType;
-      ext = optimized.ext;
-    } catch (optError) {
-      console.error("Fallback upload used:", optError);
-      ext = (filename || "").split(".").pop()?.toLowerCase() || "jpg";
-    }
-  }
 
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
 

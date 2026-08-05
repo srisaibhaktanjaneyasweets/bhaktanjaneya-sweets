@@ -13,7 +13,6 @@
     "@supabase/supabase-js": "^2.29.0",
     "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^2.4.3",
-    "cgbi-to-png": "^1.0.7",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^1.17.0",
@@ -21,7 +20,6 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.77.0",
-    "sharp": "^0.35.3",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },
