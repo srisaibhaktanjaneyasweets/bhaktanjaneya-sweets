@@ -5,7 +5,7 @@ export function ProductFAQ({ faqs }: { faqs: FAQItem[] }) {
   if (!faqs || faqs.length === 0) return null;
 
   return (
-    <div className="mt-8 sm:mt-12 rounded-xl sm:rounded-2xl border border-saffron-200 bg-white p-4 sm:p-8 shadow-sm">
+    <div className="rounded-xl sm:rounded-2xl border border-saffron-200 bg-white p-4 sm:p-8 shadow-sm">
       <h2 className="mb-4 sm:mb-6 font-serif text-xl sm:text-2xl font-bold text-maroon-900">
         Frequently Asked Questions
       </h2>

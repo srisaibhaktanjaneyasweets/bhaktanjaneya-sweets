@@ -200,9 +200,11 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
                 </div>
               ))}
             </div>
-            
-            <ProductFAQ faqs={faqs} />
           </div>
+        </div>
+
+        <div className="mx-auto mt-16 max-w-4xl">
+          <ProductFAQ faqs={faqs} />
         </div>
       </Container>
 
