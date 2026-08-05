@@ -14,35 +14,7 @@ const ALLOWED = new Set([
   "video/mp4",
   "video/webm",
   "video/ogg",
-  "video/quicktime",
-]);
 
-async function getFileBuffer(file: File): Promise<Buffer> {
-  const f = file as File & { bytes?: () => Promise<ArrayBuffer> };
-  if (typeof f.bytes === "function") {
-    return Buffer.from(await f.bytes());
-  }
-  try {
-    const reader = file.stream().getReader();
-    const chunks: Uint8Array[] = [];
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      if (value) chunks.push(value);
-    }
-    const totalLength = chunks.reduce((acc, c) => acc + c.length, 0);
-    const result = new Uint8Array(totalLength);
-    let offset = 0;
-    for (const chunk of chunks) {
-      result.set(chunk, offset);
-      offset += chunk.length;
-    }
-    return Buffer.from(result.buffer);
-  } catch (err) {
-    console.warn("Stream read failed, falling back to arrayBuffer:", err);
-    return Buffer.from(await file.arrayBuffer());
-  }
-}
 
 export async function POST(req: Request) {
   try {
@@ -54,38 +26,40 @@ export async function POST(req: Request) {
     );
   }
 
-  const formData = await req.formData();
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
+  const body = await req.json();
+  const { filename, contentType: rawContentType, base64 } = body;
+
+  if (!base64 || typeof base64 !== "string") {
     return NextResponse.json({ error: "Missing image file" }, { status: 400 });
   }
 
-  if (!ALLOWED.has(file.type)) {
+  const fileType = rawContentType || "image/jpeg";
+  if (!ALLOWED.has(fileType)) {
     return NextResponse.json(
       { error: "Use JPG, PNG, WebP, or GIF" },
       { status: 400 },
     );
   }
 
-  if (file.size > MAX_BYTES) {
+  const buffer = Buffer.from(base64, "base64");
+
+  if (buffer.length > MAX_BYTES) {
     return NextResponse.json({ error: "Image must be under 5 MB" }, { status: 400 });
   }
 
-  const buffer = await getFileBuffer(file);
-
   let uploadBuffer: Buffer | Uint8Array = buffer;
-  let contentType = file.type;
-  let ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  let contentType = fileType;
+  let ext = (filename || "").split(".").pop()?.toLowerCase() || "jpg";
 
-  if (file.type.startsWith("image/")) {
+  if (fileType.startsWith("image/")) {
     try {
-      const optimized = await optimizeUploadedImage(buffer, file.type);
+      const optimized = await optimizeUploadedImage(buffer, fileType);
       uploadBuffer = optimized.buffer;
       contentType = optimized.contentType;
       ext = optimized.ext;
     } catch (optError) {
       console.error("Fallback upload used:", optError);
-      ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      ext = (filename || "").split(".").pop()?.toLowerCase() || "jpg";
     }
   }
 

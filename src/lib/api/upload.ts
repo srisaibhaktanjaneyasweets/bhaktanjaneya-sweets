@@ -81,13 +81,24 @@ export async function uploadCategoryImage(file: File): Promise<string> {
 
   const optimizedFile = await optimizeImageClientSide(file);
 
-  const formData = new FormData();
-  formData.append("file", optimizedFile);
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(optimizedFile);
+  });
 
   const res = await fetch("/api/admin/upload/category-image", {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      filename: file.name,
+      contentType: file.type,
+      base64,
+    }),
   });
 
   let data: { url?: string; error?: string; message?: string } = {};
@@ -112,13 +123,24 @@ export async function uploadProductImage(file: File): Promise<string> {
 
   const optimizedFile = await optimizeImageClientSide(file);
 
-  const formData = new FormData();
-  formData.append("file", optimizedFile);
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(optimizedFile);
+  });
 
   const res = await fetch("/api/admin/upload/product-image", {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      filename: file.name,
+      contentType: file.type,
+      base64,
+    }),
   });
 
   let data: { url?: string; error?: string; message?: string } = {};
