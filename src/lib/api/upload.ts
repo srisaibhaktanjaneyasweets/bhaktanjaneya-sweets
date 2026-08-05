@@ -41,21 +41,21 @@ async function optimizeImageClientSide(file: File, maxWidth = 1000, quality = 0.
 
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to standard JPEG format (which is universally supported and highly compressed)
+        // Convert to WebP format for optimal size/quality
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              // Create a new File from the blob, renaming extension to .jpg
-              const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+              // Create a new File from the blob, renaming extension to .webp
+              const newName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
               try {
                 const newFile = new File([blob], newName, {
-                  type: "image/jpeg",
+                  type: "image/webp",
                   lastModified: Date.now(),
                 });
                 resolve(newFile);
               } catch {
                 // Fallback if browser doesn't support File constructor on blob
-                const fallback = new Blob([blob], { type: "image/jpeg" }) as Blob & { name?: string };
+                const fallback = new Blob([blob], { type: "image/webp" }) as Blob & { name?: string };
                 fallback.name = newName;
                 resolve(fallback);
               }
@@ -63,7 +63,7 @@ async function optimizeImageClientSide(file: File, maxWidth = 1000, quality = 0.
               resolve(file);
             }
           },
-          "image/jpeg",
+          "image/webp",
           quality
         );
       };
@@ -79,7 +79,8 @@ export async function uploadCategoryImage(file: File): Promise<string> {
   const token = readAdminToken();
   if (!token) throw new Error("Please log in to the admin panel first.");
 
-  const optimizedFile = await optimizeImageClientSide(file);
+  // For category images, a max width of 300 is plenty since they are displayed at 126x126
+  const optimizedFile = await optimizeImageClientSide(file, 300, 0.85);
 
   const base64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -121,7 +122,8 @@ export async function uploadProductImage(file: File): Promise<string> {
   const token = readAdminToken();
   if (!token) throw new Error("Please log in to the admin panel first.");
 
-  const optimizedFile = await optimizeImageClientSide(file);
+  // For product images, 800px is sufficient for the product gallery
+  const optimizedFile = await optimizeImageClientSide(file, 800, 0.85);
 
   const base64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
