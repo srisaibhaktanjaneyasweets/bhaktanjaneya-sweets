@@ -160,7 +160,7 @@ export function Header() {
             />
             <span className="truncate font-serif text-base font-bold leading-none text-maroon-900 sm:text-xl">
               Bhaktanjaneya
-              <span className="block text-[11px] font-medium uppercase tracking-[0.2em] text-saffron-600">
+              <span className="block text-[11px] font-medium uppercase tracking-[0.2em] text-saffron-700">
                 Sweets
               </span>
             </span>
@@ -302,7 +302,7 @@ export function Header() {
             <Link
               key={l.href + l.label}
               href={l.href}
-              className="relative whitespace-nowrap transition-colors hover:text-saffron-600"
+              className="relative whitespace-nowrap transition-colors hover:text-saffron-700"
             >
               {l.label}
             </Link>
@@ -325,7 +325,7 @@ export function Header() {
                   }
                   setCategoriesOpen((v) => !v);
                 }}
-                className="inline-flex items-center gap-1 whitespace-nowrap transition-colors hover:text-saffron-600"
+                className="inline-flex items-center gap-1 whitespace-nowrap transition-colors hover:text-saffron-700"
               >
                 Categories
                 <ChevronDown
@@ -345,7 +345,7 @@ export function Header() {
                       href={`/shop?category=${encodeURIComponent(c.slug)}`}
                       role="menuitem"
                       onClick={handleCategoryClick}
-                      className="block rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 transition-colors hover:bg-maroon-800/5 hover:text-saffron-600"
+                      className="block rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 transition-colors hover:bg-maroon-800/5 hover:text-saffron-700"
                     >
                       {c.name}
                     </Link>
@@ -359,7 +359,7 @@ export function Header() {
             <Link
               key={l.href + l.label}
               href={l.href}
-              className="relative whitespace-nowrap transition-colors hover:text-saffron-600"
+              className="relative whitespace-nowrap transition-colors hover:text-saffron-700"
             >
               {l.label}
             </Link>
@@ -408,7 +408,7 @@ export function Header() {
 
               {categories.length > 0 && (
                 <div className="my-2 border-y border-cream-200 py-2">
-                  <p className="px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-saffron-600">
+                  <p className="px-4 py-1 text-[11px] font-bold uppercase tracking-wider text-saffron-700">
                     Categories
                   </p>
                   <div className="grid grid-cols-2 gap-1 px-2">
@@ -417,7 +417,7 @@ export function Header() {
                         key={c.id}
                         href={`/shop?category=${encodeURIComponent(c.slug)}`}
                         onClick={closeMenu}
-                        className="block rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 hover:bg-maroon-800/5 hover:text-saffron-600"
+                        className="block rounded-lg px-3 py-2 text-sm font-medium text-maroon-900 hover:bg-maroon-800/5 hover:text-saffron-700"
                       >
                         {c.name}
                       </Link>

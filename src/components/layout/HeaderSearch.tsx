@@ -109,7 +109,7 @@ export function HeaderSearch({
       <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="relative shrink-0">
         <Search
           size={18}
-          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400"
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-500"
         />
         <input
           autoFocus={autoFocus}
@@ -127,7 +127,7 @@ export function HeaderSearch({
               : "Search sweets…"
           }
           aria-label="Search products"
-          className="h-11 w-full rounded-full border border-cream-300 bg-cream-100/60 pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40"
+          className="h-11 w-full rounded-full border border-cream-300 bg-cream-100/60 pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-500 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40"
         />
       </form>
 
@@ -182,14 +182,14 @@ export function HeaderSearch({
                           {p.name}
                         </span>
                         {p.categoryLabel ? (
-                          <span className="block truncate text-xs text-ink-400">
+                          <span className="block truncate text-xs text-ink-500">
                             {p.categoryLabel}
                           </span>
                         ) : null}
                       </span>
                       <span className="shrink-0 text-sm font-semibold text-maroon-900">
                         {hasRange ? (
-                          <span className="mr-0.5 text-[11px] font-normal text-ink-400">
+                          <span className="mr-0.5 text-[11px] font-normal text-ink-500">
                             from
                           </span>
                         ) : null}

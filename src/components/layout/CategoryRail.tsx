@@ -102,7 +102,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
               >
                 <Image
                   src={getCategoryImage(category)}
-                  alt={category.name}
+                  alt=""
                   width={96}
                   height={96}
                   className={cn(

@@ -217,7 +217,7 @@ export default function DedicatedPaymentPage() {
         <div className="p-6 space-y-6">
           {/* Order Summary Card */}
           <div className="text-center space-y-1">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-ink-400">Order ID: #{shortId}</span>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-ink-500">Order ID: #{shortId}</span>
             <p className="text-3xl font-black text-maroon-900">{formatINR(order.total)}</p>
             <p className="text-xs text-ink-500 font-medium">For {order.customerName}</p>
           </div>
@@ -243,7 +243,7 @@ export default function DedicatedPaymentPage() {
                 {!paymentLoading && <ArrowRight size={16} />}
               </button>
 
-              <div className="flex items-center justify-center gap-1.5 text-ink-400 text-[10px] font-semibold">
+              <div className="flex items-center justify-center gap-1.5 text-ink-500 text-[10px] font-semibold">
                 <ShieldCheck size={14} className="text-emerald-600" />
                 <span>100% Secure SSL Payment powered by Razorpay</span>
               </div>
@@ -252,7 +252,7 @@ export default function DedicatedPaymentPage() {
 
           {/* Cart items list */}
           <div className="border-t border-cream-100 pt-5 space-y-3">
-            <h4 className="text-xs font-bold text-ink-400 uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="text-xs font-bold text-ink-500 uppercase tracking-wider flex items-center gap-1.5">
               <ShoppingBag size={14} /> Item Details ({order.items.length})
             </h4>
             <ul className="divide-y divide-cream-50 rounded-2xl border border-cream-100 overflow-hidden bg-cream-50/20">
@@ -260,7 +260,7 @@ export default function DedicatedPaymentPage() {
                 <li key={idx} className="flex justify-between gap-3 px-4 py-3 text-xs">
                   <div className="min-w-0">
                     <p className="font-semibold text-ink-800 truncate">{it.name}</p>
-                    <p className="text-[10px] text-ink-400 mt-0.5">
+                    <p className="text-[10px] text-ink-500 mt-0.5">
                       Size: {it.variantLabel} <span className="mx-1">·</span> Qty: {it.quantity}
                     </p>
                   </div>

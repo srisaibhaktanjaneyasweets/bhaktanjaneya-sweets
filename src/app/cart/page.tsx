@@ -679,7 +679,7 @@ export default function CartPage() {
         <h1 className="font-serif text-3xl font-bold text-maroon-900">Checkout</h1>
         <Link
           href="/shop"
-          className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-maroon-700 hover:text-saffron-600"
+          className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-maroon-700 hover:text-saffron-700"
         >
           <ArrowLeft size={15} /> Continue shopping
         </Link>
@@ -713,11 +713,11 @@ export default function CartPage() {
                         <div>
                           <Link
                             href={`/product/${it.slug}`}
-                            className="font-medium text-maroon-900 hover:text-saffron-600"
+                            className="font-medium text-maroon-900 hover:text-saffron-700"
                           >
                             {it.name}
                           </Link>
-                          <p className="text-sm text-ink-400">{it.variantLabel}</p>
+                          <p className="text-sm text-ink-500">{it.variantLabel}</p>
                           <p className="mt-0.5 text-sm text-ink-500">
                             {formatINR(it.price)} each
                           </p>
@@ -726,7 +726,7 @@ export default function CartPage() {
                           type="button"
                           onClick={() => remove(it.variantId)}
                           aria-label="Remove item"
-                          className="h-fit text-ink-400 hover:text-maroon-700"
+                          className="h-fit text-ink-500 hover:text-maroon-700"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -993,7 +993,7 @@ export default function CartPage() {
             {/* Order Note */}
             <section className="rounded-2xl border border-cream-200 bg-white p-5">
               <div className="flex items-center gap-2 text-maroon-900">
-                <FileText size={18} className="shrink-0 text-saffron-600" />
+                <FileText size={18} className="shrink-0 text-saffron-700" />
                 <h2 className="font-serif text-lg font-bold">
                   Add Order Note / Special Instructions
                 </h2>
@@ -1007,7 +1007,7 @@ export default function CartPage() {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Please pack in separate boxes, deliver before 6 PM, or write 'Happy Birthday!' on the gift tag..."
                   rows={3}
-                  className="w-full resize-none rounded-xl border border-cream-300 bg-white p-3.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/30"
+                  className="w-full resize-none rounded-xl border border-cream-300 bg-white p-3.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/30"
                 />
               </div>
             </section>
@@ -1085,7 +1085,7 @@ export default function CartPage() {
                   </dt>
                   <dd className="font-medium text-maroon-900">
                     {!state ? (
-                      <span className="text-xs font-normal text-ink-400 italic">
+                      <span className="text-xs font-normal text-ink-500 italic">
                         Select state to calculate
                       </span>
                     ) : shipping === 0 ? (

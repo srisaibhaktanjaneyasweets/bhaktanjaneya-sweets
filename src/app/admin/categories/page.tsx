@@ -140,7 +140,7 @@ function CategoryEditor({
                   sizes="80px"
                 />
               ) : (
-                <span className="flex h-full w-full items-center justify-center text-xs text-ink-400">
+                <span className="flex h-full w-full items-center justify-center text-xs text-ink-500">
                   No image
                 </span>
               )}
@@ -301,7 +301,7 @@ export default function AdminCategoriesPage() {
                       <h3 className="font-serif text-lg font-semibold text-maroon-900">
                         {c.name}
                       </h3>
-                      <p className="text-xs text-ink-400">/{c.slug}</p>
+                      <p className="text-xs text-ink-500">/{c.slug}</p>
                     </div>
 
                     <div className="flex shrink-0 gap-1">
@@ -331,7 +331,7 @@ export default function AdminCategoriesPage() {
                     </p>
                   ) : null}
 
-                  <p className="mt-3 text-xs font-medium text-saffron-600">
+                  <p className="mt-3 text-xs font-medium text-saffron-700">
                     {count} product{count !== 1 ? "s" : ""}
                   </p>
                 </div>

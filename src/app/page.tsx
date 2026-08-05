@@ -19,13 +19,13 @@ import type { Metadata } from "next";
 export const revalidate = 10;
 
 export const metadata: Metadata = {
-  title: `${config.businessName} | Pure Ghee Sweets & Namkeen`,
+  title: `${config.businessName} | Authentic Tapeswaram Sweets & Kaja`,
   description:
-    "Order fresh pure ghee sweets, traditional kaja, laddu, and crunchy namkeen online. Order instantly on WhatsApp with delivery across India.",
+    "Order authentic Tapeswaram Sweets, Tapeswaram Kaja (Madatha & Gottam Kaja), pure ghee sweets, and crunchy namkeen online. Instant WhatsApp ordering with pan-India delivery.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: `${config.businessName} | Pure Ghee Sweets & Namkeen`,
-    description: config.tagline,
+    title: `${config.businessName} | Authentic Tapeswaram Sweets`,
+    description: "Order authentic Tapeswaram Sweets and Kaja online. Fast pan-India delivery.",
     type: "website",
     url: config.siteUrl,
   },
@@ -128,6 +128,8 @@ export default async function HomePage() {
             "@type": "SweetShop",
             name: config.businessName,
             alternateName: [
+              "Tapeswaram Sweets",
+              "Tapeswaram Kaja",
               "Sri Sai Bhaktanjaneya Sweets",
               "Sri Sai Bhakthanjaneya Sweets",
               "Srisai Bhaktanjaneya Sweets",
@@ -135,9 +137,9 @@ export default async function HomePage() {
               "Bhaktanjaneya Sweets Tapeswaram Kaja",
             ],
             url: config.siteUrl,
-            description: config.tagline,
+            description: "Authentic Tapeswaram Sweets, Tapeswaram Kaja, and pure ghee traditional Andhra sweets.",
             logo: `${config.siteUrl}/images/logo.png`,
-            image: `${config.siteUrl}/images/hero/hero-laddu.png`,
+            image: `${config.siteUrl}/images/hero/hero-laddu.webp`,
             telephone: businessConfig.phone,
             email: businessConfig.email,
             priceRange: "₹₹",

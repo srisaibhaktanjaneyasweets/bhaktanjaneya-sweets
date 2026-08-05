@@ -165,7 +165,7 @@ export default function PublicOrderLookupPage() {
             {/* Header info row */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-cream-100 pb-4">
               <div>
-                <p className="text-[10px] uppercase tracking-wider font-semibold text-ink-400">Order ID</p>
+                <p className="text-[10px] uppercase tracking-wider font-semibold text-ink-500">Order ID</p>
                 <p className="font-mono text-base font-bold text-ink-800">
                   #{order.id.replace(/^ord_/, "").toUpperCase()}
                 </p>
@@ -220,7 +220,7 @@ export default function PublicOrderLookupPage() {
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-ink-400">Order Status</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-ink-500">Order Status</span>
                   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                     order.status === "cancelled"
                       ? "bg-red-100 text-red-800"
@@ -242,7 +242,7 @@ export default function PublicOrderLookupPage() {
             {/* Order Progress Tracker */}
             {order.status !== "cancelled" && (
               <div className="mt-6 border-t border-cream-100 pt-6">
-                <p className="text-xs font-bold text-ink-400 uppercase tracking-wider mb-4">Order Progress</p>
+                <p className="text-xs font-bold text-ink-500 uppercase tracking-wider mb-4">Order Progress</p>
                 <div className="relative flex items-center justify-between px-2 pb-2">
                   {/* Background Line */}
                   <div className="absolute left-6 right-6 top-[14px] h-[3px] -translate-y-1/2 bg-cream-100 rounded-full" />
@@ -264,14 +264,14 @@ export default function PublicOrderLookupPage() {
                           className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black transition-all duration-300 ${
                             isCompleted
                               ? "bg-leaf-500 text-white ring-4 ring-leaf-100"
-                              : "bg-cream-100 text-ink-400 ring-4 ring-white"
+                              : "bg-cream-100 text-ink-500 ring-4 ring-white"
                           }`}
                         >
                           {idx + 1}
                         </span>
                         <span
                           className={`mt-2 text-[9px] font-bold tracking-wider uppercase whitespace-nowrap ${
-                            isCurrent ? "text-maroon-800" : isCompleted ? "text-leaf-600" : "text-ink-400"
+                            isCurrent ? "text-maroon-800" : isCompleted ? "text-leaf-600" : "text-ink-500"
                           }`}
                         >
                           {STEP_LABELS[step]}
@@ -324,7 +324,7 @@ export default function PublicOrderLookupPage() {
                     {order.deliveryTrackingId ? (
                       <>
                         <br />
-                        <span className="text-[10px] text-ink-400 uppercase font-bold">Tracking ID: </span>
+                        <span className="text-[10px] text-ink-500 uppercase font-bold">Tracking ID: </span>
                         <span className="font-mono font-bold text-ink-800 bg-white border border-cream-200 px-1.5 py-0.5 rounded text-[11px]">{order.deliveryTrackingId}</span>
                         {getTrackingLink(order.deliveryCompany || "", order.deliveryTrackingId) && (
                           <span className="block mt-2.5">
@@ -348,7 +348,7 @@ export default function PublicOrderLookupPage() {
             {/* Delivery Address */}
             {order.shippingAddress && (
               <div className="mt-6 border-t border-cream-100 pt-5">
-                <p className="text-xs font-bold text-ink-400 uppercase tracking-wider mb-2.5">Delivery Address</p>
+                <p className="text-xs font-bold text-ink-500 uppercase tracking-wider mb-2.5">Delivery Address</p>
                 <div className="rounded-xl border border-cream-100 bg-cream-50/10 p-3.5 text-xs text-ink-700 space-y-0.5">
                   <p className="font-bold text-ink-800">{order.customerName}</p>
                   <p>{order.shippingAddress.line1}</p>
@@ -356,20 +356,20 @@ export default function PublicOrderLookupPage() {
                   <p>
                     {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
                   </p>
-                  {order.customerPhone && <p className="text-ink-400 mt-1.5 font-medium">Phone: +91 {order.customerPhone}</p>}
+                  {order.customerPhone && <p className="text-ink-500 mt-1.5 font-medium">Phone: +91 {order.customerPhone}</p>}
                 </div>
               </div>
             )}
 
             {/* Items Ordered */}
             <div className="mt-6 border-t border-cream-100 pt-5">
-              <p className="text-xs font-bold text-ink-400 uppercase tracking-wider mb-2.5">Items Ordered</p>
+              <p className="text-xs font-bold text-ink-500 uppercase tracking-wider mb-2.5">Items Ordered</p>
               <ul className="divide-y divide-cream-100 rounded-xl border border-cream-100 overflow-hidden bg-cream-50/10">
                 {order.items.map((it, idx) => (
                   <li key={idx} className="flex items-center justify-between gap-4 px-4 py-3 text-xs">
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-ink-800 truncate">{it.name}</p>
-                      <p className="text-[10px] text-ink-400 mt-0.5">
+                      <p className="text-[10px] text-ink-500 mt-0.5">
                         Size: {it.variantLabel} <span className="mx-1.5">·</span> Qty: {it.quantity}
                       </p>
                     </div>

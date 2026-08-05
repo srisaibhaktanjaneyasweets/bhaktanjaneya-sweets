@@ -121,7 +121,7 @@ export default function AdminSettingsPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <div>
-        <p className="text-sm font-semibold text-saffron-600">Access control & Business details</p>
+        <p className="text-sm font-semibold text-saffron-700">Access control & Business details</p>
         <h1 className="mt-1 font-serif text-3xl font-bold text-maroon-900">Admin settings</h1>
         <p className="mt-2 text-sm text-ink-500">Manage account details, business data, contact email, and social media channels.</p>
       </div>
@@ -211,7 +211,7 @@ export default function AdminSettingsPage() {
                 <button
                   type="button"
                   onClick={() => handleRemoveSocial(s.id)}
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-ink-400 hover:bg-maroon-800/10 hover:text-maroon-700 transition-colors"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-ink-500 hover:bg-maroon-800/10 hover:text-maroon-700 transition-colors"
                   title="Remove social link"
                 >
                   <Trash2 size={18} />
@@ -219,7 +219,7 @@ export default function AdminSettingsPage() {
               </div>
             ))}
             {bizSocials.length === 0 && (
-              <p className="text-center text-xs text-ink-400 py-4">No social media links added yet. Click &quot;Add Social Page&quot; to configure.</p>
+              <p className="text-center text-xs text-ink-500 py-4">No social media links added yet. Click &quot;Add Social Page&quot; to configure.</p>
             )}
         </div>
       </div>

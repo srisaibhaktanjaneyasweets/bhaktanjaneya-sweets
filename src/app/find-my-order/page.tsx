@@ -174,7 +174,7 @@ export default function FindMyOrderPage() {
                         <p className="text-sm font-semibold text-maroon-900">
                           #{o.id.replace(/^ord_/, "").toUpperCase()}
                         </p>
-                        <p className="text-xs text-ink-400">
+                        <p className="text-xs text-ink-500">
                           {formatDate(o.createdAt)} •{" "}
                           {o.paymentMethod === "cod"
                             ? "Cash on delivery"
@@ -200,7 +200,7 @@ export default function FindMyOrderPage() {
                       {o.items.map((it, i) => (
                         <li key={i} className="flex justify-between gap-3">
                           <span>
-                            {it.name} <span className="text-ink-400">({it.variantLabel}) × {it.quantity}</span>
+                            {it.name} <span className="text-ink-500">({it.variantLabel}) × {it.quantity}</span>
                           </span>
                           <span>{formatINR(it.price * it.quantity)}</span>
                         </li>
@@ -290,7 +290,7 @@ export default function FindMyOrderPage() {
                   <div key={order.id} className="rounded-2xl border border-cream-200 bg-white p-5 space-y-4">
                     <div className="flex flex-wrap items-start justify-between gap-3 border-b border-cream-200 pb-3">
                       <div>
-                        <p className="text-xs text-ink-400">Order ID</p>
+                        <p className="text-xs text-ink-500">Order ID</p>
                         <p className="font-mono text-sm font-bold text-maroon-900">
                           #{order.id.replace(/^ord_/, "").toUpperCase()}
                         </p>
@@ -309,7 +309,7 @@ export default function FindMyOrderPage() {
                         <span className="text-ink-500">Status:</span>
                         <span className="capitalize font-semibold text-maroon-900">{order.status}</span>
                       </div>
-                      <span className="text-xs text-ink-400">Placed on {formatDate(order.createdAt)}</span>
+                      <span className="text-xs text-ink-500">Placed on {formatDate(order.createdAt)}</span>
                     </div>
 
                     {order.deliveryCompany || order.deliveryTrackingId ? (
@@ -326,12 +326,12 @@ export default function FindMyOrderPage() {
                     ) : null}
 
                     <div>
-                      <p className="text-xs font-medium text-ink-400 mb-1.5">Items ({order.items.length})</p>
+                      <p className="text-xs font-medium text-ink-500 mb-1.5">Items ({order.items.length})</p>
                       <ul className="divide-y divide-cream-200 rounded-xl border border-cream-200 bg-cream-50/50">
                         {order.items.map((it, idx) => (
                           <li key={idx} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
                             <span className="text-ink-700 font-medium">
-                              {it.name} <span className="text-ink-400 font-normal">({it.variantLabel}) × {it.quantity}</span>
+                              {it.name} <span className="text-ink-500 font-normal">({it.variantLabel}) × {it.quantity}</span>
                             </span>
                             <span className="font-bold text-maroon-900">{formatINR(it.price * it.quantity)}</span>
                           </li>

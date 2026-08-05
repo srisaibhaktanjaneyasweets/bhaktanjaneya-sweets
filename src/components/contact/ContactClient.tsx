@@ -75,7 +75,7 @@ export function ContactClient() {
                       <Icon size={18} />
                     </span>
                     <div>
-                      <p className="text-xs uppercase tracking-wide text-ink-400">
+                      <p className="text-xs uppercase tracking-wide text-ink-500">
                         {label}
                       </p>
                       {href ? (
@@ -84,7 +84,7 @@ export function ContactClient() {
                            {...(external
                              ? { target: "_blank", rel: "noopener noreferrer" }
                              : {})}
-                           className="text-sm font-medium text-maroon-900 hover:text-saffron-600"
+                           className="text-sm font-medium text-maroon-900 hover:text-saffron-700"
                         >
                           {value}
                         </a>
@@ -98,7 +98,7 @@ export function ContactClient() {
                 ))}
               </ul>
 
-              <p className="mt-4 text-xs text-ink-400">
+              <p className="mt-4 text-xs text-ink-500">
                 We usually reply within a few hours during business hours.
               </p>
 

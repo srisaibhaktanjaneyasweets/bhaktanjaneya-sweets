@@ -46,7 +46,7 @@ export default function AdminCustomersPage() {
       <div className="relative w-full md:max-w-sm">
         <Search
           size={16}
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-500"
         />
         <input
           value={query}
@@ -71,7 +71,7 @@ export default function AdminCustomersPage() {
           <div className="md:overflow-x-auto">
             <table className="admin-table w-full text-sm">
               <thead>
-                <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-400">
+                <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-500">
                   <th className="px-4 py-3 font-medium">Customer</th>
                   <th className="px-4 py-3 font-medium">Phone</th>
                   <th className="px-4 py-3 font-medium">Orders</th>

@@ -196,7 +196,7 @@ export function CartDrawer() {
                       size={16}
                       className={cn(
                         "shrink-0",
-                        remaining > 0 ? "text-ink-400" : "text-leaf-600",
+                        remaining > 0 ? "text-ink-500" : "text-leaf-600",
                       )}
                     />
                   </div>
@@ -233,7 +233,7 @@ export function CartDrawer() {
                         <Link
                           href={`/product/${it.slug}`}
                           onClick={() => setOpen(false)}
-                          className="font-medium leading-snug text-maroon-900 hover:text-saffron-600"
+                          className="font-medium leading-snug text-maroon-900 hover:text-saffron-700"
                         >
                           {it.name}
                         </Link>
@@ -241,12 +241,12 @@ export function CartDrawer() {
                           type="button"
                           onClick={() => remove(it.variantId)}
                           aria-label="Remove item"
-                          className="text-ink-400 hover:text-maroon-700"
+                          className="text-ink-500 hover:text-maroon-700"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
-                      <p className="text-xs text-ink-400">{it.variantLabel}</p>
+                      <p className="text-xs text-ink-500">{it.variantLabel}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <div className="inline-flex items-center rounded-full border border-cream-300 bg-white">
                           <button
@@ -344,7 +344,7 @@ export function CartDrawer() {
                   <ChevronDown
                     size={18}
                     className={cn(
-                      "shrink-0 text-ink-400 transition-transform",
+                      "shrink-0 text-ink-500 transition-transform",
                       notesOpen && "rotate-180",
                     )}
                   />
@@ -356,7 +356,7 @@ export function CartDrawer() {
                       onChange={(e) => setNotes(e.target.value)}
                       rows={3}
                       placeholder="Preferred delivery time, gift message, etc."
-                      className="w-full resize-none rounded-lg border border-cream-300 bg-white p-3 text-sm text-ink-900 placeholder:text-ink-400 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/30"
+                      className="w-full resize-none rounded-lg border border-cream-300 bg-white p-3 text-sm text-ink-900 placeholder:text-ink-500 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/30"
                     />
                   </div>
                 )}
@@ -370,7 +370,7 @@ export function CartDrawer() {
                   {formatINR(subtotal)}
                 </span>
               </div>
-              <p className="mb-3 text-xs text-ink-400">
+              <p className="mb-3 text-xs text-ink-500">
                 Taxes included. Shipping &amp; offers calculated at checkout.
               </p>
               <div className="grid grid-cols-2 gap-3">

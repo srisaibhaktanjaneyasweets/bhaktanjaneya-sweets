@@ -361,7 +361,7 @@ export default function AdminDeliveryPage() {
 
               {/* Minimum Order Value inline setting */}
               <div className="flex items-center gap-3 bg-cream-50/70 border border-cream-200 rounded-2xl p-3 shrink-0">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-saffron-500/10 text-saffron-600 shrink-0">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-saffron-500/10 text-saffron-700 shrink-0">
                   <IndianRupee size={15} />
                 </span>
                 <div className="space-y-0.5">
@@ -369,7 +369,7 @@ export default function AdminDeliveryPage() {
                     Min Order Value
                   </label>
                   <div className="relative w-28">
-                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-400">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-ink-500">
                       ₹
                     </span>
                     <input
@@ -386,7 +386,7 @@ export default function AdminDeliveryPage() {
                       Blocked below ₹{settings.minOrderValue}
                     </span>
                   ) : (
-                    <span className="text-[9px] text-ink-400 font-medium block leading-none">
+                    <span className="text-[9px] text-ink-500 font-medium block leading-none">
                       No order limit
                     </span>
                   )}
@@ -427,14 +427,14 @@ export default function AdminDeliveryPage() {
                       <tr key={st} className="hover:bg-cream-50/50">
                         <td className="px-4 py-3.5">
                           <div className="font-semibold text-maroon-900">{st}</div>
-                          <div className="text-[11px] text-ink-400 mt-0.5 font-medium">
+                          <div className="text-[11px] text-ink-500 mt-0.5 font-medium">
                             {ruleSummary}
                           </div>
                         </td>
                         <td className="px-4 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="relative w-32">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-500">
                                 ₹
                               </span>
                               <input
@@ -490,7 +490,7 @@ export default function AdminDeliveryPage() {
 
                             {thresholdVal !== undefined ? (
                               <div className="relative w-28">
-                                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-500">
                                   ₹
                                 </span>
                                 <input
@@ -512,7 +512,7 @@ export default function AdminDeliveryPage() {
                                 />
                               </div>
                             ) : (
-                              <span className="text-xs text-ink-400 font-medium select-none">
+                              <span className="text-xs text-ink-500 font-medium select-none">
                                 Disabled
                               </span>
                             )}
@@ -540,7 +540,7 @@ export default function AdminDeliveryPage() {
                   })}
                   {Object.keys(areasMap).length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-xs text-ink-400">
+                      <td colSpan={4} className="px-4 py-8 text-center text-xs text-ink-500">
                         No serviceable states added yet. Go to &quot;Serviceable States &amp; Cities&quot; tab to add some.
                       </td>
                     </tr>
@@ -573,14 +573,14 @@ export default function AdminDeliveryPage() {
                     <div className="flex items-center justify-between border-b border-cream-100 pb-2">
                       <div>
                         <span className="font-serif text-sm font-bold text-maroon-900">{st}</span>
-                        <p className="text-[10px] text-ink-400 font-medium mt-0.5">{ruleSummary}</p>
+                        <p className="text-[10px] text-ink-500 font-medium mt-0.5">{ruleSummary}</p>
                       </div>
                       {currentVal === 0 ? (
                         <span className="rounded-full bg-leaf-600/10 px-2.5 py-0.5 text-[10px] font-bold text-leaf-700 shrink-0">
                           FREE SHIPPING
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold text-ink-400 shrink-0">
+                        <span className="text-[10px] font-semibold text-ink-500 shrink-0">
                           CUSTOM RATES
                         </span>
                       )}
@@ -593,7 +593,7 @@ export default function AdminDeliveryPage() {
                           Rate / Kg
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-500">
                             ₹
                           </span>
                           <input
@@ -647,7 +647,7 @@ export default function AdminDeliveryPage() {
 
                           {thresholdVal !== undefined ? (
                             <div className="relative flex-1">
-                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-400">
+                              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink-500">
                                 ₹
                               </span>
                               <input
@@ -669,7 +669,7 @@ export default function AdminDeliveryPage() {
                               />
                             </div>
                           ) : (
-                            <span className="text-xs text-ink-400 font-medium select-none">
+                            <span className="text-xs text-ink-500 font-medium select-none">
                               Disabled
                             </span>
                           )}
@@ -698,7 +698,7 @@ export default function AdminDeliveryPage() {
                 );
               })}
               {Object.keys(areasMap).length === 0 && (
-                <div className="rounded-2xl border border-dashed border-cream-300 p-6 text-center text-xs text-ink-400 bg-cream-50/30">
+                <div className="rounded-2xl border border-dashed border-cream-300 p-6 text-center text-xs text-ink-500 bg-cream-50/30">
                   No serviceable states added yet. Go to &quot;Serviceable States &amp; Cities&quot; tab to add some.
                 </div>
               )}
@@ -775,7 +775,7 @@ export default function AdminDeliveryPage() {
               <div className="space-y-2">
                 <h2 className="font-serif text-lg font-bold text-maroon-900">Filter Locations</h2>
                 <div className="relative">
-                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
+                  <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-500" />
                   <input
                     type="text"
                     value={locationSearch}
@@ -787,7 +787,7 @@ export default function AdminDeliveryPage() {
                     <button
                       type="button"
                       onClick={() => setLocationSearch("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-500 hover:text-ink-700"
                     >
                       <X size={16} />
                     </button>
@@ -802,7 +802,7 @@ export default function AdminDeliveryPage() {
                 <button
                   type="button"
                   onClick={() => setResetModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-maroon-800 hover:text-saffron-600 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-maroon-800 hover:text-saffron-700 transition-colors"
                 >
                   <RotateCcw size={14} /> Reset to standard defaults
                 </button>
@@ -820,7 +820,7 @@ export default function AdminDeliveryPage() {
                 {/* State Card Header */}
                 <div className="flex items-center justify-between border-b border-cream-200 pb-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-saffron-500/10 text-saffron-600 font-bold">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-saffron-500/10 text-saffron-700 font-bold">
                       <Building2 size={18} />
                     </span>
                     <div>
@@ -848,7 +848,7 @@ export default function AdminDeliveryPage() {
                     <label className="text-xs font-semibold uppercase tracking-wider text-ink-600">
                       Active Cities ({cities.length})
                     </label>
-                    <span className="text-[11px] text-ink-400 italic">
+                    <span className="text-[11px] text-ink-500 italic">
                       Click X on any city badge to mark as unserviceable
                     </span>
                   </div>
@@ -865,7 +865,7 @@ export default function AdminDeliveryPage() {
                             type="button"
                             onClick={() => handleRemoveCity(stateName, city)}
                             aria-label={`Remove ${city}`}
-                            className="rounded-full text-ink-400 hover:bg-maroon-800/15 hover:text-maroon-800 p-0.5 transition-colors"
+                            className="rounded-full text-ink-500 hover:bg-maroon-800/15 hover:text-maroon-800 p-0.5 transition-colors"
                             title={`Remove ${city} from ${stateName}`}
                           >
                             <X size={13} />

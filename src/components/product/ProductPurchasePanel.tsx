@@ -55,7 +55,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         </span>
         {variant.mrp && variant.mrp > variant.price && (
           <>
-            <span className="text-lg text-ink-400 line-through">
+            <span className="text-lg text-ink-500 line-through">
               {formatINR(variant.mrp)}
             </span>
             <span className="rounded-full bg-leaf-600/12 px-2 py-0.5 text-sm font-semibold text-leaf-600">
@@ -64,7 +64,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           </>
         )}
       </div>
-      <p className="mt-1 text-xs text-ink-400">Inclusive of all taxes</p>
+      <p className="mt-1 text-xs text-ink-500">Inclusive of all taxes</p>
 
       {/* Variants */}
       {sorted.length > 1 && (
@@ -98,7 +98,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
                   <span
                     className={cn(
                       "block text-xs",
-                      sel ? "text-cream-100/80" : "text-ink-400",
+                      sel ? "text-cream-100/80" : "text-ink-500",
                     )}
                   >
                     {formatINR(v.price)}
@@ -146,7 +146,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             Out of stock
           </span>
         ) : variant.stock <= 10 ? (
-          <span className="text-sm font-medium text-saffron-600">
+          <span className="text-sm font-medium text-saffron-700">
             Only {variant.stock} left
           </span>
         ) : (
@@ -190,7 +190,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-maroon-700 transition-colors hover:text-saffron-600"
+        className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-maroon-700 transition-colors hover:text-saffron-700"
       >
         View cart →
       </button>

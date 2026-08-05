@@ -135,7 +135,7 @@ export function ProductCard({
               added
                 ? "bg-leaf-600 text-white"
                 : activeVariant.stock <= 0
-                  ? "bg-ink-100 text-ink-400 border border-cream-200"
+                  ? "bg-ink-100 text-ink-500 border border-cream-200"
                   : "bg-maroon-800 text-cream-50 hover:bg-maroon-700",
             )}
           >

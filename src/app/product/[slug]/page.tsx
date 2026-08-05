@@ -9,6 +9,8 @@ import { ProductCarousel } from "@/components/product/ProductCarousel";
 import { getProducts, getProductBySlug } from "@/lib/api/products";
 import { priceRange } from "@/lib/product";
 import { recommendForProduct } from "@/lib/recommend";
+import { getProductFAQs } from "@/lib/faq";
+import { ProductFAQ } from "@/components/product/ProductFAQ";
 
 import { config } from "@/lib/config";
 
@@ -73,6 +75,7 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
   // rating) rather than just listing the same category in name order.
   const related = recommendForProduct(product, await getProducts(), 8);
   const { min, max } = priceRange(product);
+  const faqs = getProductFAQs(product.name, product.category);
 
   const productUrl = `${config.siteUrl}/product/${product.slug}`;
 
@@ -113,6 +116,21 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
     },
   ];
 
+  if (faqs.length > 0) {
+    jsonLd.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    } as any);
+  }
+
   return (
     <div className="pb-16 pt-8">
       <script
@@ -121,7 +139,7 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
       />
       <Container>
         {/* Breadcrumb */}
-        <nav className="mb-6 text-xs text-ink-400">
+        <nav className="mb-6 text-xs text-ink-500">
           <Link href="/" className="hover:text-maroon-800">
             Home
           </Link>{" "}
@@ -140,7 +158,7 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
 
           <div>
             {product.categoryLabel && (
-              <span className="text-sm font-medium uppercase tracking-wide text-saffron-600">
+              <span className="text-sm font-medium uppercase tracking-wide text-saffron-700">
                 {product.categoryLabel}
               </span>
             )}
@@ -170,7 +188,7 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
             <div className="mt-8 grid gap-4 rounded-2xl bg-cream-100 p-5 sm:grid-cols-3">
               {features.map(({ icon: Icon, title, text }) => (
                 <div key={title} className="flex items-start gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-saffron-600">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-saffron-700">
                     <Icon size={18} />
                   </span>
                   <div>
@@ -182,6 +200,8 @@ export default async function ProductPage(props: PageProps<"/product/[slug]">) {
                 </div>
               ))}
             </div>
+            
+            <ProductFAQ faqs={faqs} />
           </div>
         </div>
       </Container>

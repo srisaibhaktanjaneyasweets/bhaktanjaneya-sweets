@@ -88,7 +88,7 @@ export function Combobox({
           e.preventDefault();
           handleNotListed();
         }}
-        className="block w-full px-4 py-2.5 text-left text-sm font-medium text-maroon-700 underline underline-offset-4 hover:bg-saffron-500/10 hover:text-saffron-600"
+        className="block w-full px-4 py-2.5 text-left text-sm font-medium text-maroon-700 underline underline-offset-4 hover:bg-saffron-500/10 hover:text-saffron-700"
       >
         {notListedLabel ?? "My city isn't listed?"}
       </button>
@@ -145,7 +145,7 @@ export function Combobox({
       <ChevronDown
         size={18}
         className={cn(
-          "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 transition-transform",
+          "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-500 transition-transform",
           open && "rotate-180",
         )}
       />

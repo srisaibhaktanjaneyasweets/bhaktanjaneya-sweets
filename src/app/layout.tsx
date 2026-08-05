@@ -51,13 +51,15 @@ export const metadata: Metadata = {
     template: `%s | ${config.businessName}`,
   },
   description:
-    "Buy authentic Tapeswaram Kaja, Madatha Kaja, Ariselu, Putharekulu, and pure ghee sweets online. Order on WhatsApp with fast delivery across India.",
+    "Buy authentic Tapeswaram Sweets, Tapeswaram Kaja (Madatha & Gottam Kaja), Ariselu, Putharekulu, and pure ghee sweets online. Order on WhatsApp with fast delivery across India.",
   keywords: [
+    "Tapeswaram Sweets",
+    "Tapeswaram Kaja",
     "Bhaktanjaneya Sweets",
     "Sri Sai Bhaktanjaneya Sweets",
     "Sri Sai Bhakthanjaneya Sweets",
-    "bhaktanjaneyasweets.in",
-    "Tapeswaram Kaja",
+    "buy Tapeswaram Sweets online",
+    "authentic Tapeswaram Kaja",
     "Gottam Kaja",
     "Madatha Kaja",
     "pure ghee sweets",
@@ -67,8 +69,8 @@ export const metadata: Metadata = {
     "buy sweets online India",
   ],
   openGraph: {
-    title: `${config.businessName} — Pure Ghee Sweets & Traditional Namkeen`,
-    description: `${config.tagline} Buy authentic Tapeswaram Kaja, Gottam Kaja, Kaju Sweets, and Putharekulu online.`,
+    title: `${config.businessName} — Authentic Tapeswaram Sweets & Pure Ghee Kaja`,
+    description: `Order authentic Tapeswaram Sweets, Tapeswaram Kaja, Kaju Sweets, and Putharekulu online. Fast pan-India delivery.`,
     url: config.siteUrl,
     siteName: config.businessName,
     images: [

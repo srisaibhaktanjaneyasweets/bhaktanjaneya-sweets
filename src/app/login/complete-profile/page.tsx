@@ -128,7 +128,7 @@ function CompleteProfileInner() {
           </div>
         </label>
 
-        <p className="text-xs text-ink-400">
+        <p className="text-xs text-ink-500">
           We use your phone number for order updates, delivery coordination, and support.
         </p>
 

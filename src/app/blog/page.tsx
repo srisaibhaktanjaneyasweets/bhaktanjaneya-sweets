@@ -48,7 +48,7 @@ export default async function BlogPage() {
               />
             </div>
             <div className="flex flex-col justify-center p-7 sm:p-9">
-              <div className="flex items-center gap-4 text-xs text-ink-400">
+              <div className="flex items-center gap-4 text-xs text-ink-500">
                 <span className="inline-flex items-center gap-1.5">
                   <CalendarDays size={14} /> {formatDate(featured.date)}
                 </span>
@@ -60,7 +60,7 @@ export default async function BlogPage() {
                 {featured.title}
               </h2>
               <p className="mt-3 text-ink-600">{featured.excerpt}</p>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-600">
+              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-700">
                 Read article
                 <ArrowRight
                   size={16}
@@ -90,7 +90,7 @@ export default async function BlogPage() {
                   />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
-                  <div className="flex items-center gap-4 text-xs text-ink-400">
+                  <div className="flex items-center gap-4 text-xs text-ink-500">
                     <span className="inline-flex items-center gap-1.5">
                       <CalendarDays size={14} /> {formatDate(post.date)}
                     </span>
@@ -104,7 +104,7 @@ export default async function BlogPage() {
                   <p className="mt-2 line-clamp-3 text-sm text-ink-500">
                     {post.excerpt}
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-600">
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-700">
                     Read more
                     <ArrowRight
                       size={15}

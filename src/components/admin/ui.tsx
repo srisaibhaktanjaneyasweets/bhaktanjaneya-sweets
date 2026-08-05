@@ -25,7 +25,7 @@ export function Field({
     <label className={cn("block space-y-1.5", className)}>
       <span className={labelClass}>{label}</span>
       {children}
-      {hint && <span className="block text-xs text-ink-400">{hint}</span>}
+      {hint && <span className="block text-xs text-ink-500">{hint}</span>}
     </label>
   );
 }
@@ -101,7 +101,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 hover:bg-cream-100 hover:text-maroon-800"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-500 hover:bg-cream-100 hover:text-maroon-800"
           >
             <X size={18} />
           </button>

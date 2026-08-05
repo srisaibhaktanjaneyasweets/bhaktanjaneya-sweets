@@ -92,7 +92,7 @@ export function ReviewsMarquee({ reviews }: { reviews: GoogleReview[] }) {
                       type="button"
                       onClick={() => setActive(r)}
                       tabIndex={isClone ? -1 : 0}
-                      className="mt-1.5 self-start text-xs font-semibold text-saffron-600 transition-colors hover:text-saffron-700"
+                      className="mt-1.5 self-start text-xs font-semibold text-saffron-700 transition-colors hover:text-saffron-700"
                     >
                       Read more
                     </button>
@@ -102,7 +102,7 @@ export function ReviewsMarquee({ reviews }: { reviews: GoogleReview[] }) {
                     <Avatar review={r} />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-maroon-900">{r.author}</p>
-                      <p className="text-xs text-ink-400">Posted on Google · {r.relativeTime}</p>
+                      <p className="text-xs text-ink-500">Posted on Google · {r.relativeTime}</p>
                     </div>
                   </figcaption>
                 </figure>
@@ -144,7 +144,7 @@ export function ReviewsMarquee({ reviews }: { reviews: GoogleReview[] }) {
               <Avatar review={active} />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-maroon-900">{active.author}</p>
-                <p className="text-xs text-ink-400">Posted on Google · {active.relativeTime}</p>
+                <p className="text-xs text-ink-500">Posted on Google · {active.relativeTime}</p>
               </div>
             </div>
           </div>

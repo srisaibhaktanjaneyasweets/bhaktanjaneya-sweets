@@ -218,7 +218,7 @@ export default function AdminTagsPage() {
                           />
                         ) : null}
                       </h3>
-                      <p className="text-xs text-ink-400">/{t.slug}</p>
+                      <p className="text-xs text-ink-500">/{t.slug}</p>
                     </div>
 
                     <div className="flex shrink-0 gap-1">
@@ -243,14 +243,14 @@ export default function AdminTagsPage() {
                   </div>
 
                   <div className="mt-3 flex items-center justify-between">
-                    <p className="text-xs font-medium text-saffron-600">
+                    <p className="text-xs font-medium text-saffron-700">
                       {count} product{count !== 1 ? "s" : ""}
                     </p>
                     <span
                       className={
                         t.featured
                           ? "rounded-full bg-saffron-400/20 px-2 py-0.5 text-[11px] font-semibold text-maroon-800"
-                          : "rounded-full bg-cream-100 px-2 py-0.5 text-[11px] font-medium text-ink-400"
+                          : "rounded-full bg-cream-100 px-2 py-0.5 text-[11px] font-medium text-ink-500"
                       }
                     >
                       {t.featured ? "On home page" : "Not featured"}

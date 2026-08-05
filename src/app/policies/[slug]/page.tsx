@@ -45,7 +45,7 @@ export default async function PolicyPage(props: PageProps<"/policies/[slug]">) {
         <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
           {/* Side nav */}
           <aside className="h-fit lg:sticky lg:top-24">
-            <p className="px-3 text-xs font-semibold uppercase tracking-wide text-ink-400">
+            <p className="px-3 text-xs font-semibold uppercase tracking-wide text-ink-500">
               Policies
             </p>
             <nav className="mt-2 space-y-1">
@@ -71,13 +71,13 @@ export default async function PolicyPage(props: PageProps<"/policies/[slug]">) {
           {/* Content */}
           <article className="max-w-4xl">
             <div className="rounded-3xl border border-cream-200 bg-white p-6 shadow-soft sm:p-8">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-saffron-600">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-saffron-700">
                 Bhaktanjaneya Sweets Policy
               </p>
               <h1 className="mt-2 font-serif text-3xl font-bold text-maroon-900 sm:text-4xl">
                 {policy.title}
               </h1>
-              <p className="mt-2 text-sm text-ink-400">
+              <p className="mt-2 text-sm text-ink-500">
                 Last updated {formatDate(policy.updated)}
               </p>
               <p className="mt-5 text-base leading-relaxed text-ink-600 sm:text-lg">

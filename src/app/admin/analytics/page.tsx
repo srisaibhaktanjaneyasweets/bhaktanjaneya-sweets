@@ -362,7 +362,7 @@ export default function AnalyticsPage() {
           {/* Preset Ranges Section */}
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs font-bold text-ink-500 uppercase tracking-wider flex items-center gap-1.5 shrink-0">
-              <Filter size={14} className="text-ink-400" /> Ranges:
+              <Filter size={14} className="text-ink-500" /> Ranges:
             </span>
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 py-0.5">
               <div className="flex gap-1.5 shrink-0">
@@ -445,7 +445,7 @@ export default function AnalyticsPage() {
                   }}
                   className="rounded-lg border border-cream-300 bg-cream-50/50 px-2 py-1 text-xs font-medium text-ink-700 outline-hidden focus:border-maroon-800 flex-1 sm:w-32 h-8"
                 />
-                <span className="text-xs text-ink-400 font-bold">to</span>
+                <span className="text-xs text-ink-500 font-bold">to</span>
                 <input
                   type="date"
                   value={endDate}
@@ -468,7 +468,7 @@ export default function AnalyticsPage() {
         {/* Total Revenue */}
         <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-400">Total Revenue</span>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-500">Total Revenue</span>
             <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-leaf-600/10 text-leaf-600">
               <DollarSign size={18} />
             </span>
@@ -480,7 +480,7 @@ export default function AnalyticsPage() {
         {/* Total Orders */}
         <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-400">Total Orders</span>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-500">Total Orders</span>
             <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-blue-600/10 text-blue-600">
               <ShoppingBag size={18} />
             </span>
@@ -492,8 +492,8 @@ export default function AnalyticsPage() {
         {/* Average Order Value (AOV) */}
         <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-400">Average (AOV)</span>
-            <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-saffron-600/10 text-saffron-600">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-500">Average (AOV)</span>
+            <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-saffron-600/10 text-saffron-700">
               <TrendingUp size={18} />
             </span>
           </div>
@@ -504,7 +504,7 @@ export default function AnalyticsPage() {
         {/* Delivery Rates */}
         <div className="group relative overflow-hidden rounded-2xl border border-cream-200 bg-white p-4 sm:p-5 shadow-soft hover:-translate-y-1 hover:shadow-md transition-all duration-300 col-span-2 sm:col-span-1">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-400">Status Ratios</span>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-ink-500">Status Ratios</span>
             <span className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-emerald-600/10 text-emerald-600">
               <CheckCircle2 size={18} />
             </span>
@@ -514,7 +514,7 @@ export default function AnalyticsPage() {
             <span className="text-saffron-700 bg-saffron-50 px-1.5 sm:px-2 py-0.5 rounded-sm">{stats.pending} Pen</span>
             <span className="text-red-700 bg-red-50 px-1.5 sm:px-2 py-0.5 rounded-sm">{stats.cancelled} Can</span>
           </div>
-          <p className="mt-1.5 text-[9px] sm:text-[10px] text-ink-400 uppercase font-bold">Delivered vs Pending vs Cancelled</p>
+          <p className="mt-1.5 text-[9px] sm:text-[10px] text-ink-500 uppercase font-bold">Delivered vs Pending vs Cancelled</p>
         </div>
       </div>
 
@@ -647,7 +647,7 @@ export default function AnalyticsPage() {
               </svg>
             </div>
           ) : (
-            <div className="flex h-48 items-center justify-center rounded-xl bg-cream-50/50 text-ink-400 text-xs">
+            <div className="flex h-48 items-center justify-center rounded-xl bg-cream-50/50 text-ink-500 text-xs">
               No sales data found for this range.
             </div>
           )}
@@ -756,7 +756,7 @@ export default function AnalyticsPage() {
               </svg>
             </div>
           ) : (
-            <div className="flex h-48 items-center justify-center rounded-xl bg-cream-50/50 text-ink-400 text-xs">
+            <div className="flex h-48 items-center justify-center rounded-xl bg-cream-50/50 text-ink-500 text-xs">
               No orders found for this range.
             </div>
           )}
@@ -774,7 +774,7 @@ export default function AnalyticsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-xl bg-cream-50/60 p-4 border border-cream-100">
               <div>
-                <p className="text-[10px] uppercase font-bold text-ink-400">Repeat Customer Rate</p>
+                <p className="text-[10px] uppercase font-bold text-ink-500">Repeat Customer Rate</p>
                 <p className="mt-1 font-serif text-2xl sm:text-3xl font-black text-maroon-900">
                   {customerAnalytics.repeatRate.toFixed(1)}%
                 </p>
@@ -898,7 +898,7 @@ export default function AnalyticsPage() {
 
               {/* Search */}
               <div className="relative w-full sm:w-60">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-400">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-ink-500">
                   <Search size={14} />
                 </span>
                 <input
@@ -927,7 +927,7 @@ export default function AnalyticsPage() {
                   <tr key={i} className="hover:bg-cream-50/40 transition-colors">
                     <td className="px-4 py-3">
                       <p className="font-semibold text-ink-800">{c.name}</p>
-                      <div className="flex flex-col gap-0.5 mt-0.5 text-[10px] text-ink-400">
+                      <div className="flex flex-col gap-0.5 mt-0.5 text-[10px] text-ink-500">
                         {c.phone && <span className="flex items-center gap-1"><Phone size={10} /> {c.phone}</span>}
                         {c.email && <span className="flex items-center gap-1"><Mail size={10} /> {c.email}</span>}
                       </div>
@@ -959,7 +959,7 @@ export default function AnalyticsPage() {
                 ))}
                 {filteredCustomers.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-ink-400">
+                    <td colSpan={4} className="px-4 py-8 text-center text-ink-500">
                       No matching loyalty records found.
                     </td>
                   </tr>
@@ -991,7 +991,7 @@ export default function AnalyticsPage() {
               <button
                 type="button"
                 onClick={() => setSelectedCustomer(null)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 hover:bg-cream-100 hover:text-ink-700 cursor-pointer"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-500 hover:bg-cream-100 hover:text-ink-700 cursor-pointer"
               >
                 <span className="text-lg font-bold">×</span>
               </button>
@@ -999,19 +999,19 @@ export default function AnalyticsPage() {
 
             <div className="grid grid-cols-2 gap-3 rounded-xl bg-cream-50/50 p-3 sm:p-4 border border-cream-100 text-xs my-4">
               <div>
-                <p className="text-[10px] uppercase font-bold text-ink-400">Contact Phone</p>
+                <p className="text-[10px] uppercase font-bold text-ink-500">Contact Phone</p>
                 <p className="mt-0.5 font-semibold text-ink-800">{activeCustomerDetails.phone || "N/A"}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-ink-400">Email Address</p>
+                <p className="text-[10px] uppercase font-bold text-ink-500">Email Address</p>
                 <p className="mt-0.5 font-semibold text-ink-800 truncate">{activeCustomerDetails.email || "N/A"}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-ink-400">Total Placed Orders</p>
+                <p className="text-[10px] uppercase font-bold text-ink-500">Total Placed Orders</p>
                 <p className="mt-0.5 font-bold text-maroon-900">{activeCustomerDetails.ordersCount}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-ink-400">Total Spent Amount</p>
+                <p className="text-[10px] uppercase font-bold text-ink-500">Total Spent Amount</p>
                 <p className="mt-0.5 font-bold text-emerald-700 font-mono">{formatINR(activeCustomerDetails.spent)}</p>
               </div>
             </div>
@@ -1040,7 +1040,7 @@ export default function AnalyticsPage() {
                     <div className="flex items-center justify-between text-xs">
                       <div>
                         <span className="font-bold text-ink-800">Order #{shortId}</span>
-                        <span className="text-[10px] text-ink-400 ml-2">{orderDate}</span>
+                        <span className="text-[10px] text-ink-500 ml-2">{orderDate}</span>
                       </div>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         o.status === 'delivered' 
@@ -1058,7 +1058,7 @@ export default function AnalyticsPage() {
                         <li key={i} className="py-1 flex justify-between">
                           <span>
                             {it.name}{" "}
-                            <span className="text-[10px] text-ink-400">
+                            <span className="text-[10px] text-ink-500">
                               ({it.variantLabel}) × {it.quantity}
                             </span>
                           </span>
@@ -1068,7 +1068,7 @@ export default function AnalyticsPage() {
                     </ul>
 
                     <div className="flex items-center justify-between border-t border-cream-100 pt-2 text-xs">
-                      <span className="text-[10px] text-ink-400 uppercase font-bold flex items-center gap-1">
+                      <span className="text-[10px] text-ink-500 uppercase font-bold flex items-center gap-1">
                         Payment: 
                         <span className={`px-1.5 py-0.5 rounded-sm ${
                           isPaid ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'

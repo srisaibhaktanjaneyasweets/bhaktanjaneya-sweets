@@ -227,7 +227,7 @@ export default function InstagramReelsAdminPage() {
       {/* Add New Reel Card Bar */}
       <div className="rounded-3xl border border-cream-200 bg-white p-6 shadow-soft">
         <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-maroon-900">
-          <Plus size={18} className="text-saffron-600" />
+          <Plus size={18} className="text-saffron-700" />
           Add New Instagram Reel
         </h2>
         <p className="mt-0.5 text-xs text-ink-500">
@@ -284,7 +284,7 @@ export default function InstagramReelsAdminPage() {
               {reels.length} / 12 slots
             </span>
           </div>
-          <span className="text-xs text-ink-400">
+          <span className="text-xs text-ink-500">
             Reorder cards using arrows to change display position on the homepage carousel.
           </span>
         </div>

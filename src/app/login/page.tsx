@@ -75,7 +75,7 @@ function LoginInner() {
       {notice && <p className="mt-4 rounded-xl bg-leaf-600/10 p-3 text-sm font-medium text-leaf-700">{notice}</p>}
       {error && <p className="mt-4 rounded-xl bg-maroon-800/10 p-3 text-sm font-medium text-maroon-800">{error}</p>}
 
-      <p className="mt-8 text-center text-xs text-ink-400">
+      <p className="mt-8 text-center text-xs text-ink-500">
         By continuing you agree to {config.businessName}&apos;s{" "}
         <Link href="/policies/terms" className="underline hover:text-maroon-800">
           Terms

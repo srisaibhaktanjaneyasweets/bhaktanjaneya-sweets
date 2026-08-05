@@ -333,7 +333,7 @@ export default function AdminOrdersPage() {
         <div className="grid gap-3 md:grid-cols-[1fr_200px_200px] items-center">
           {/* Instant Search input */}
           <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" size={18} />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-500" size={18} />
             <input
               type="text"
               value={searchQuery}
@@ -623,14 +623,14 @@ export default function AdminOrdersPage() {
 
                   {/* Order Items summary box */}
                   <div className="rounded-xl bg-cream-50/50 border border-cream-100/50 p-2.5 text-xs text-ink-750 font-medium">
-                    <p className="text-[10px] uppercase font-bold text-ink-400 tracking-wider mb-1">Items</p>
+                    <p className="text-[10px] uppercase font-bold text-ink-500 tracking-wider mb-1">Items</p>
                     <p>{itemSummary}</p>
                   </div>
 
                   {/* Pricing, Payment & Status line */}
                   <div className="flex flex-wrap items-center justify-between gap-3 bg-cream-50/30 p-2 rounded-xl border border-cream-100">
                     <div className="space-y-0.5">
-                      <p className="text-[10px] uppercase font-bold text-ink-400 tracking-wider">Total Amount</p>
+                      <p className="text-[10px] uppercase font-bold text-ink-500 tracking-wider">Total Amount</p>
                       <p className="text-base font-black text-maroon-900">{formatINR(o.total)}</p>
                     </div>
                     
@@ -771,7 +771,7 @@ export default function AdminOrdersPage() {
                   placeholder="Custom tracking link route (e.g. https://bluedart.com/track?id=TRACKING_ID)"
                   className={inputClass}
                 />
-                <p className="text-[10px] text-ink-400">
+                <p className="text-[10px] text-ink-500">
                   Optional. Use <strong>TRACKING_ID</strong> as placeholder for tracking ID inside your URL.
                 </p>
               </div>
@@ -801,13 +801,13 @@ export default function AdminOrdersPage() {
             {/* Top overview row */}
             <div className="flex flex-wrap justify-between gap-3 text-sm rounded-xl bg-cream-50 p-4 border border-cream-200">
               <div>
-                <span className="text-xs font-semibold text-ink-400 uppercase tracking-wider">Customer Info</span>
+                <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Customer Info</span>
                 <p className="mt-1 font-bold text-maroon-900 text-base">{viewing.customerName || "Customer"}</p>
                 <p className="text-ink-600 font-medium">Ph: {viewing.customerPhone}</p>
                 {viewing.customerEmail && <p className="text-ink-500 text-xs">{viewing.customerEmail}</p>}
               </div>
               <div className="text-right">
-                <span className="text-xs font-semibold text-ink-400 uppercase tracking-wider">Order Status</span>
+                <span className="text-xs font-semibold text-ink-500 uppercase tracking-wider">Order Status</span>
                 <p className="mt-1 text-xs text-ink-500">{formatOrderDateTime(viewing.createdAt)}</p>
                 <div className="mt-1.5 flex items-center justify-end gap-2 flex-wrap">
                   <Badge tone={viewing.paymentMethod === "whatsapp" ? "saffron" : (PAYMENT_TONE[viewing.paymentStatus] ?? "muted")}>
@@ -927,7 +927,7 @@ export default function AdminOrdersPage() {
                       className={inputClass}
                     />
                   </div>
-                  <p className="text-[10px] text-ink-400 sm:col-span-2">
+                  <p className="text-[10px] text-ink-500 sm:col-span-2">
                     Optional. Use <strong>TRACKING_ID</strong> as placeholder for tracking ID inside your URL.
                   </p>
                 </div>
@@ -993,7 +993,7 @@ export default function AdminOrdersPage() {
                 onClick={() => setBluetoothReceiptModal(viewing)}
                 className="flex h-11 items-center justify-center gap-1.5 rounded-xl border border-saffron-500/60 bg-saffron-500/10 text-xs font-bold text-maroon-900 shadow-sm hover:bg-saffron-500/20 transition-colors"
               >
-                <Smartphone size={16} className="text-saffron-600 shrink-0" /> Bluetooth Thermal App
+                <Smartphone size={16} className="text-saffron-700 shrink-0" /> Bluetooth Thermal App
               </button>
 
               <button
@@ -1094,7 +1094,7 @@ export default function AdminOrdersPage() {
                 onClick={() => openRawBtPrintApp(bluetoothReceiptModal, bizConfig)}
                 className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-saffron-500 bg-saffron-500/10 px-4 text-xs font-bold text-maroon-900 hover:bg-saffron-500/20 shadow-sm transition-colors"
               >
-                <Smartphone size={16} className="text-saffron-600" /> Open RawBT App Direct
+                <Smartphone size={16} className="text-saffron-700" /> Open RawBT App Direct
               </button>
             </div>
 

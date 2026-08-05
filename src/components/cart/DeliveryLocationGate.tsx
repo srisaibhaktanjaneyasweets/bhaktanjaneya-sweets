@@ -190,7 +190,7 @@ export function DeliveryLocationGate({
   return (
     <section className="rounded-2xl border border-cream-200 bg-white p-5 space-y-4">
       <div className="flex items-center gap-2">
-        <MapPin size={18} className="shrink-0 text-saffron-600" />
+        <MapPin size={18} className="shrink-0 text-saffron-700" />
         <h2 className="font-serif text-lg font-bold text-maroon-900">
           Select delivery location
         </h2>
@@ -292,7 +292,7 @@ export function DeliveryLocationGate({
               setError("");
               setUnavailable(true);
             }}
-            className="text-sm font-medium text-maroon-700 underline underline-offset-4 hover:text-saffron-600"
+            className="text-sm font-medium text-maroon-700 underline underline-offset-4 hover:text-saffron-700"
           >
             My city isn&apos;t listed?
           </button>
@@ -300,7 +300,7 @@ export function DeliveryLocationGate({
       ) : (
         <div className="space-y-3 pt-1">
           <div className="flex items-start gap-2 rounded-xl border border-saffron-400/50 bg-saffron-500/10 px-4 py-3 text-sm text-maroon-900">
-            <AlertTriangle size={18} className="mt-0.5 shrink-0 text-saffron-600" />
+            <AlertTriangle size={18} className="mt-0.5 shrink-0 text-saffron-700" />
             <span>Online courier delivery is not available for this city.</span>
           </div>
 
@@ -341,7 +341,7 @@ export function DeliveryLocationGate({
               setUnavailable(false);
               setCityValue("");
             }}
-            className="text-sm font-medium text-maroon-700 hover:text-saffron-600"
+            className="text-sm font-medium text-maroon-700 hover:text-saffron-700"
           >
             Check a different city
           </button>

@@ -24,7 +24,7 @@ export function FaqAccordion({ items }: { items: Faq[] }) {
               <ChevronDown
                 size={18}
                 className={cn(
-                  "shrink-0 text-saffron-600 transition-transform duration-200",
+                  "shrink-0 text-saffron-700 transition-transform duration-200",
                   isOpen && "rotate-180",
                 )}
               />

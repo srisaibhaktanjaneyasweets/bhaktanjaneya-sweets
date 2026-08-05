@@ -169,13 +169,17 @@ export function ReelsCarousel({ reels }: { reels: InstagramReel[] }) {
               type="button"
               onClick={() => scrollTo(i)}
               aria-label={`Go to slide ${i + 1}`}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                i === selectedIndex
-                  ? "w-5 bg-maroon-800"
-                  : "w-1.5 bg-maroon-800/20 hover:bg-maroon-800/40"
-              )}
-            />
+              className="flex h-11 items-center justify-center p-2"
+            >
+              <span
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  i === selectedIndex
+                    ? "w-5 bg-maroon-800"
+                    : "w-1.5 bg-maroon-800/20 hover:bg-maroon-800/40"
+                )}
+              />
+            </button>
           ))}
         </div>
       )}

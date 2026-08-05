@@ -188,7 +188,7 @@ function PostEditor({
                   sizes="160px"
                 />
               ) : (
-                <span className="text-xs text-ink-400">No image</span>
+                <span className="text-xs text-ink-500">No image</span>
               )}
             </div>
 
@@ -300,7 +300,7 @@ export default function AdminBlogPage() {
         <div>
           <h1 className="font-serif text-2xl font-bold text-maroon-900">Blog</h1>
           <p className="text-sm text-ink-500">
-            Articles shown on the storefront <span className="text-ink-400">/blog</span> page.
+            Articles shown on the storefront <span className="text-ink-500">/blog</span> page.
           </p>
         </div>
 
@@ -320,7 +320,7 @@ export default function AdminBlogPage() {
           <div className="md:overflow-x-auto">
             <table className="admin-table w-full text-sm">
               <thead>
-                <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-400">
+                <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-500">
                   <th className="px-4 py-3 font-medium">Title</th>
                   <th className="px-4 py-3 font-medium">Date</th>
                   <th className="px-4 py-3 font-medium">Read</th>
@@ -342,7 +342,7 @@ export default function AdminBlogPage() {
                           />
                         ) : null}
                       </div>
-                      <div className="text-xs text-ink-400">/blog/{p.slug}</div>
+                      <div className="text-xs text-ink-500">/blog/{p.slug}</div>
                     </td>
                     <td data-label="Date" className="px-4 py-3 text-ink-500">{p.date ? formatDate(p.date) : "—"}</td>
                     <td data-label="Read" className="px-4 py-3 text-ink-500">{p.readMinutes} min</td>

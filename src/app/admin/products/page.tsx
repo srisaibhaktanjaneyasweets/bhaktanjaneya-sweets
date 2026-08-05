@@ -93,7 +93,7 @@ export default function AdminProductsPage() {
         <div className="relative w-full sm:max-w-xs">
           <Search
             size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-500"
           />
           <input
             value={query}
@@ -133,7 +133,7 @@ export default function AdminProductsPage() {
           <div className="md:overflow-x-auto">
             <table className="admin-table w-full text-sm">
               <thead>
-                <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-400">
+                <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-500">
                   <th className="px-4 py-3 font-medium">Product</th>
                   <th className="px-4 py-3 font-medium">Category</th>
                   <th className="px-4 py-3 font-medium">Price from</th>
@@ -163,7 +163,7 @@ export default function AdminProductsPage() {
                             <p className="truncate font-medium text-maroon-900">
                               {p.name}
                             </p>
-                            <p className="truncate text-xs text-ink-400">
+                            <p className="truncate text-xs text-ink-500">
                               /{p.slug}
                             </p>
                           </div>
@@ -181,7 +181,7 @@ export default function AdminProductsPage() {
                             stock === 0
                               ? "font-semibold text-maroon-700"
                               : stock <= 10
-                                ? "font-semibold text-saffron-600"
+                                ? "font-semibold text-saffron-700"
                                 : "text-ink-600"
                           }
                         >

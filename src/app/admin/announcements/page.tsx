@@ -124,7 +124,7 @@ export default function AnnouncementsPage() {
           type="button"
           onClick={() => setActiveTab("announcements")}
           className={`pb-3 text-sm font-semibold transition-colors relative cursor-pointer ${
-            activeTab === "announcements" ? "text-maroon-800 font-bold" : "text-ink-400 hover:text-maroon-800/80"
+            activeTab === "announcements" ? "text-maroon-800 font-bold" : "text-ink-500 hover:text-maroon-800/80"
           }`}
         >
           Top Announcement Bar
@@ -136,7 +136,7 @@ export default function AnnouncementsPage() {
           type="button"
           onClick={() => setActiveTab("banner")}
           className={`pb-3 text-sm font-semibold transition-colors relative cursor-pointer ${
-            activeTab === "banner" ? "text-maroon-800 font-bold" : "text-ink-400 hover:text-maroon-800/80"
+            activeTab === "banner" ? "text-maroon-800 font-bold" : "text-ink-500 hover:text-maroon-800/80"
           }`}
         >
           Homepage Offer Banner
@@ -189,7 +189,7 @@ export default function AnnouncementsPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-cream-100">
-                  <span className="text-xs text-ink-400">
+                  <span className="text-xs text-ink-500">
                     Changes apply to the storefront instantly.
                   </span>
                   <AdminButton onClick={save} disabled={saving}>
@@ -202,7 +202,7 @@ export default function AnnouncementsPage() {
               <div className="lg:col-span-5 space-y-4">
                 <div className="flex items-center gap-2">
                   <Sparkles size={16} className="text-maroon-800" />
-                  <h4 className="text-xs font-bold text-ink-400 uppercase tracking-wider">Live Preview</h4>
+                  <h4 className="text-xs font-bold text-ink-500 uppercase tracking-wider">Live Preview</h4>
                 </div>
                 
                 <div className="rounded-2xl border border-cream-150 bg-cream-50/40 p-5 shadow-soft space-y-4">
@@ -319,7 +319,7 @@ export default function AnnouncementsPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-cream-100">
-                  <span className="text-xs text-ink-400">
+                  <span className="text-xs text-ink-500">
                     Saves to database immediately.
                   </span>
                   <AdminButton onClick={saveBanner} disabled={savingBanner}>
@@ -332,7 +332,7 @@ export default function AnnouncementsPage() {
               <div className="lg:col-span-5 space-y-4">
                 <div className="flex items-center gap-2">
                   <Sparkles size={16} className="text-maroon-800" />
-                  <h4 className="text-xs font-bold text-ink-400 uppercase tracking-wider">Live Preview</h4>
+                  <h4 className="text-xs font-bold text-ink-500 uppercase tracking-wider">Live Preview</h4>
                 </div>
 
                 <div className="rounded-2xl border border-cream-150 bg-cream-50/40 p-5 shadow-soft space-y-4">
@@ -381,7 +381,7 @@ export default function AnnouncementsPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="rounded-xl border border-dashed border-cream-300 bg-white p-8 text-center text-xs text-ink-400 font-medium w-full max-w-sm">
+                      <div className="rounded-xl border border-dashed border-cream-300 bg-white p-8 text-center text-xs text-ink-500 font-medium w-full max-w-sm">
                         <EyeOff size={20} className="mx-auto text-ink-300 mb-2" />
                         Banner is hidden on the store.
                       </div>

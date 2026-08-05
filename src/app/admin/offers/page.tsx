@@ -624,7 +624,7 @@ export default function AdminOffersPage() {
           className={`pb-3 text-sm font-semibold transition-all relative cursor-pointer ${
             activeTab === "standard"
               ? "text-maroon-900 border-b-2 border-maroon-900"
-              : "text-ink-400 hover:text-ink-700"
+              : "text-ink-500 hover:text-ink-700"
           }`}
         >
           Standard Shop Offers ({offers.length})
@@ -635,11 +635,11 @@ export default function AdminOffersPage() {
           className={`pb-3 text-sm font-semibold transition-all relative cursor-pointer flex items-center gap-1.5 ${
             activeTab === "custom"
               ? "text-maroon-900 border-b-2 border-maroon-900"
-              : "text-ink-400 hover:text-ink-700"
+              : "text-ink-500 hover:text-ink-700"
           }`}
         >
           Customer Story Coupons ({customCoupons.length})
-          {loadingCustom && <RefreshCw size={12} className="animate-spin text-ink-400" />}
+          {loadingCustom && <RefreshCw size={12} className="animate-spin text-ink-500" />}
         </button>
       </div>
 
@@ -657,7 +657,7 @@ export default function AdminOffersPage() {
               <div className="md:overflow-x-auto">
                 <table className="admin-table w-full text-sm">
                   <thead>
-                    <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-400">
+                    <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-500">
                       <th className="px-4 py-3 font-medium">Code</th>
                       <th className="px-4 py-3 font-medium">Title</th>
                       <th className="px-4 py-3 font-medium">Type</th>
@@ -733,7 +733,7 @@ export default function AdminOffersPage() {
               <div className="md:overflow-x-auto">
                 <table className="admin-table w-full text-sm">
                   <thead>
-                    <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-400">
+                    <tr className="border-b border-cream-200 text-left text-xs uppercase tracking-wide text-ink-500">
                       <th className="px-4 py-3 font-medium">Coupon Code</th>
                       <th className="px-4 py-3 font-medium">Type</th>
                       <th className="px-4 py-3 font-medium">Value</th>
@@ -774,12 +774,12 @@ export default function AdminOffersPage() {
                             <div className="flex flex-col gap-0.5 text-xs">
                               {c.allowedPhone && <span className="font-semibold text-ink-800">📞 {c.allowedPhone}</span>}
                               {c.allowedEmail && <span className="text-[11px] truncate text-ink-500 font-mono">✉️ {c.allowedEmail}</span>}
-                              {!c.allowedPhone && !c.allowedEmail && <span className="text-ink-400 font-medium">Open to anyone</span>}
+                              {!c.allowedPhone && !c.allowedEmail && <span className="text-ink-500 font-medium">Open to anyone</span>}
                             </div>
                           </td>
                           <td data-label="Validity" className="px-4 py-3 text-ink-500">
                             <span className="flex items-center gap-1 text-xs">
-                              <Calendar size={13} className="text-ink-400" />
+                              <Calendar size={13} className="text-ink-500" />
                               {validityStr}
                             </span>
                           </td>

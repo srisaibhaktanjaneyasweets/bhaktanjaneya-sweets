@@ -63,7 +63,8 @@ export function ProductCarousel({
               {viewAllHref && (
                 <Link
                   href={viewAllHref}
-                  className="mr-1 hidden text-sm font-semibold text-maroon-800 underline-offset-4 hover:text-saffron-600 hover:underline sm:inline"
+                  aria-label={`View all ${title}`}
+                  className="mr-1 hidden text-sm font-semibold text-maroon-800 underline-offset-4 hover:text-saffron-700 hover:underline sm:inline"
                 >
                   View all
                 </Link>
@@ -109,6 +110,7 @@ export function ProductCarousel({
           <div className="mt-6 text-center sm:hidden">
             <Link
               href={viewAllHref}
+              aria-label={`View all ${title}`}
               className="text-sm font-semibold text-maroon-800 underline underline-offset-4"
             >
               View all

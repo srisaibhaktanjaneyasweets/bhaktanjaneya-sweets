@@ -23,10 +23,10 @@ function LeadCard({ post }: { post: Post }) {
         />
       </div>
       <div className="flex flex-col justify-center gap-3 p-6 sm:p-8">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-saffron-600">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-saffron-700">
           Featured · {formatDate(post.date)} · {post.readMinutes} min read
         </p>
-        <h3 className="line-clamp-2 font-serif text-xl font-semibold leading-snug text-maroon-900 transition-colors group-hover:text-saffron-600 sm:text-2xl">
+        <h3 className="line-clamp-2 font-serif text-xl font-semibold leading-snug text-maroon-900 transition-colors group-hover:text-saffron-700 sm:text-2xl">
           {post.title}
         </h3>
         {post.excerpt && (
@@ -53,16 +53,16 @@ function CompactCard({ post }: { post: Post }) {
         <Image src={post.cover} alt="" fill sizes="64px" className="object-cover" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-ink-400">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-ink-500">
           {formatDate(post.date)} · {post.readMinutes} min read
         </p>
-        <h3 className="mt-1 line-clamp-2 font-serif text-sm font-semibold leading-snug text-maroon-900 transition-colors group-hover:text-saffron-600">
+        <h3 className="mt-1 line-clamp-2 font-serif text-sm font-semibold leading-snug text-maroon-900 transition-colors group-hover:text-saffron-700">
           {post.title}
         </h3>
       </div>
       <ArrowRight
         size={18}
-        className="shrink-0 text-ink-300 transition-transform group-hover:translate-x-0.5 group-hover:text-saffron-600"
+        className="shrink-0 text-ink-300 transition-transform group-hover:translate-x-0.5 group-hover:text-saffron-700"
       />
     </Link>
   );
@@ -86,7 +86,7 @@ export async function BlogTeasers() {
           action={
             <Link
               href="/blog"
-              className="inline-flex items-center gap-1 text-sm font-semibold text-maroon-800 transition-colors hover:text-saffron-600"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-maroon-800 transition-colors hover:text-saffron-700"
             >
               All articles <ArrowRight size={15} />
             </Link>

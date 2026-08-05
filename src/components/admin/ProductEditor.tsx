@@ -203,11 +203,11 @@ export function ProductEditor({
         <div className="rounded-xl border border-cream-200 bg-cream-50/50 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-xs font-semibold text-ink-600">Category</p>
-            <span className="text-[11px] text-ink-400">
+            <span className="text-[11px] text-ink-500">
               {draft.categories.length ? "1 selected" : "None selected"}
             </span>
           </div>
-          <p className="mb-3 text-xs text-ink-400">
+          <p className="mb-3 text-xs text-ink-500">
             Choose the category where this product should appear.
           </p>
 
@@ -257,7 +257,7 @@ export function ProductEditor({
           <p className="mb-2 text-xs font-semibold text-ink-600">
             Variants (size, pieces, price, stock)
           </p>
-          <p className="mb-2 text-xs text-ink-400">
+          <p className="mb-2 text-xs text-ink-500">
             Set <span className="font-medium">Pcs</span> only for packs that
             contain a fixed number of items (e.g. Bobbatlu 250 g = 5 pcs). It
             shows as &ldquo;250 g · 5 pcs&rdquo;. Leave blank for items sold by
@@ -342,7 +342,7 @@ export function ProductEditor({
                       variants: d.variants.filter((_, idx) => idx !== i),
                     }))
                   }
-                  className="mt-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-maroon-700/20 text-sm font-medium text-maroon-700 hover:bg-maroon-700/5 sm:mt-0 sm:w-10 sm:shrink-0 sm:border-0 sm:text-ink-400 sm:hover:text-maroon-700"
+                  className="mt-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-maroon-700/20 text-sm font-medium text-maroon-700 hover:bg-maroon-700/5 sm:mt-0 sm:w-10 sm:shrink-0 sm:border-0 sm:text-ink-500 sm:hover:text-maroon-700"
                 >
                   <Trash2 size={16} />
                   <span className="sm:hidden">Remove variant</span>
@@ -350,7 +350,7 @@ export function ProductEditor({
               </div>
               {suggestedVariants(v).filter((suggestion) => !draft.variants.some((existing) => existing.label.toLowerCase() === suggestion.label.toLowerCase())).length > 0 ? (
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                  <span className="text-ink-400">Suggested:</span>
+                  <span className="text-ink-500">Suggested:</span>
                   {suggestedVariants(v)
                     .filter((suggestion) => !draft.variants.some((existing) => existing.label.toLowerCase() === suggestion.label.toLowerCase()))
                     .map((suggestion) => (
@@ -379,7 +379,7 @@ export function ProductEditor({
                 ],
               }))
             }
-            className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-saffron-600 hover:text-saffron-500"
+            className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-saffron-700 hover:text-saffron-500"
           >
             <Plus size={15} /> Add variant
           </button>
@@ -397,7 +397,7 @@ export function ProductEditor({
           <div>
             <p className="mb-2 text-xs font-semibold text-ink-600">Tags</p>
             {allTags.length === 0 ? (
-              <p className="text-xs text-ink-400">
+              <p className="text-xs text-ink-500">
                 No tags yet. Create them in Categories &amp; Tags.
               </p>
             ) : (

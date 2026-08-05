@@ -47,13 +47,13 @@ export function ShopControls({ categories }: { categories: Category[] }) {
         >
           <Search
             size={18}
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400"
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-500"
           />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search sweets, namkeen…"
-            className="h-12 w-full rounded-full border border-cream-300 bg-white pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-400 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40"
+            className="h-12 w-full rounded-full border border-cream-300 bg-white pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-500 focus:border-saffron-400 focus:outline-none focus:ring-2 focus:ring-saffron-400/40"
           />
         </form>
 
@@ -150,7 +150,7 @@ export function ShopControls({ categories }: { categories: Category[] }) {
                   sort: null,
                 });
               }}
-              className="inline-flex items-center gap-1 text-sm font-medium text-maroon-700 hover:text-saffron-600"
+              className="inline-flex items-center gap-1 text-sm font-medium text-maroon-700 hover:text-saffron-700"
             >
               <X size={15} /> Clear filters
             </button>

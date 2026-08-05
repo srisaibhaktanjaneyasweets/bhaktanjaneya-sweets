@@ -42,6 +42,7 @@ export function FeaturedShowcase({
           <div className="mt-8 flex justify-center">
             <Link
               href={viewAllHref}
+              aria-label={`${viewAllLabel} ${title}`}
               className="group inline-flex items-center gap-2 rounded-full border border-maroon-800/30 bg-white px-6 py-2.5 text-sm font-semibold text-maroon-800 shadow-soft transition hover:border-maroon-800 hover:bg-maroon-800 hover:text-cream-50"
             >
               {viewAllLabel}

@@ -353,7 +353,7 @@ export default function AccountPage() {
                       type="button"
                       onClick={() => setEditing(true)}
                       aria-label="Edit name"
-                      className="text-ink-400 hover:text-maroon-700"
+                      className="text-ink-500 hover:text-maroon-700"
                     >
                       <Pencil size={14} />
                     </button>
@@ -377,7 +377,7 @@ export default function AccountPage() {
             <div className="mt-6 border-t border-cream-200 pt-6">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <MapPin size={18} className="text-saffron-600" />
+                  <MapPin size={18} className="text-saffron-700" />
                   <h2 className="font-serif text-lg font-semibold text-maroon-900">
                     Saved address
                   </h2>
@@ -386,7 +386,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={startEditingAddress}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-maroon-800 hover:text-saffron-600"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-maroon-800 hover:text-saffron-700"
                   >
                     <Pencil size={14} /> Edit
                   </button>
@@ -410,7 +410,7 @@ export default function AccountPage() {
                     <button
                       type="button"
                       onClick={startEditingAddress}
-                      className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-maroon-800 hover:text-saffron-600"
+                      className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-maroon-800 hover:text-saffron-700"
                     >
                       <Pencil size={14} /> Add address
                     </button>
@@ -583,7 +583,7 @@ export default function AccountPage() {
                         <p className="text-sm font-semibold text-maroon-900">
                           #{o.id.replace(/^ord_/, "").toUpperCase()}
                         </p>
-                        <p className="text-xs text-ink-400">
+                        <p className="text-xs text-ink-500">
                           {formatDate(o.createdAt)} •{" "}
                           {o.paymentMethod === "cod"
                             ? "Cash on delivery"
@@ -601,7 +601,7 @@ export default function AccountPage() {
                         <li key={i} className="flex justify-between gap-3">
                           <span>
                             {it.name}{" "}
-                            <span className="text-ink-400">
+                            <span className="text-ink-500">
                               ({it.variantLabel}) × {it.quantity}
                             </span>
                           </span>

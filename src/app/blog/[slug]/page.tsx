@@ -39,11 +39,38 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
 
   return (
     <article className="py-10">
+      {/* SEO: BlogPosting structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            headline: post.title,
+            image: [post.cover],
+            datePublished: post.date,
+            dateModified: post.date,
+            author: {
+              "@type": "Person",
+              name: post.author,
+            },
+            publisher: {
+              "@type": "Organization",
+              name: config.businessName,
+              logo: {
+                "@type": "ImageObject",
+                url: `${config.siteUrl}/images/logo.png`,
+              },
+            },
+            description: post.excerpt,
+          }),
+        }}
+      />
       <Container>
         <div className="mx-auto max-w-3xl">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-maroon-700 hover:text-saffron-600"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-maroon-700 hover:text-saffron-700"
           >
             <ArrowLeft size={16} /> Back to blog
           </Link>
@@ -51,7 +78,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
           <h1 className="mt-5 font-serif text-3xl font-bold text-maroon-900 sm:text-4xl">
             {post.title}
           </h1>
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-ink-400">
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-ink-500">
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays size={15} /> {formatDate(post.date)}
             </span>

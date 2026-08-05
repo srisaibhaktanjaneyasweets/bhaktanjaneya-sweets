@@ -100,7 +100,7 @@ export default async function CollectionPage(
             </p>
             <Link
               href="/shop"
-              className="text-sm font-semibold text-maroon-800 underline-offset-4 hover:text-saffron-600 hover:underline"
+              className="text-sm font-semibold text-maroon-800 underline-offset-4 hover:text-saffron-700 hover:underline"
             >
               View all products
             </Link>

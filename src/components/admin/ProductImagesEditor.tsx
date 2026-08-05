@@ -131,7 +131,7 @@ export function ProductImagesEditor({
                   type="button"
                   aria-label="Remove image"
                   onClick={() => removeAt(i)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-maroon-700/5 hover:text-maroon-700"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-ink-500 hover:bg-maroon-700/5 hover:text-maroon-700"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -142,7 +142,7 @@ export function ProductImagesEditor({
                   {isVideo(img) ? (
                     <video src={proxyStorageImage(img)} controls className="h-full w-full object-cover" muted />
                   ) : !isAllowedPreviewUrl(img) || previewErrors[i] ? (
-                    <div className="flex h-full w-full items-center justify-center px-4 text-center text-xs text-ink-400">
+                    <div className="flex h-full w-full items-center justify-center px-4 text-center text-xs text-ink-500">
                       Preview unavailable for this URL
                     </div>
                   ) : (

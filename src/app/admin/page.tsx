@@ -94,7 +94,7 @@ export default function AdminDashboard() {
               {value}
             </p>
             <p className="text-sm font-medium text-ink-700">{label}</p>
-            <p className="text-xs text-ink-400">{sub}</p>
+            <p className="text-xs text-ink-500">{sub}</p>
           </Link>
         ))}
       </div>
@@ -108,13 +108,13 @@ export default function AdminDashboard() {
             </h2>
             <Link
               href="/admin/orders"
-              className="text-sm font-medium text-saffron-600 hover:text-saffron-500"
+              className="text-sm font-medium text-saffron-700 hover:text-saffron-500"
             >
               View all
             </Link>
           </div>
           {recentOrders.length === 0 ? (
-            <p className="px-5 py-10 text-center text-sm text-ink-400">
+            <p className="px-5 py-10 text-center text-sm text-ink-500">
               No orders yet. Orders placed on the storefront appear here.
             </p>
           ) : (
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
                     <p className="truncate text-sm font-semibold text-maroon-900">
                       {o.customerName || o.customerPhone || "Customer"}
                     </p>
-                    <p className="text-xs text-ink-400">
+                    <p className="text-xs text-ink-500">
                       {formatDate(o.createdAt)} · {o.items.length} item
                       {o.items.length !== 1 ? "s" : ""}
                     </p>
@@ -152,13 +152,13 @@ export default function AdminDashboard() {
           {/* Low stock */}
           <div className="rounded-2xl border border-cream-200 bg-white">
             <div className="flex items-center gap-2 border-b border-cream-200 px-5 py-4">
-              <AlertTriangle size={18} className="text-saffron-600" />
+              <AlertTriangle size={18} className="text-saffron-700" />
               <h2 className="font-serif text-lg font-semibold text-maroon-900">
                 Low / out of stock
               </h2>
             </div>
             {lowStock.length === 0 ? (
-              <p className="px-5 py-8 text-center text-sm text-ink-400">
+              <p className="px-5 py-8 text-center text-sm text-ink-500">
                 Everything is well stocked.
               </p>
             ) : (
@@ -180,7 +180,7 @@ export default function AdminDashboard() {
                         className={
                           total === 0
                             ? "text-xs font-semibold text-maroon-700"
-                            : "text-xs font-semibold text-saffron-600"
+                            : "text-xs font-semibold text-saffron-700"
                         }
                       >
                         {total === 0 ? "Out of stock" : `${total} left`}
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
             </p>
             <Link
               href="/admin/offers"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-600 hover:text-saffron-500"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-saffron-700 hover:text-saffron-500"
             >
               Manage offers <ArrowRight size={15} />
             </Link>
