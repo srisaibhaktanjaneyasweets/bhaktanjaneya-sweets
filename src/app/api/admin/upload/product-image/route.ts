@@ -14,7 +14,8 @@ const ALLOWED = new Set([
   "video/mp4",
   "video/webm",
   "video/ogg",
-
+  "video/quicktime",
+]);
 
 export async function POST(req: Request) {
   try {
