@@ -87,7 +87,7 @@ export function CategoryRail({ categories }: { categories: Category[] }) {
         {categories.map((category) => (
           <Link
             key={category.id}
-            href={`/shop?category=${encodeURIComponent(category.slug)}`}
+            href={`/collections/${category.slug}`}
             className="group flex w-20 shrink-0 snap-start flex-col items-center sm:w-24"
           >
             <div

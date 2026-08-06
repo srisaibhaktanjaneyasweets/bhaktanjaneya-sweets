@@ -192,28 +192,31 @@ body {
   animation: reel-progress var(--reel-interval, 5s) linear forwards;
 }
 
-/* Pulsing gold halo for the welcome-offer banner — a soft gold glow around the
-   card edge that gently breathes. Pure box-shadow, so it renders AND animates in
-   every browser (incl. Safari / iOS, where the old @property shimmer did not).
-   The base shadow (--shadow-card) is folded in so the card keeps its depth.
-   Reduced-motion (below) freezes it to a steady gold glow. */
+/* Pulsing gold halo for the welcome-offer banner.
+   We use a pseudo-element with opacity animation instead of animating box-shadow directly.
+   Animating box-shadow triggers layout/paint and kills performance on mobile devices.
+   Animating opacity is GPU-accelerated and completely smooth. */
 @keyframes offer-halo {
-  0%,
-  100% {
-    box-shadow:
-      var(--shadow-card),
-      0 0 22px 2px rgba(201, 150, 30, 0.45),
-      0 0 8px 0 rgba(245, 221, 149, 0.5);
-  }
-  50% {
-    box-shadow:
-      var(--shadow-card),
-      0 0 54px 13px rgba(201, 150, 30, 0.72),
-      0 0 18px 2px rgba(245, 221, 149, 0.92);
-  }
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
 }
+
 .offer-glow {
-  animation: offer-halo 3.2s ease-in-out infinite;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.offer-glow::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  z-index: -1;
+  background: transparent;
+  box-shadow: 0 0 45px 12px rgba(201, 150, 30, 0.8),
+              0 0 15px 2px rgba(245, 221, 149, 0.9);
+  animation: offer-halo 3s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* Respect users who prefer reduced motion (vestibular safety, WCAG 2.3.3). */
