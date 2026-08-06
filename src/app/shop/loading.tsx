@@ -1,4 +1,4 @@
-import { Container } from "@/components/layout/Container";
+import { Container } from "@/components/ui/Container";
 import { Filter, Search } from "lucide-react";
 
 export default function ShopLoading() {
