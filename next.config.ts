@@ -2,8 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    loader: "custom",
-    loaderFile: "./supabase-image-loader.ts",
+    unoptimized: true,
     // Placeholder catalogue art is SVG; allow the optimizer to serve it.
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
