@@ -35,7 +35,6 @@ function Avatar({ review }: { review: GoogleReview }) {
         alt=""
         width={40}
         height={40}
-        unoptimized
         referrerPolicy="no-referrer"
         className="h-10 w-10 shrink-0 rounded-full object-cover"
       />

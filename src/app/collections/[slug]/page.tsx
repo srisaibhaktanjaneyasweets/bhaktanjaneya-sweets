@@ -11,7 +11,7 @@ import { sortProducts } from "@/lib/product";
 
 import { config } from "@/lib/config";
 
-export const revalidate = 10;
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const cats = await getCategories();

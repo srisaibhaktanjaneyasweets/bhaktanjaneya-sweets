@@ -329,7 +329,6 @@ export default function InstagramReelsAdminPage() {
                         src={reel.thumbnail_url}
                         alt={caption || `Reel ${idx + 1}`}
                         fill
-                        unoptimized
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />

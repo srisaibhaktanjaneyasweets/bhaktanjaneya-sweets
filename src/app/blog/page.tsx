@@ -7,7 +7,7 @@ import { getPosts } from "@/lib/api/posts";
 import { formatDate } from "@/lib/utils";
 
 // ISR: cached blog index, rebuilt at most once a minute (new posts within ~60s).
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Blog",

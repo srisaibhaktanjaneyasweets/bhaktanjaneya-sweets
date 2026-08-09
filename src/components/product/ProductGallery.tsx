@@ -67,7 +67,6 @@ export function ProductGallery({
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
             priority
-            unoptimized
             onError={() => setBrokenMedia((current) => ({ ...current, [active]: true }))}
           />
         )}
@@ -117,7 +116,6 @@ export function ProductGallery({
                       fill
                       sizes="64px"
                       className="object-cover"
-                      unoptimized
                       onError={() => setBrokenMedia((current) => ({ ...current, [i]: true }))}
                     />
                   )}
@@ -180,7 +178,6 @@ export function ProductGallery({
                     sizes="100vw"
                     className="object-contain"
                     priority
-                      unoptimized
                       onError={() => setBrokenMedia((current) => ({ ...current, [active]: true }))}
                   />
                 </div>
@@ -229,7 +226,6 @@ export function ProductGallery({
                         fill
                         sizes="64px"
                         className="object-cover"
-                        unoptimized
                         onError={() => setBrokenMedia((current) => ({ ...current, [i]: true }))}
                       />
                     )}

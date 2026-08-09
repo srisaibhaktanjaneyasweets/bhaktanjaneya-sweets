@@ -12,11 +12,12 @@ import { getLiveGoogleReviews } from "@/lib/google-reviews";
 import { getManagedInstagramReels } from "@/lib/managed-instagram-reels";
 import { config } from "@/lib/config";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { getOfferBannerSettingsServer } from "@/lib/api/offer-banner";
 import { getBusinessConfigServer } from "@/lib/server/business-config";
 import type { Metadata } from "next";
 
-export const revalidate = 10;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: `${config.businessName} | Authentic Tapeswaram Sweets & Kaja`,
@@ -183,6 +184,7 @@ export default async function HomePage() {
         }}
       />
       <Analytics/>
+      <SpeedInsights/>
     </>
   );
 }

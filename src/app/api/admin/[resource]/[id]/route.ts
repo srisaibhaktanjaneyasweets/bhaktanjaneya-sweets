@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
 import { submitToIndexNow } from "@/lib/indexnow";
@@ -100,6 +101,9 @@ async function updateResource(
     submitToIndexNow(["/"]);
   }
 
+  // Revalidate entire site cache so updated items show up immediately
+  revalidatePath("/", "layout");
+
   return NextResponse.json(responseData);
 }
 
@@ -154,6 +158,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<Rec
   } else {
     submitToIndexNow(["/"]);
   }
+
+  // Revalidate entire site cache so deleted items are removed immediately
+  revalidatePath("/", "layout");
 
   return new NextResponse(null, { status: 204 });
 }

@@ -152,7 +152,6 @@ export function ProductImagesEditor({
                       fill
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, 240px"
-                      unoptimized
                       onError={() => markPreviewBroken(i)}
                     />
                   )}

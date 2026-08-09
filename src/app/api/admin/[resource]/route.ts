@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/server/auth";
 import { submitToIndexNow } from "@/lib/indexnow";
@@ -165,6 +166,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<Recor
   } else {
     submitToIndexNow(["/"]);
   }
+
+  // Revalidate entire site cache so new items show up immediately
+  revalidatePath("/", "layout");
 
   return NextResponse.json(responseData, { status: 201 });
 }

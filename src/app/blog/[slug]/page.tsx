@@ -10,7 +10,7 @@ import { config } from "@/lib/config";
 import { waLink } from "@/lib/whatsapp";
 
 // ISR: cached article pages, rebuilt at most once a minute.
-export const revalidate = 60;
+export const revalidate = 3600;
 
 export async function generateMetadata(
   props: PageProps<"/blog/[slug]">,
