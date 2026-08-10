@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import {
@@ -34,3 +35,4 @@ export async function GET() {
     { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } },
   );
 }
+

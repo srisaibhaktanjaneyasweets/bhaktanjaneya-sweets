@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getManagedInstagramReelLinks } from "@/lib/managed-instagram-reels";
 
@@ -8,3 +9,4 @@ export async function GET() {
     headers: { "Cache-Control": "private, no-store" },
   });
 }
+

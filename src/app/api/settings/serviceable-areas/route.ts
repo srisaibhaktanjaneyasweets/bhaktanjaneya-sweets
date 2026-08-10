@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { DEFAULT_SERVICEABLE_AREAS } from "@/lib/constants/serviceable-areas";
@@ -23,3 +24,4 @@ export async function GET() {
 
   return NextResponse.json(DEFAULT_SERVICEABLE_AREAS);
 }
+

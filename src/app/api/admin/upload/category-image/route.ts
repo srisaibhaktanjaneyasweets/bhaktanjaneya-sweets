@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
@@ -56,3 +57,4 @@ export async function POST(req: Request) {
   const { data } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(path);
   return NextResponse.json({ url: data.publicUrl });
 }
+

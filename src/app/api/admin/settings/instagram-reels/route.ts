@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
@@ -183,3 +184,4 @@ export async function PUT(req: Request) {
     );
   }
 }
+

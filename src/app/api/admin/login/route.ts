@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
@@ -59,3 +60,4 @@ export async function POST(req: Request) {
   const token = issueToken({ sub: admin.id, role: "admin", email: admin.email, name: admin.name });
   return setSessionCookie(NextResponse.json({ token, user: { id: admin.id, email: admin.email, name: admin.name, role: admin.role } }), token);
 }
+

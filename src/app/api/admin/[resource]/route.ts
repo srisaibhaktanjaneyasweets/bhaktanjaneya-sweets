@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse, NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";

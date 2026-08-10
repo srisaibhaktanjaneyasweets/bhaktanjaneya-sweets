@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { config } from "@/lib/config";
@@ -47,3 +48,4 @@ export async function GET() {
     return NextResponse.json(defaultBusiness);
   }
 }
+

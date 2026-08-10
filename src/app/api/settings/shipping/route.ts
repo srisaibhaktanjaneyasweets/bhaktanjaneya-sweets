@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { supabaseAdmin, isConfigured } from "@/lib/supabase/server";
 import { DEFAULT_SHIPPING_SETTINGS, type ShippingSettings } from "@/lib/shipping";
@@ -35,3 +36,4 @@ export async function GET() {
     return NextResponse.json(DEFAULT_SHIPPING_SETTINGS);
   }
 }
+

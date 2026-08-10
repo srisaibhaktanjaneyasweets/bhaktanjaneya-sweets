@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/server/auth";
@@ -70,3 +71,4 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ admin: data });
 }
+
