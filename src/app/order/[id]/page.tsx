@@ -26,6 +26,8 @@ type PublicOrderLookupResponse = {
   customerEmail?: string;
   customerPhone?: string;
   shippingAddress?: Order["shippingAddress"];
+  subtotal?: number;
+  shipping?: number;
 };
 
 const PAYMENT_TONE: Record<string, "leaf" | "saffron" | "maroon" | "muted"> = {
@@ -385,11 +387,13 @@ export default function PublicOrderLookupPage() {
             <div className="mt-6 border-t border-cream-100 pt-5 space-y-1.5 text-xs text-ink-650">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>{formatINR(order.total)}</span>
+                <span>{formatINR(order.subtotal ?? order.total)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery</span>
-                <span className="text-leaf-600 font-bold">FREE</span>
+                <span className={order.shipping === 0 ? "text-leaf-600 font-bold" : "text-ink-650"}>
+                  {order.shipping === 0 || order.shipping === undefined ? "FREE" : formatINR(order.shipping)}
+                </span>
               </div>
               <div className="flex justify-between border-t border-cream-100 pt-3.5 text-sm font-bold text-maroon-900">
                 <span>Total Amount</span>

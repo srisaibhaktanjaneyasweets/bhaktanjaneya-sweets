@@ -46,6 +46,8 @@ export async function GET(
     paymentMethod: order.paymentMethod,
     deliveryCompany: order.deliveryCompany,
     deliveryTrackingId: order.deliveryTrackingId,
+    subtotal: order.subtotal,
+    shipping: order.shipping,
     total: order.total,
     items: order.items,
     customerName: order.customerName,

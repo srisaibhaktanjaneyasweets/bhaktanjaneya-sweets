@@ -100,5 +100,7 @@ export function isServiceableCity(
       ? areasMap
       : DEFAULT_SERVICEABLE_AREAS;
   const states = Object.keys(map);
-  return states.some((s) => normalize(s) === normalize(state));
+  const stateKey = states.find((s) => normalize(s) === normalize(state));
+  if (!stateKey) return false;
+  return map[stateKey].some((c) => normalize(c) === normalize(city));
 }

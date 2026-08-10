@@ -1,6 +1,7 @@
 import { config } from "./config";
 import type { CartItem, Order } from "./types";
 import { formatINR } from "./utils";
+import { isServiceableCity } from "./constants/serviceable-areas";
 
 /** Ensure phone number is in standard international 91XXXXXXXXXX format for WhatsApp API. */
 export function formatPhoneForWhatsApp(phone: string): string {
@@ -16,15 +17,15 @@ export function formatPhoneForWhatsApp(phone: string): string {
 /** Build an official WhatsApp deep link with a pre-filled message for store support. */
 export function waLink(message: string): string {
   const num = formatPhoneForWhatsApp(config.whatsappNumber);
-  const normalized = message.normalize("NFC");
-  return `https://wa.me/${num}?text=${encodeURIComponent(normalized)}`;
+  // Use api.whatsapp.com/send instead of wa.me for better PC web compatibility
+  return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(message)}`;
 }
 
 /** Build a WhatsApp deep link targeting a specific customer phone number. */
 export function waLinkToPhone(phone: string, message: string): string {
   const num = formatPhoneForWhatsApp(phone);
-  const normalized = message.normalize("NFC");
-  return `https://wa.me/${num}?text=${encodeURIComponent(normalized)}`;
+  // Use api.whatsapp.com/send instead of wa.me for better PC web compatibility
+  return `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(message)}`;
 }
 
 /** Message for ordering a single product/variant from a product page. */
@@ -134,6 +135,13 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
   const total = order.total ?? subtotal + shipping;
   const shippingText = shipping === 0 ? "Free Shipping" : `₹${shipping} INR`;
 
+  const state = order.shippingAddress?.state?.trim() || "";
+  const city = order.shippingAddress?.city?.trim() || "";
+  
+  const isApTg = state.toLowerCase() === "andhra pradesh" || state.toLowerCase() === "ap" || state.toLowerCase() === "telangana";
+  const isCargo = isApTg && !isServiceableCity(state, city);
+  const courierType = isCargo ? "APSRTC / TSRTC" : "Normal Shipping";
+
   const divider = "--------------------------------";
 
   const parts = [
@@ -155,6 +163,7 @@ export function buildFormattedWhatsAppOrderMessage(order: Partial<Order>): strin
     "",
     `Subtotal: ₹${subtotal}`,
     `Shipping: ${shippingText}`,
+    `Courier : ${courierType}`,
     `Total: ₹${total}`,
     "",
     divider,
