@@ -369,14 +369,19 @@ export function buildConfirmedWhatsAppMessage(
     });
   }
 
+  const itemsList = (order.items ?? [])
+    .map((it) => `• ${it.name} (${it.variantLabel}) x ${it.quantity}`)
+    .join("\n");
+
   return [
     `*✅ Order Confirmed!*`,
     "",
     `Hello ${order.customerName || "Customer"},`,
-    `Your order *#${shortId}* with *${config.businessName}* has been successfully confirmed.`,
+    `Your order *#${shortId}* with *${config.businessName}* is confirmed.`,
     "",
-    `We are now preparing your traditional, pure ghee sweets and snacks. We will notify you once your order is shipped.`,
+    `*Order Summary:*`,
+    itemsList,
     "",
-    `Thank you for choosing us! ✨`,
+    `You will be notified once your order is shipped. Thank you! ✨`,
   ].join("\n");
 }
