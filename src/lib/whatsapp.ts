@@ -350,3 +350,33 @@ export function buildDeliveryWhatsAppMessage(
     `Thank you so much for choosing us. We look forward to serving you again soon! ✨`,
   ].join("\n");
 }
+
+/** Build WhatsApp message when order is confirmed. */
+export function buildConfirmedWhatsAppMessage(
+  order: Partial<Order>,
+  customTemplate?: string,
+): string {
+  const rawId = order.id ?? "";
+  const shortId = rawId ? rawId.replace(/^ord_/, "").toUpperCase().slice(0, 8) : "N/A";
+
+  if (customTemplate && customTemplate.trim()) {
+    return fillWhatsAppTemplate(customTemplate, {
+      customerName: order.customerName || "Customer",
+      orderId: shortId,
+      businessName: config.businessName,
+      contactPhone: config.contact.phone,
+      siteUrl: config.siteUrl,
+    });
+  }
+
+  return [
+    `*✅ Order Confirmed!*`,
+    "",
+    `Hello ${order.customerName || "Customer"},`,
+    `Your order *#${shortId}* with *${config.businessName}* has been successfully confirmed.`,
+    "",
+    `We are now preparing your traditional, pure ghee sweets and snacks. We will notify you once your order is shipped.`,
+    "",
+    `Thank you for choosing us! ✨`,
+  ].join("\n");
+}

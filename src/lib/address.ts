@@ -11,7 +11,7 @@ export function isCompleteAddress(address?: ShippingAddress | null): boolean {
 }
 
 export function formatAddressLines(address: ShippingAddress): string[] {
-  const locality = [address.district, address.city].filter(Boolean).join(", ");
+  const locality = [address.area, address.district, address.city].filter(Boolean).join(", ");
   return [
     address.line1,
     address.line2?.trim() || undefined,

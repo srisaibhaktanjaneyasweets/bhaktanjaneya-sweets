@@ -47,7 +47,7 @@ export async function GET(
   });
   const first = sortedOffices[0];
   const district = first.District ?? "";
-  const city = first.Block || first.Name || district || "";
+  const city = first.Block || district || "";
 
   return NextResponse.json({
     pincode,
@@ -57,7 +57,7 @@ export async function GET(
     postOffices: sortedOffices.map((office) => ({
       name: office.Name ?? "",
       district: office.District ?? "",
-      city: office.Block || office.Name || office.District || "",
+      city: office.Block || office.District || "",
       state: office.State ?? "",
     })) satisfies PincodeOffice[],
   });

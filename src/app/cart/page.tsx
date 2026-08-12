@@ -77,6 +77,7 @@ export default function CartPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [district, setDistrict] = useState("");
+  const [area, setArea] = useState("");
   const [pincode, setPincode] = useState("");
   const [saveAddress, setSaveAddress] = useState(true);
   const [addressMode, setAddressMode] = useState<"saved" | "new">("new");
@@ -112,9 +113,8 @@ export default function CartPage() {
   const cityOptions = useMemo(() => {
     const serviceableCities = citiesForState(state, areasMap);
     const cleanPincode = pincode.trim();
-    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.postOffices) {
-      const apiCities = pincodeDetails.postOffices.map((po) => po.name).filter(Boolean);
-      return Array.from(new Set([...apiCities, ...serviceableCities])).sort();
+    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.city) {
+      return Array.from(new Set([pincodeDetails.city, ...serviceableCities])).sort();
     }
     return serviceableCities;
   }, [state, areasMap, pincodeDetails, pincode]);
@@ -145,6 +145,7 @@ export default function CartPage() {
       setCity((prev) => prev || customer.savedAddress?.city || "");
       setState((prev) => prev || customer.savedAddress?.state || "");
       setDistrict((prev) => prev || customer.savedAddress?.district || "");
+      setArea((prev) => prev || customer.savedAddress?.area || "");
       setPincode((prev) => prev || customer.savedAddress?.pincode || "");
     }
   }, [customer]);
@@ -164,6 +165,11 @@ export default function CartPage() {
   const districtOptions = useMemo(() => {
     if (!pincodeDetails?.postOffices?.length) return [];
     return Array.from(new Set(pincodeDetails.postOffices.map((po) => po.district).filter(Boolean)));
+  }, [pincodeDetails]);
+
+  const areaOptions = useMemo(() => {
+    if (!pincodeDetails?.postOffices?.length) return [];
+    return Array.from(new Set(pincodeDetails.postOffices.map((po) => po.name).filter(Boolean)));
   }, [pincodeDetails]);
 
   const findAddressByPincode = useCallback(async () => {
@@ -188,9 +194,7 @@ export default function CartPage() {
         setState((prev) => prev || matchedState);
       }
 
-      if (details.postOffices && details.postOffices.length > 0) {
-        matchedCity = details.postOffices[0].name;
-      } else if (details.city) {
+      if (details.city) {
         matchedCity = details.city;
       }
 
@@ -206,17 +210,22 @@ export default function CartPage() {
       setDistrict((prev) => prev || details.district);
 
       const dists = Array.from(new Set(details.postOffices.map((po) => po.district).filter(Boolean)));
-      if (dists.length === 1) {
-        setDistrict(dists[0]);
-      } else if (district && !dists.includes(district)) {
-        setDistrict("");
+      if (dists.length > 0) {
+        setDistrict((prev) => prev && dists.includes(prev) ? prev : dists[0]);
+      }
+
+      const areas = Array.from(new Set(details.postOffices.map((po) => po.name).filter(Boolean)));
+      if (areas.length > 0) {
+        setArea((prev) => prev && areas.includes(prev) ? prev : areas[0]);
+      } else {
+        setArea("");
       }
     } catch (error) {
       setPincodeHint(getErrorMessage(error, "Could not find this PIN code."));
     } finally {
       setLookingUpPincode(false);
     }
-  }, [district, pincode, areasMap]);
+  }, [area, district, pincode, areasMap]);
 
   useEffect(() => {
     if (addressMode !== "new") return;
@@ -318,6 +327,7 @@ export default function CartPage() {
     return {
       line1: line1.trim(),
       line2: line2.trim() || undefined,
+      area: area.trim() || undefined,
       city: city.trim(),
       state,
       district: district.trim() || undefined,
@@ -949,30 +959,56 @@ export default function CartPage() {
                     />
                   </div>
                 </div>
-                <label className="block text-sm font-medium text-maroon-900">
-                  District
-                  {districtOptions.length > 0 ? (
-                    <select
-                      value={district}
-                      onChange={(e) => setDistrict(e.target.value)}
-                      className={`${fieldClass} mt-1.5`}
-                    >
-                      <option value="">Select district</option>
-                      {districtOptions.map((districtName) => (
-                        <option key={districtName} value={districtName}>
-                          {districtName}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      value={district}
-                      onChange={(e) => setDistrict(e.target.value)}
-                      placeholder="Auto-filled from PIN"
-                      className={`${fieldClass} mt-1.5`}
-                    />
-                  )}
-                </label>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm font-medium text-maroon-900">
+                    District
+                    {districtOptions.length > 0 ? (
+                      <select
+                        value={district}
+                        onChange={(e) => setDistrict(e.target.value)}
+                        className={`${fieldClass} mt-1.5`}
+                      >
+                        <option value="">Select district</option>
+                        {districtOptions.map((districtName) => (
+                          <option key={districtName} value={districtName}>
+                            {districtName}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        value={district}
+                        onChange={(e) => setDistrict(e.target.value)}
+                        placeholder="Auto-filled from PIN"
+                        className={`${fieldClass} mt-1.5`}
+                      />
+                    )}
+                  </label>
+                  <label className="block text-sm font-medium text-maroon-900">
+                    Area
+                    {areaOptions.length > 0 ? (
+                      <select
+                        value={area}
+                        onChange={(e) => setArea(e.target.value)}
+                        className={`${fieldClass} mt-1.5`}
+                      >
+                        <option value="">Select area</option>
+                        {areaOptions.map((areaName) => (
+                          <option key={areaName} value={areaName}>
+                            {areaName}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        value={area}
+                        onChange={(e) => setArea(e.target.value)}
+                        placeholder="Auto-filled from PIN"
+                        className={`${fieldClass} mt-1.5`}
+                      />
+                    )}
+                  </label>
+                </div>
                 {customer && (
                   <label className="flex items-start gap-2 rounded-xl bg-cream-50 px-3 py-2 text-sm text-ink-600">
                     <input

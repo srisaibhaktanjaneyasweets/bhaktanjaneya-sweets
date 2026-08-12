@@ -103,9 +103,7 @@ export function DeliveryLocationGate({
           setStateValue(matchedState);
         }
 
-        if (details.postOffices && details.postOffices.length > 0) {
-          matchedCity = details.postOffices[0].name;
-        } else if (details.city) {
+        if (details.city) {
           matchedCity = details.city;
         }
         setCityValue(matchedCity);
@@ -123,9 +121,8 @@ export function DeliveryLocationGate({
   const cities = useMemo(() => {
     const serviceableCities = citiesForState(stateValue, areasMap);
     const cleanPincode = pincode.trim();
-    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.postOffices) {
-      const apiCities = pincodeDetails.postOffices.map((po) => po.name).filter(Boolean);
-      return Array.from(new Set([...apiCities, ...serviceableCities])).sort();
+    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.city) {
+      return Array.from(new Set([pincodeDetails.city, ...serviceableCities])).sort();
     }
     return serviceableCities;
   }, [stateValue, areasMap, pincodeDetails, pincode]);

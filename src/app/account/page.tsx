@@ -52,6 +52,7 @@ export default function AccountPage() {
   const [address, setAddress] = useState<ShippingAddress>({
     line1: "",
     line2: "",
+    area: "",
     district: "",
     city: "",
     state: "",
@@ -87,12 +88,16 @@ export default function AccountPage() {
     return Array.from(new Set([...fromState, ...fromPincode])).sort();
   }, [address.state, pincodeDetails]);
 
+  const areaOptions = useMemo(() => {
+    if (!pincodeDetails?.postOffices?.length) return [];
+    return Array.from(new Set(pincodeDetails.postOffices.map((po) => po.name).filter(Boolean)));
+  }, [pincodeDetails]);
+
   const cityOptions = useMemo(() => {
     const serviceableCities = citiesForState(address.state, areasMap);
     const cleanPincode = address.pincode.trim();
-    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.postOffices) {
-      const apiCities = pincodeDetails.postOffices.map((po) => po.name).filter(Boolean);
-      return Array.from(new Set([...apiCities, ...serviceableCities])).sort();
+    if (pincodeDetails && pincodeDetails.pincode === cleanPincode && pincodeDetails.city) {
+      return Array.from(new Set([pincodeDetails.city, ...serviceableCities])).sort();
     }
     return serviceableCities;
   }, [address.state, areasMap, pincodeDetails, address.pincode]);
@@ -118,9 +123,7 @@ export default function AccountPage() {
         matchedState = foundState || details.state;
       }
 
-      if (details.postOffices && details.postOffices.length > 0) {
-        matchedCity = details.postOffices[0].name;
-      } else if (details.city) {
+      if (details.city) {
         matchedCity = details.city;
       }
 
@@ -133,12 +136,21 @@ export default function AccountPage() {
         matchedCity = foundCity || matchedCity;
       }
 
-      setAddress((prev) => ({
-        ...prev,
-        state: matchedState || prev.state,
-        city: matchedCity || prev.city,
-        district: prev.district || details.district,
-      }));
+      setAddress((prev) => {
+        const dists = Array.from(new Set(details.postOffices?.map((po) => po.district).filter(Boolean) || []));
+        const newDistrict = dists.length > 0 ? (prev.district && dists.includes(prev.district) ? prev.district : dists[0]) : (prev.district || details.district);
+
+        const areas = Array.from(new Set(details.postOffices?.map((po) => po.name).filter(Boolean) || []));
+        const newArea = areas.length > 0 ? (prev.area && areas.includes(prev.area) ? prev.area : areas[0]) : "";
+
+        return {
+          ...prev,
+          state: matchedState || prev.state,
+          city: matchedCity || prev.city,
+          district: newDistrict,
+          area: newArea,
+        };
+      });
       setAddressMessageTone("success");
       setAddressMessage("Area updated from your PIN code.");
     } catch (error) {
@@ -160,6 +172,7 @@ export default function AccountPage() {
       setAddress({
         line1: customer.savedAddress?.line1 ?? "",
         line2: customer.savedAddress?.line2 ?? "",
+        area: customer.savedAddress?.area ?? "",
         district: customer.savedAddress?.district ?? "",
         city: customer.savedAddress?.city ?? "",
         state: customer.savedAddress?.state ?? "",
@@ -493,7 +506,7 @@ export default function AccountPage() {
                     />
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {districtOptions.length > 0 ? (
                       <select
                         value={address.district ?? ""}
@@ -517,6 +530,32 @@ export default function AccountPage() {
                         value={address.district ?? ""}
                         onChange={(e) => setAddress((prev) => ({ ...prev, district: e.target.value }))}
                         placeholder="District"
+                        className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
+                      />
+                    )}
+                    {areaOptions.length > 0 ? (
+                      <select
+                        value={address.area ?? ""}
+                        onChange={(e) =>
+                          setAddress((prev) => ({
+                            ...prev,
+                            area: e.target.value,
+                          }))
+                        }
+                        className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
+                      >
+                        <option value="">Select area</option>
+                        {areaOptions.map((areaName) => (
+                          <option key={areaName} value={areaName}>
+                            {areaName}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        value={address.area ?? ""}
+                        onChange={(e) => setAddress((prev) => ({ ...prev, area: e.target.value }))}
+                        placeholder="Area"
                         className="h-10 w-full rounded-lg border border-cream-300 px-3 text-sm focus:border-saffron-400 focus:outline-none"
                       />
                     )}

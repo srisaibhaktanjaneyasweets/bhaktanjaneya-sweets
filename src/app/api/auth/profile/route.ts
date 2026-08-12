@@ -23,6 +23,7 @@ function cleanAddress(address: ShippingAddress): ShippingAddress {
   return {
     line1: address.line1.trim(),
     line2: address.line2?.trim() || undefined,
+    area: address.area?.trim() || undefined,
     district: address.district?.trim() || undefined,
     city: address.city.trim(),
     state: address.state.trim(),

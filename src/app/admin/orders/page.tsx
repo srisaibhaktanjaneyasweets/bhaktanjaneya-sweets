@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/Badge";
 import { toast } from "@/components/ui/toast";
 import { getErrorMessage } from "@/lib/api/errors";
 import { formatINR } from "@/lib/utils";
-import { waLinkToPhone, buildAdminCustomerWhatsAppMessage, buildAdminCustomerPaymentLinkMessage, buildShipmentWhatsAppMessage, buildDeliveryWhatsAppMessage } from "@/lib/whatsapp";
+import { waLinkToPhone, buildAdminCustomerWhatsAppMessage, buildAdminCustomerPaymentLinkMessage, buildShipmentWhatsAppMessage, buildDeliveryWhatsAppMessage, buildConfirmedWhatsAppMessage } from "@/lib/whatsapp";
 import {
   printThermalReceipt,
   printFullInvoice,
@@ -210,6 +210,10 @@ export default function AdminOrdersPage() {
         const message = buildDeliveryWhatsAppMessage(order);
         const url = waLinkToPhone(order.customerPhone, message);
         window.open(url, "_blank");
+      } else if (nextStatus === "confirmed") {
+        const message = buildConfirmedWhatsAppMessage(order);
+        const url = waLinkToPhone(order.customerPhone, message);
+        window.open(url, "_blank");
       }
     } catch (error) {
       setPromptError(getErrorMessage(error, "Could not update order status."));
@@ -294,6 +298,10 @@ export default function AdminOrdersPage() {
         window.open(url, "_blank");
       } else if (modalStatus === "delivered") {
         const message = buildDeliveryWhatsAppMessage(next, bizConfig?.whatsappDeliveryTemplate);
+        const url = waLinkToPhone(next.customerPhone, message);
+        window.open(url, "_blank");
+      } else if (modalStatus === "confirmed") {
+        const message = buildConfirmedWhatsAppMessage(next);
         const url = waLinkToPhone(next.customerPhone, message);
         window.open(url, "_blank");
       }

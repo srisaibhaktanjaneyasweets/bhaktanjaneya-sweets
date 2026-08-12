@@ -111,6 +111,7 @@ export interface OrderItem {
 export interface ShippingAddress {
   line1: string;
   line2?: string;
+  area?: string;
   district?: string;
   city: string;
   state: string;
