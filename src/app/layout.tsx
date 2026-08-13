@@ -51,26 +51,37 @@ export const metadata: Metadata = {
     template: `%s | ${config.businessName}`,
   },
   description:
-    "Buy authentic Tapeswaram Sweets, Tapeswaram Kaja (Madatha & Gottam Kaja), Ariselu, Putharekulu, and pure ghee sweets online. Order on WhatsApp with fast delivery across India.",
+    "Buy authentic Rajamundry Sweets, Tapeswaram Sweets, Tapeswaram Kaja (Madatha & Gottam Kaja), Ariselu, Putharekulu, and pure ghee sweets online. Order on WhatsApp with fast delivery across India.",
   keywords: [
-    "Tapeswaram Sweets",
-    "Tapeswaram Kaja",
+    // Primary Product Keywords
+    "Tapeswaram Kaja online",
+    "Buy Madatha Kaja online",
+    "Authentic Gottam Kaja",
+    "Tapeswaram sweets online delivery",
+    "Rajamundry sweets online",
+    "Buy Ariselu online",
+    "Pure ghee Pootharekulu",
+    "Paper sweets Andhra",
+    "Order Andhra namkeen online",
+    
+    // Broad Regional Keywords
+    "Best Andhra sweets online",
+    "Authentic Telugu sweets",
+    "Famous sweets in Rajamundry",
+    "Traditional South Indian sweets online",
+    "Pure ghee sweets online India",
+    "Godavari district famous sweets",
+    "buy sweets online India",
+    
+    // Brand Specific
     "Bhaktanjaneya Sweets",
     "Sri Sai Bhaktanjaneya Sweets",
     "Sri Sai Bhakthanjaneya Sweets",
-    "buy Tapeswaram Sweets online",
-    "authentic Tapeswaram Kaja",
-    "Gottam Kaja",
-    "Madatha Kaja",
-    "pure ghee sweets",
-    "Andhra sweets online",
-    "traditional Indian sweets",
-    "namkeen",
-    "buy sweets online India",
+    "Bhaktanjaneya Sweets Tapeswaram",
   ],
   openGraph: {
-    title: `${config.businessName} — Authentic Tapeswaram Sweets & Pure Ghee Kaja`,
-    description: `Order authentic Tapeswaram Sweets, Tapeswaram Kaja, Kaju Sweets, and Putharekulu online. Fast pan-India delivery.`,
+    title: `${config.businessName} — Authentic Rajamundry & Tapeswaram Sweets`,
+    description: `Order authentic Rajamundry Sweets, Tapeswaram Sweets, Tapeswaram Kaja, Kaju Sweets, and Putharekulu online. Fast pan-India delivery.`,
     url: config.siteUrl,
     siteName: config.businessName,
     images: [

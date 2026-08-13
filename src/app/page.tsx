@@ -20,13 +20,13 @@ import type { Metadata } from "next";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: `${config.businessName} | Authentic Tapeswaram Sweets & Kaja`,
+  title: `${config.businessName} | Authentic Rajamundry & Tapeswaram Sweets`,
   description:
-    "Order authentic Tapeswaram Sweets, Tapeswaram Kaja (Madatha & Gottam Kaja), pure ghee sweets, and crunchy namkeen online. Instant WhatsApp ordering with pan-India delivery.",
+    "Order authentic Rajamundry Sweets, Tapeswaram Sweets, Tapeswaram Kaja (Madatha & Gottam Kaja), pure ghee sweets, and crunchy namkeen online. Instant WhatsApp ordering with pan-India delivery.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: `${config.businessName} | Authentic Tapeswaram Sweets`,
-    description: "Order authentic Tapeswaram Sweets and Kaja online. Fast pan-India delivery.",
+    title: `${config.businessName} | Authentic Rajamundry & Tapeswaram Sweets`,
+    description: "Order authentic Rajamundry Sweets, Tapeswaram Sweets and Kaja online. Fast pan-India delivery.",
     type: "website",
     url: config.siteUrl,
   },
