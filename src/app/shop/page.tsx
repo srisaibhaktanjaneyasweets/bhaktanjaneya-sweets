@@ -9,9 +9,9 @@ import { ShopResultsSkeleton } from "./ShopResultsSkeleton";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Shop All Sweets & Namkeen",
+  title: "Shop Rajahmundry & Tapeswaram Sweets Online",
   description:
-    "Browse the full range of Bhaktanjaneya Sweets — pure ghee sweets and crunchy namkeen, made fresh and delivered across India.",
+    "Shop pure ghee sweets and namkeen online from Bhaktanjaneya Sweets. Order Tapeswaram Kaja, Putharekulu, dry fruit sweets, and festive specials with India-wide delivery.",
 };
 
 export default async function ShopPage(props: { searchParams: Promise<any> }) {

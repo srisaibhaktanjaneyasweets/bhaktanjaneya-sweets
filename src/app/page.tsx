@@ -13,20 +13,30 @@ import { getManagedInstagramReels } from "@/lib/managed-instagram-reels";
 import { config } from "@/lib/config";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import Link from "next/link";
 import { getOfferBannerSettingsServer } from "@/lib/api/offer-banner";
 import { getBusinessConfigServer } from "@/lib/server/business-config";
+import { LEGACY_LOCAL_SEO_KEYWORDS } from "@/lib/constants/seo-keywords";
 import type { Metadata } from "next";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: `${config.businessName} | Authentic Rajamundry & Tapeswaram Sweets`,
+  title: `Rajahmundry & Tapeswaram Sweets Online | ${config.businessName}`,
   description:
-    "Order authentic Rajamundry Sweets, Tapeswaram Sweets, Tapeswaram Kaja (Madatha & Gottam Kaja), pure ghee sweets, and crunchy namkeen online. Instant WhatsApp ordering with pan-India delivery.",
+    "Order pure ghee Rajahmundry and Tapeswaram sweets online. Buy Madatha Kaja, Putharekulu, festival sweets, and fresh namkeen with fast WhatsApp support and pan-India delivery.",
+  keywords: [
+    "Rajahmundry sweets",
+    "Tapeswaram sweets",
+    "Tapeswaram kaja",
+    "pure ghee sweets online",
+    "Bhaktanjaneya Sweets",
+    ...LEGACY_LOCAL_SEO_KEYWORDS,
+  ],
   alternates: { canonical: "/" },
   openGraph: {
-    title: `${config.businessName} | Authentic Rajamundry & Tapeswaram Sweets`,
-    description: "Order authentic Rajamundry Sweets, Tapeswaram Sweets and Kaja online. Fast pan-India delivery.",
+    title: `Rajahmundry & Tapeswaram Sweets Online | ${config.businessName}`,
+    description: "Buy authentic Tapeswaram Kaja, pure ghee sweets, and namkeen online with reliable India-wide delivery.",
     type: "website",
     url: config.siteUrl,
   },
@@ -98,6 +108,36 @@ export default async function HomePage() {
               )}
               {/* Slot the offer banner in after the sweets rail. */}
               <OfferBanner settings={offerBannerSettings} />
+
+              <section className="mx-auto mt-10 w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+                <div className="rounded-2xl border border-cream-200 bg-white p-5 shadow-soft sm:p-6">
+                  <h2 className="font-serif text-xl font-bold text-maroon-900">
+                    Popular Sweets Searches
+                  </h2>
+                  <p className="mt-1 text-sm text-ink-600">
+                    Explore our most searched sweets and festive favorites.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2.5">
+                    {[
+                      { label: "Tapeswaram Kaja", href: "/shop?q=tapeswaram+kaja" },
+                      { label: "Madatha Kaja", href: "/shop?q=madatha+kaja" },
+                      { label: "Rajahmundry Sweets", href: "/shop?q=rajahmundry+sweets" },
+                      { label: "Putharekulu", href: "/shop?q=putharekulu" },
+                      { label: "Dry Fruit Sweets", href: "/shop?q=dry+fruit+sweets" },
+                      { label: "Festival Sweets", href: "/shop?q=festival+sweets" },
+                      { label: "Khara Items", href: "/shop?q=khara+items" },
+                    ].map((item) => (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className="inline-flex items-center rounded-full border border-cream-300 bg-cream-50 px-3.5 py-1.5 text-sm font-medium text-maroon-800 hover:border-saffron-300 hover:bg-saffron-50"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </section>
             </div>
           );
         }

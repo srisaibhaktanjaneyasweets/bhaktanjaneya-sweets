@@ -8,9 +8,9 @@ import { config } from "@/lib/config";
 import { waLink } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
-  title: "Frequently Asked Questions",
+  title: "Delivery, Freshness & Order FAQs",
   description:
-    "Answers to common questions about ordering, ingredients, freshness, delivery, and payments at Bhaktanjaneya Sweets.",
+    "Read answers on delivery timelines, freshness, ingredients, shelf life, payments, and order support at Bhaktanjaneya Sweets.",
 };
 
 export default function FaqPage() {

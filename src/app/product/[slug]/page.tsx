@@ -13,6 +13,7 @@ import { getProductFAQs } from "@/lib/faq";
 import { ProductFAQ } from "@/components/product/ProductFAQ";
 
 import { config } from "@/lib/config";
+import { LEGACY_LOCAL_SEO_KEYWORDS } from "@/lib/constants/seo-keywords";
 
 export const revalidate = 3600;
 
@@ -28,8 +29,8 @@ export async function generateMetadata(
   const p = await getProductBySlug(slug);
   if (!p) return { title: "Product" };
   const url = `${config.siteUrl}/product/${p.slug}`;
-  const title = `Buy ${p.name} Online | ${config.businessName}`;
-  let desc = p.description || `Buy fresh ${p.name} online from Bhaktanjaneya Sweets. Made with pure ghee & premium ingredients. Express delivery across India.`;
+  const title = `${p.name} Online | Pure Ghee Sweets | ${config.businessName}`;
+  let desc = p.description || `Buy fresh ${p.name} online from Bhaktanjaneya Sweets. Pure ghee taste, hygienic packing, and reliable India-wide delivery.`;
   if (desc.length > 155) {
     desc = desc.substring(0, 152) + "...";
   }
@@ -52,10 +53,12 @@ export async function generateMetadata(
     keywords: [
       p.name,
       `buy ${p.name} online`,
+      `${p.name} Rajahmundry`,
       p.categoryLabel ?? p.category,
       "pure ghee sweets",
       "traditional Indian sweets",
       "Bhaktanjaneya Sweets",
+      ...LEGACY_LOCAL_SEO_KEYWORDS,
     ],
   };
 }

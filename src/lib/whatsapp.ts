@@ -341,6 +341,7 @@ export function buildDeliveryWhatsAppMessage(
     "",
     `If you loved our products, we would be thrilled if you shared the joy!`,
     `*Post a story on Instagram* tagging us *@bhaktanjaneyasweets.in* and adding our website link: ${config.siteUrl}`,
+    `⭐ *Leave us a Google review:* ${config.googleReviewsUrl}`,
     "",
     `As a token of our appreciation, we'll send you:`,
     `🎁 A *complimentary sweet* on your next order`,

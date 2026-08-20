@@ -10,6 +10,7 @@ import { getCategoryImage } from "@/lib/images";
 import { sortProducts } from "@/lib/product";
 
 import { config } from "@/lib/config";
+import { LEGACY_LOCAL_SEO_KEYWORDS } from "@/lib/constants/seo-keywords";
 
 export const revalidate = 3600;
 
@@ -25,14 +26,21 @@ export async function generateMetadata(
   const c = await getCategory(slug);
   if (!c) return { title: "Collection" };
   const url = `${config.siteUrl}/collections/${c.slug}`;
-  const title = `Buy ${c.name} Online | ${config.businessName}`;
-  let desc = c.description ?? `Shop authentic ${c.name} online from Bhaktanjaneya Sweets. Fresh ingredients, pure ghee, nationwide delivery.`;
+  const title = `${c.name} Online | Fresh Pure Ghee Sweets | ${config.businessName}`;
+  let desc = c.description ?? `Buy ${c.name} online from Bhaktanjaneya Sweets. Freshly packed pure ghee sweets and namkeen with dependable delivery across India.`;
   if (desc.length > 155) {
     desc = desc.substring(0, 152) + "...";
   }
   return {
     title,
     description: desc,
+    keywords: [
+      c.name,
+      `${c.name} online`,
+      `${c.name} Rajahmundry`,
+      "Bhaktanjaneya Sweets",
+      ...LEGACY_LOCAL_SEO_KEYWORDS,
+    ],
     alternates: { canonical: url },
     openGraph: {
       title: `${c.name} | ${config.businessName}`,

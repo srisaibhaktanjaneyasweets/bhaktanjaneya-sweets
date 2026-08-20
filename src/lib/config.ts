@@ -15,7 +15,7 @@ export const config = {
   /** Link to the business's Google reviews / Maps listing. */
   googleReviewsUrl:
     process.env.NEXT_PUBLIC_GOOGLE_REVIEWS_URL ??
-    "https://share.google/VtpbijkHqNKIoOb48",
+    "https://g.page/r/CT_JqiIYW3uqEAI/review",
 
   /** Base URL for the Next.js API routes. Empty env resolves to /api. */
   apiBaseUrl: (process.env.NEXT_PUBLIC_API_BASE_URL || "/api").replace(/\/$/, ""),

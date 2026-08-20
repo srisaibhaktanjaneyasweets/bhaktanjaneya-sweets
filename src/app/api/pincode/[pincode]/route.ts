@@ -46,8 +46,8 @@ export async function GET(
     return aDelivery - bDelivery || (a.Name ?? "").localeCompare(b.Name ?? "");
   });
   const first = sortedOffices[0];
-  const district = first.District ?? "";
-  const city = first.Block || district || "";
+  const district = (first.District ?? "").trim();
+  const city = district || (first.Division ?? "").trim() || (first.Region ?? "").trim() || "";
 
   return NextResponse.json({
     pincode,
@@ -57,7 +57,7 @@ export async function GET(
     postOffices: sortedOffices.map((office) => ({
       name: office.Name ?? "",
       district: office.District ?? "",
-      city: office.Block || office.District || "",
+      city: (office.District ?? "").trim() || (office.Division ?? "").trim() || (office.Region ?? "").trim() || "",
       state: office.State ?? "",
     })) satisfies PincodeOffice[],
   });

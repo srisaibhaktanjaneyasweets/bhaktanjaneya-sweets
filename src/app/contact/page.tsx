@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { ContactClient } from "@/components/contact/ContactClient";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
+  title: "Contact Bhaktanjaneya Sweets | WhatsApp Orders",
   description:
-    "Get in touch with Bhaktanjaneya Sweets. Order on WhatsApp, call us, or send an enquiry about our sweets and namkeen.",
+    "Contact Bhaktanjaneya Sweets for quick WhatsApp orders, bulk sweets enquiries, gifting support, and delivery help across India.",
 };
 
 export default function ContactPage() {

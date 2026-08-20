@@ -9,6 +9,7 @@ import { CategoryNav } from "@/components/layout/CategoryNav";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { config } from "@/lib/config";
+import { LEGACY_LOCAL_SEO_KEYWORDS } from "@/lib/constants/seo-keywords";
 import { ToastHost } from "@/components/ui/ToastHost";
 
 
@@ -78,6 +79,7 @@ export const metadata: Metadata = {
     "Sri Sai Bhaktanjaneya Sweets",
     "Sri Sai Bhakthanjaneya Sweets",
     "Bhaktanjaneya Sweets Tapeswaram",
+    ...LEGACY_LOCAL_SEO_KEYWORDS,
   ],
   openGraph: {
     title: `${config.businessName} — Authentic Rajamundry & Tapeswaram Sweets`,

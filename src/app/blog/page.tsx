@@ -10,9 +10,9 @@ import { formatDate } from "@/lib/utils";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Sweets Blog | Recipes, Festivals & Gifting Ideas",
   description:
-    "Stories, recipes, and gifting ideas from Bhaktanjaneya Sweets — celebrating pure-ghee tradition one post at a time.",
+    "Explore Andhra sweets stories, festive gifting ideas, ingredient guides, and serving tips from Bhaktanjaneya Sweets.",
 };
 
 export default async function BlogPage() {
